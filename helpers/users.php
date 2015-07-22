@@ -273,7 +273,7 @@ class SLSUSERS {
     
     public function findWithRex($Rex, $Field) {
         try {
-            $fields = ["Nimi", "SLSjasenNumero", "Puhelin", "Sahkoposti", "syntymavuosi", "sukupuoli", "Tunniste", "Tila", "lisatty"];
+            $fields = array("Nimi", "SLSjasenNumero", "Puhelin", "Sahkoposti", "syntymavuosi", "sukupuoli", "Tunniste", "Tila", "lisatty");
             $match=false;
             foreach($fields as $f) {
                 if($f==$Field)
