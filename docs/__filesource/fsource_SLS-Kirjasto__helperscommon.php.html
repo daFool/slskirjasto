@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos -->
+			<title>File Source for common.php</title>
+			<link rel="stylesheet" href="../media/stylesheet.css" />
+			<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+		</head>
+		<body>
+						
+
+<h1>Source for file common.php</h1>
+<p>Documentation is available at <a href="../SLS-Kirjasto/_helpers---common.php.html">common.php</a></p>
+<div class="src-code">
+<div class="src-code"><ol><li><div class="src-line"><a name="a1"></a><span class="src-php">&lt;?php</span></div></li>
+<li><div class="src-line"><a name="a2"></a><span class="src-inc">require_once</span><span class="src-sym">(</span><span class="src-str">&quot;</span><span class="src-var">$basepath</span>/session.php<span class="src-str">&quot;</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a3"></a><span class="src-inc">require_once</span><span class="src-sym">(</span><span class="src-str">&quot;</span><span class="src-var">$basepath</span>/helpers/database.php<span class="src-str">&quot;</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a4"></a>&nbsp;</div></li>
+<li><div class="src-line"><a name="a5"></a>try&nbsp;<span class="src-sym">{</span></div></li>
+<li><div class="src-line"><a name="a6"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$db&nbsp;</span>=&nbsp;<span class="src-key">new&nbsp;</span><span class="src-id"><a href="../SLS-Kirjasto/SLSDB.html">SLSDB</a></span><span class="src-sym">(</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a7"></a><span class="src-sym">}</span></div></li>
+<li><div class="src-line"><a name="a8"></a>catch&nbsp;<span class="src-sym">(</span><span class="src-id">Exception&nbsp;</span><span class="src-var">$e</span><span class="src-sym">)&nbsp;</span><span class="src-sym">{</span></div></li>
+<li><div class="src-line"><a name="a9"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">die</span><span class="src-sym">(</span><span class="src-str">&quot;Ooops,&nbsp;joku&nbsp;törmäsi&nbsp;ovenpieleen...&quot;</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a10"></a><span class="src-sym">}</span></div></li>
+<li><div class="src-line"><a name="a11"></a>&nbsp;</div></li>
+<li><div class="src-line"><a name="a12"></a><span class="src-key">function&nbsp;</span><a href="../SLS-Kirjasto/_helpers---common.php.html#functionSLSMail">SLSMail</a><span class="src-sym">(</span><span class="src-var">$to</span><span class="src-sym">,&nbsp;</span><span class="src-var">$subject</span><span class="src-sym">,&nbsp;</span><span class="src-var">$message</span><span class="src-sym">,&nbsp;</span><span class="src-var">$headers</span><span class="src-sym">)&nbsp;</span><span class="src-sym">{</span></div></li>
+<li><div class="src-line"><a name="a13"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-inc">require_once&nbsp;</span><span class="src-str">&quot;Mail.php&quot;</span><span class="src-sym">;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a14"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$from&nbsp;</span>=&nbsp;<span class="src-str">&quot;Lautapelikirjasto&nbsp;&lt;mos@iki.fi&gt;&quot;</span><span class="src-sym">;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a15"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$host&nbsp;</span>=&nbsp;<span class="src-str">&quot;error.claymountain.com&quot;</span><span class="src-sym">;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a16"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$username&nbsp;</span>=&nbsp;<span class="src-str">&quot;spammer&quot;</span><span class="src-sym">;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a17"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$password&nbsp;</span>=&nbsp;<span class="src-str">&quot;kust1P0lk33#&quot;</span><span class="src-sym">;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a18"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$headers&nbsp;</span>=&nbsp;<span class="src-key">array&nbsp;</span><span class="src-sym">(</span><span class="src-str">'From'&nbsp;</span>=&gt;&nbsp;<span class="src-var">$from</span><span class="src-sym">,&nbsp;&nbsp;&nbsp;</span><span class="src-str">'To'&nbsp;</span>=&gt;&nbsp;<span class="src-var">$to</span><span class="src-sym">,&nbsp;&nbsp;&nbsp;</span><span class="src-str">'Subject'&nbsp;</span>=&gt;&nbsp;<span class="src-var">$subject</span><span class="src-sym">)</span><span class="src-sym">;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a19"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$smtp&nbsp;</span>=&nbsp;<span class="src-id">Mail</span><span class="src-sym">::</span><span class="src-id">factory</span><span class="src-sym">(</span><span class="src-str">'smtp'</span><span class="src-sym">,&nbsp;&nbsp;&nbsp;</span><span class="src-key">array&nbsp;</span><span class="src-sym">(</span><span class="src-str">'host'&nbsp;</span>=&gt;&nbsp;<span class="src-var">$host</span><span class="src-sym">,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="src-str">'auth'&nbsp;</span>=&gt;&nbsp;<span class="src-id">true</span><span class="src-sym">,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="src-str">'username'&nbsp;</span>=&gt;&nbsp;<span class="src-var">$username</span><span class="src-sym">,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="src-str">'password'&nbsp;</span>=&gt;&nbsp;<span class="src-var">$password</span><span class="src-sym">))</span><span class="src-sym">;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a20"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-var">$mail&nbsp;</span>=&nbsp;<span class="src-var">$smtp</span><span class="src-sym">-&gt;</span><span class="src-id">send</span><span class="src-sym">(</span><span class="src-var">$to</span><span class="src-sym">,&nbsp;</span><span class="src-var">$headers</span><span class="src-sym">,&nbsp;</span><span class="src-var">$message</span><span class="src-sym">)</span><span class="src-sym">;&nbsp;&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a21"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">if&nbsp;</span><span class="src-sym">(</span><span class="src-id">PEAR</span><span class="src-sym">::</span><span class="src-id">isError</span><span class="src-sym">(</span><span class="src-var">$mail</span><span class="src-sym">))&nbsp;</span><span class="src-sym">{&nbsp;&nbsp;&nbsp;</span><span class="src-key">die</span><span class="src-sym">(</span><span class="src-str">&quot;&lt;p&gt;&quot;&nbsp;</span>.&nbsp;<span class="src-var">$mail</span><span class="src-sym">-&gt;</span><span class="src-id">getMessage</span><span class="src-sym">(</span><span class="src-sym">)&nbsp;</span>.&nbsp;<span class="src-str">&quot;&lt;/p&gt;&quot;</span><span class="src-sym">)</span><span class="src-sym">;&nbsp;&nbsp;</span><span class="src-sym">}</span></div></li>
+<li><div class="src-line"><a name="a22"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">return&nbsp;</span><span class="src-id">true</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a23"></a><span class="src-sym">}</span></div></li>
+<li><div class="src-line"><a name="a24"></a><span class="src-php">?&gt;</span></div></li>
+</ol></div>
+</div>
+	<p class="notes" id="credit">
+		Documentation generated on Tue, 28 Apr 2015 20:25:19 +0300 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.4</a>
+	</p>
+	</body>
+</html>

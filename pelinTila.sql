@@ -1,0 +1,21 @@
+drop function if exists pelinTila(varchar, varchar) cascade;
+create function pelinTila(IN huomautus varchar, IN tunniste varchar) returns varchar as $$
+declare
+        lainarivi LAINA%ROWTYPE;
+        
+begin
+        IF huomautus is not null and huomautus='poistettu' then
+                return 'Poistettu';
+        end if;
+        select into lainarivi * from laina where kokoelmapeli=tunniste order by modified desc limit 1;
+        if not found then
+                return 'Vapaa';
+        end if;
+        if lainarivi.palautettu is null then
+                return 'Lainassa';
+        end if;
+        return 'Vapaa';
+end;
+$$ language 'plpgsql';
+grant execute on function pelinTila(varchar, varchar) to sls;
+

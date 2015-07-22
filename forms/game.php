@@ -1,0 +1,185 @@
+<?php
+/**
+ * Pelin lisääminen - lomake
+ *
+ *  *
+ * @uses globals.php
+ * @uses common.php
+ * @uses uses.php
+ * @uses minrights.php
+ * 
+ * @package SLS-Kirjasto
+ * @license http://opensource.org/licenses/GPL-2.0
+ * @author Mauri "mos" Sahlberg
+ *
+ * */
+require_once("../globals.php");
+require_once("$basepath/helpers/common.php");
+require_once("$basepath/helpers/users.php");
+require_once("$basepath/helpers/minrights.php");
+
+/**
+ * Paluu virhetilanteessa
+ *
+ * Populoi get-parametreilla lomakkeen kentät.
+ * @param string $field Kenttä, jonka arvo etsitään
+ * return mixed Kentän arvo tai tyhjää
+ * */
+function returnValues($field) {
+    $res="";
+    if(isset($_GET[$field])) {
+        $t = htmlspecialchars($_GET[$field]);
+        $res=" value=\"$t\"";
+    }
+    return $res;
+}
+
+$kokoelma = isset($_REQUEST['collection']) ? $_REQUEST['collection'] : false;
+if($kokoelma===false) {
+    header("Location: $baseurl/index.php");
+    die();
+}
+$virhe = isset($_REQUEST['virhe']) ? htmlspecialchars(urldecode($_REQUEST['virhe'])) : false;
+$_SESSION["paluu"]="{$baseurl}/forms/game.php";
+$metodi = isset($_REQUEST['metodi']) ? $_REQUEST['metodi'] : 'uusi';
+$peliid = isset($_REQUEST['tunniste']) ? $_REQUEST['tunniste'] : false;
+
+include_once("$basepath/html_base.html");
+?>
+    <script type="text/javascript">
+        $(function() {
+            function checkEm() {
+                var lomake = document.getElementById("peli");
+                if (lomake.checkValidity()==true) {
+                    $("#tallenna").removeAttr("disabled");
+                }
+                else {
+                    $("#tallenna").attr("disabled", "true");
+                }
+            }
+            
+            $("#bgglinkki").blur(function () {
+                var linkki = $("#bgglinkki").val();
+                var foo=document.getElementById("bgglinkki");
+                if (foo.validity.valid==true) {
+                   $.getJSON("<?php echo $baseurl;?>/json_geek.php?geekurl="+encodeURIComponent(linkki), function (json) {
+                        if (json.virhe=="False" || json.virhe==false) {
+                            $("#vuosi").val(json.vuosi);
+                            $("#nimi").val(json.nimi);
+                            $("#suunnittelija").val(json.suunnittelija);
+                            $("#julkaisija").val(json.julkaisija);
+                            $("#pelaajia").val(json.pelaajia);
+                            $("#kesto").val(json.aika);
+                            checkEm();
+                        }
+                        else
+                            console.log(json.virhe);
+                        
+                   })
+                }
+                else
+                    console.log(linkki+" ei ole validi.");                
+            })
+            $("#omistaja").autocomplete({
+                source : "<?php echo $baseurl; ?>/json_lainaaja.php",
+                minlength: 2
+            })
+            $("#nimi").blur(function () { checkEm(); });
+            $("#suunnittelija").blur(function () { checkEm(); });
+            $("#julkaisija").blur(function () { checkEm();});
+            $("#pelaajia").blur(function () { checkEm();});
+            $("#kesto").blur(function () { checkEm();});
+            $("#vuosi").blur(function () { checkEm()});
+            $("#omistaja").blur(function () { checkEm()});
+            $("#lahjoittaja").blur(function () { checkEm()});
+            $("#tallenna").on('click', function () {
+                console.log("Submit");
+                $("#peli").submit();
+            })
+            $("#vbutton").on('click', function () {
+		$("#varoitus").hide();
+	    })
+
+            <?php if($metodi<>'lisää' && $peliid!==false) { ?>
+            $.getJSON("<?php echo "{$baseurl}/json_collection_game.php?id=".urlencode($peliid);?>", function (json) {
+                if (json.kilroy!="") {
+                    alert(json.kilroy);
+                    window.location="<?php echo $baseurl;?>/index.php";
+                }
+                $.each(json, function (index, value) {
+                    console.log(index);
+                    console.log(value)
+                    $("#"+index).val(value);
+                    
+                })
+            })
+            <?php
+            }
+            if($virhe!==false) {
+                ?>
+                $("#warning").html("<?php echo $virhe;?>");
+                $("#varoitus").show();
+                <?php
+            } ?>
+            <?php
+            if(isset($_SESSION["ra"])) {
+                foreach($_SESSION["ra"] as $key=>$value) {
+                    echo "$(\"#$key\").val(\"$value\")\n";
+                }
+                unset($_SESSION["ra"]);
+            }
+            ?>
+        })
+    </script>
+    <title><?php echo _("Pelin lisäys/muokkaus");?></title>
+    </head>
+    <body>
+        <?php include_once("$basepath/navbar.html"); ?>
+        <section class='container'>
+            <div class="row">
+                <section class='col-xs-12 col-sm-6 col-md-6'>
+                    <section>
+                        <h2><?php echo _("Pelin lisääminen/muokkaaminen");?></h2>
+                        <p><?php echo _("Jos lisäät pelin bgg-linkkikentän kautta, käy pyyhkimässä nimien ja julkaisijoiden joukosta väärien edikoiden tiedot!");?>
+                        <?php echo _("<b>BGG-kentässä käyminen</b> palauttaa täydet pelitiedot!");?></p>
+                        <form name="peli" id="peli" method="POST" action="<?php echo $baseurl;?>/lisaaPeli.php">
+                            <input type="hidden" name="metodi" id="metodi" value="<?php echo $metodi;?>"/>
+                            <input type="hidden" name="peliid" id="peliid" value=""/>
+                            <input type="hidden" name="kokoelmapeliid" id="kokoelmapeliid" value="<?php echo htmlspecialchars($peliid);?>"/>
+                            <input type="hidden" name="kokoelma" value="<?php echo $kokoelma;?>"/>
+                            <input type="hidden" id="kilroy" value=""/>
+                            <label for="nimi"><?php echo _("Pelin nimi: ");?><input type="text" name="nimi" id="nimi" required="true" size="40" maxlength="255"/></label>
+                            <label for="suunnittelija"><?php echo _("Suunnittelija: ");?><input type="text" name="suunnittelija" id="suunnittelija" required="true" size="40"
+                                                                                               maxlength="255"/></label>
+                            <label for="julkaisija"><?php echo _("Julkaisija: ");?><input type="text" name="julkaisija" id="julkaisija" required="true" size="40"
+                            maxlength="255"/></label>
+                            <label for="bgglinkki"><?php echo _("BGG-linkki: ");?><input type="url" name="bgglinkki" id="bgglinkki" size="40" maxlength="255"
+                                                                                         pattern="https?://www.boardgamegeek.com/boardgame/[0123456789]+/[0-9a-zA-Z-]*"/></label>
+                            <label for="pelaajia"><?php echo _("Pelaajia: ");?><input type="text" name="pelaajia" size="10" maxlenght="255" id="pelaajia"/></label>
+                            <label for="kesto"><?php echo _("Kesto minuuteissa: ");?><input type="number" name="kesto" id="kesto" min="0" max="640"/></label>
+                            <label for="vuosi"><?php echo _("Julkaisuvuosi: ");?><input type="number" min="1900" max="2100" name="vuosi" id="vuosi"/></label>
+                            <label for="huomautus"><?php echo _("Huomautus: ");?><input tpye="text" name="huomautus" id="huomautus"/></label>
+                            <label for="omistaja"><?php echo _("Omistaja: ");?><input type="text" required="true" name="omistaja" id="omistaja" size="20" maxlength="255"/></label>
+                            <label for="lahjoittaja"><?php echo _("Lahjoittaja: ");?><input type="text" name="lahjoittaja" id="lahjoittaja" size="20"
+                                                                                          maxlength="255" /></label>
+                            <label for="lahjoittajanurl"><?php echo _("Lahjoittajan www-osoite:");?><input type="url" name="lahjoittajawww"
+                            id="lahjoittajawww" size="80" maxlenght="255"/>
+                            <label for="hylly"><?php echo _("Hylly: ");?><input type="text" name="hylly" id="hylly" size="10" maxlength="255"/></label>
+                            <label for="paikka"><?php echo _("Paikka: ");?><input type="text" name="paikka" id="paikka" size="10" maxlength="255"/></label>
+                            <label for="laatikko"><?php echo _("Laatikko: ");?><input type="text" name="laatikko" id="laatikko" size="10" maxlength="255"/></label>
+                            <label for="kunto"><?php echo _("Kunto: ");?><input type="text" name="kunto" id="kunto" size="40" maxlength="255"/></label>
+                            <label for="gtin"><?php echo _("GTIN: ");?><input type="text" id="gtin" name="gtin" size="20" maxlength="255"/></label>                            
+                            <button type="button" class="btn btn-lg btn-default" id="tallenna" disabled="true"><?php echo _("Lisää");?></button>
+                            </label>
+                        </form>
+                        <div class="alert alert-warning collapse" role="alert" id="varoitus">
+				<button type="button" class="close" id="vbutton" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<span id="warning">Varoitus</span>
+			</div>
+                    </section>
+                </section>
+            </div>
+        </section>
+        <?php include_once("$basepath/footer.html");?>
+    </body>
+</html>
