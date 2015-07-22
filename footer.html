@@ -1,4 +1,4 @@
-    <footer class="footer>
+    <footer class="footer">
           <div class="container">
             <?php if(isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {?>
             <?php echo _("Olet kirjautunut nimellä: ");?><span class="nimi"><?php echo $_SESSION['user']['nimi'];?></span><?php echo _(" ja käyttäjätasosi on ");?><span class="taso"><?php echo $_SESSION['user']['tila'];?></span>.              
