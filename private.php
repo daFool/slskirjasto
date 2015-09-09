@@ -1,3 +1,0 @@
-<?php
-$dbpassword="foobar";
-?>
