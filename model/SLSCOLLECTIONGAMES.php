@@ -45,7 +45,7 @@ class SLSCOLLECTIONGAMES {
             $s = "insert into kokoelmapeli (kokoelma, peli, omistaja, lisaaja, tunniste";
             $sv = "values(:kokoelma, :peli, :omistaja, :lisaaja, :tunniste";
             $d = array("kokoelma"=>$cg["Kokoelma"], "peli"=>$cg["Peli"], "omistaja"=>$cg["Omistaja"], "lisaaja"=>$cg["Lisaaja"], "tunniste"=>$cg["Tunniste"]);
-            $optionals = ["Lahjoittaja", "Hylly", "Paikka", "Varasto", "Laatikko", "Kunto", "Huomautus"];
+            $optionals = array("Lahjoittaja", "Hylly", "Paikka", "Varasto", "Laatikko", "Kunto", "Huomautus");
             
             if(isset($cg["lahjoittaja"])) {
                 $t = $this->lahjoittaja($cg["Lahjoittaja"], isset($cg["LahjoittajanUrl"]) ? $cg["LahjoittajanUrl"] : "");
@@ -79,8 +79,8 @@ class SLSCOLLECTIONGAMES {
      * */
     public function findWithRex($Rex, $Field, $Kokoelma) {
         try {
-            $fields = ["Nimi", "Suunnittelija", "Julkaisija", "Tunniste", "GTIN", "Lisatty", "Kesto", "Pelaajia", "omistaja","lisaaja",
-                       "Lahjoittaja"];
+            $fields = array("Nimi", "Suunnittelija", "Julkaisija", "Tunniste", "GTIN", "Lisatty", "Kesto", "Pelaajia", "omistaja","lisaaja",
+                       "Lahjoittaja");
             $match=false;
             foreach($fields as $f) {
                 if($f==$Field) {
@@ -167,7 +167,8 @@ class SLSCOLLECTIONGAMES {
                 $st = $this->db->prepare($s);
                 $res = $st->execute(array("v"=>$v, "k"=>$Kokoelma));
                 if($res && $st->rowCount()>0) {
-                    $tulos["filtered"]=$st->fetch()["lkm"];
+		    $a=$st->fetch();
+                    $tulos["filtered"]=$a["lkm"];
                 }
             }
             return $tulos;

@@ -112,7 +112,8 @@ class SLSGAMES {
                 $st = $this->db->prepare($s);
                 $res = $st->execute(array("v"=>$v));
                 if($res && $st->rowCount()>0) {
-                    $tulos["filtered"]=$st->fetch()["lkm"];
+		    $a=$st->fetch();
+                    $tulos["filtered"]=$a["lkm"];
                 }
             }
             return $tulos;

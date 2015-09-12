@@ -7,22 +7,22 @@
 BEGIN WORK;
 -- ======================================================================
 
-DROP TABLE Laina;
-DROP TABLE KokoelmaPeli;
-DROP TABLE Logi;
-DROP TABLE KayttajaTunnistus;
-DROP TABLE Peliarvio;
-DROP TABLE Arvio;
-DROP TABLE Tagiehdotus;
-DROP TABLE Pelitagi;
-DROP TABLE Tagi;
-DROP TABLE Kayttajarooli;
-DROP TABLE Varasto;
-DROP TABLE Kokoelma;
-DROP TABLE Tapahtuma;
-DROP TABLE Lahjoittaja;
-DROP TABLE Peli;
-DROP TABLE Kayttaja;
+-- DROP TABLE Laina;
+-- DROP TABLE KokoelmaPeli;
+-- DROP TABLE Logi;
+-- DROP TABLE KayttajaTunnistus;
+-- DROP TABLE Peliarvio;
+-- DROP TABLE Arvio;
+-- DROP TABLE Tagiehdotus;
+-- DROP TABLE Pelitagi;
+-- DROP TABLE Tagi;
+-- DROP TABLE Kayttajarooli;
+-- DROP TABLE Varasto;
+-- DROP TABLE Kokoelma;
+-- DROP TABLE Tapahtuma;
+-- DROP TABLE Lahjoittaja;
+-- DROP TABLE Peli;
+-- DROP TABLE Kayttaja;
 
 -- ======================================================================
 
