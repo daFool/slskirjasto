@@ -1,7 +1,6 @@
 <?php
-require_once("globals.php");
+require_once("../globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/collectionGames.php");
 
 $d = array();
 $cg = new SLSCOLLECTIONGAMES($db);

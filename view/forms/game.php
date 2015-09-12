@@ -61,7 +61,7 @@ include_once("$basepath/view/html_base.html");
                 var linkki = $("#bgglinkki").val();
                 var foo=document.getElementById("bgglinkki");
                 if (foo.validity.valid==true) {
-                   $.getJSON("<?php echo $baseurl;?>/json_geek.php?geekurl="+encodeURIComponent(linkki), function (json) {
+                   $.getJSON("<?php echo $baseurl;?>/json/json_geek.php?geekurl="+encodeURIComponent(linkki), function (json) {
                         if (json.virhe=="False" || json.virhe==false) {
                             $("#vuosi").val(json.vuosi);
                             $("#nimi").val(json.nimi);

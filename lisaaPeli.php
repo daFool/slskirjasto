@@ -17,12 +17,6 @@
  * */
 require_once("globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/database.php");
-require_once("$basepath/helpers/users.php");
-require_once("$basepath/helpers/collections.php");
-require_once("$basepath/helpers/collectionGames.php");
-require_once("$basepath/helpers/lahjoittajat.php");
-require_once("$basepath/helpers/games.php");
 require_once("$basepath/helpers/maxrights.php");
 
 $paluu = isset($_SESSION["paluu"]) ? $_SESSION["paluu"] : false;
@@ -146,6 +140,6 @@ if($res === false) {
     unset($cg["Peli"]);
     $c->update($cg);
 }
-$target=UrlMungler("{$baseurl}/collection_main.php?collection=$collection");
+$target="{$baseurl}/collection_main.php?collection=$collection";
 header("Location: $target");
 ?>

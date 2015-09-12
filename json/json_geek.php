@@ -8,7 +8,7 @@
  * @uses globals.php
  * @uses common.php
  * */
-require_once("globals.php");
+require_once("../globals.php");
 require_once("$basepath/helpers/common.php");
 
 // http://www.boardgamegeek.com/xmlapi/boardgame/172933

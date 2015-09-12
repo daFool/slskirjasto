@@ -8,16 +8,13 @@
  * @license http://opensource.org/licenses/GPL-2.0
  * @author Mauri "mos" Sahlberg
  * */
-require_once("globals.php");
+require_once("../globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/database.php");
-require_once("$basepath/helpers/users.php");
 
 $term = isset($_REQUEST["term"]) ? $_REQUEST["term"] : false;
 $result = array(_("Ei hakutermiä"));
 
 if($term !== false) {
-    $db = new SLSDB();
     $users = new SLSUSERS($db);
     $result = $users->searchWithNamePart($term);
     if($result === false)
