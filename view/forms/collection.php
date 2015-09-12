@@ -11,7 +11,7 @@
  * @author Mauri "mos" Sahlberg
  *
  * */
-require_once("../globals.php");
+require_once("../../globals.php");
 require_once("$basepath/helpers/common.php");
 require_once("$basepath/helpers/minrights.php");
 
@@ -34,12 +34,12 @@ function returnValues($field) {
 
 $error = isset($_REQUEST['error']) ? htmlspecialchars(urldecode($_REQUEST['error'])) : false;
 
-include_once("$basepath/html_base.html");
+include_once("$basepath/view/html_base.html");
 ?>
         <title><?php echo _("Kokoelman lisäys/muokkaus");?></title>
     </head>
     <body>
-        <?php include_once("$basepath/navbar.html");?>
+        <?php include_once("$basepath/view/navbar.html");?>
         <div class="container"
 	<section class='col-xs-12 col-sm-6 col-md-8'>
             <h2><?php echo _("Kokoelman lisäys/muutos");?></h2>
@@ -69,6 +69,6 @@ include_once("$basepath/html_base.html");
                     </fieldset>
                     <input type="submit" value="Talleta"/>
             </form>
-            <?php include_once("$basepath/footer.html");?>
+            <?php include_once("$basepath/view/footer.html");?>
     </body>
 </html>
