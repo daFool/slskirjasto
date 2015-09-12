@@ -18,8 +18,6 @@
 
 require_once("globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/collections.php");
-require_once("$basepath/helpers/users.php");
 require_once("$basepath/helpers/minrights.php");
 
 /**
@@ -30,7 +28,7 @@ require_once("$basepath/helpers/minrights.php");
  * */
 function error($message) {
     $a = array("nimi", "laji", "tnimi", "sijainti", "alkupvm", "loppupvm");
-    $url="forms/collection.php?error=$message";
+    $url="view/forms/collection.php?error=$message";
     $params="";
     foreach($a as $i) {
         if(isset($_POST[$i])) {
@@ -101,18 +99,18 @@ $res = $col->addCOllection($collection);
 if(!$res) {
     error(_("Kokoelman lisääminen epäonnistui."));
 }
-include_once("$basepath/html_base.html");
+include_once("$basepath/view/html_base.html");
 ?>
     <title><?php echo _("Kokoelman lisääminen");?></title>
 
     </head>
     <body>
-        <?php include_once("navbar.html");?>
+        <?php include_once("$basepath/view/navbar.html");?>
         <div class="container"
 	    <section class='col-xs-12 col-sm-6 col-md-8'>
                 <h2><?php echo _("Kokoelma luotu onnistuneesti");?></h2>
             </section>
         </div>
-        <?php include_once("footer.html");?>
+        <?php include_once("$basepath/view/footer.html");?>
     </body>
 </html>

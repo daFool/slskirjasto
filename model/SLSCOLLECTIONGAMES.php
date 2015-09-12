@@ -277,6 +277,8 @@ class SLSCOLLECTIONGAMES {
                 return false;
             if(isset($cg["LahjoittajanUrl"]))
                 unset($cg["LahjoittajanUrl"]);
+            if($cg["Lahjoittaja"]=="")
+                $cg["Lahjoittaja"]=null;
             $res = $st->execute($cg);
             return $res;
         
