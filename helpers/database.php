@@ -69,7 +69,6 @@ class SLSDB {
             }
             else
                 $kuka = "anonymous";
-            require_once("$basepath/helpers/users.php");
             $users = new SLSUSERS($this);
             $d =array("mita"=>$viesti, "tiedosto"=>$tiedosto, "mika"=>$mika, "rivi"=>$rivi, "luokka"=>$luokka);
             if(!$users->checkUser($kuka)) {

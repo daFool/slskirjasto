@@ -13,7 +13,6 @@
 
 require_once("globals.php");
 require_once("helpers/common.php");
-require_once("helpers/users.php");
 
 /**
  * Virhe kirjautumisessa
@@ -23,7 +22,7 @@ require_once("helpers/users.php");
  * @param string $message Virheilmoitus
  * */
 function error($message) {
-    $url="forms/login.php?";
+    $url="$baseurl/view/forms/login.php?";
     $params="error=$message";
     header("Location: {$url}{$params}");
     die();
@@ -42,9 +41,9 @@ if($users->checkLocalAuth($salasana, $ktunnus)===false)
 $_SESSION["loggedin"]=true;
 $_SESSION["user"]=$users->fetchWithTunnus($ktunnus);
 if($_SESSION['user']===false) {
-    die("WTF? Kirjautunut, mutta ei tietoja?");
+    die(_("WTF? Kirjautunut, mutta ei tietoja?"));
 }
 $db->log(sprintf(_("Käyttäjä %s kirjautui paikallisesti."), $ktunnus),__FILE__,__FUNCTION__,__LINE__, "AUDIT");
-$target=UrlMungler("{$baseurl}/index.php");
+$target="{$baseurl}/index.php";
 header("Location: $target");
 ?>

@@ -9,9 +9,8 @@
  * @uses database.php
  * @uses collections.php
  * */
-require_once("globals.php");
-require_once("$basepath/helpers/database.php");
-require_once("$basepath/helpers/collections.php");
+require_once("../globals.php");
+require_once("$basepath/helpers/common.php");
 
 $db = new SLSDB();
 

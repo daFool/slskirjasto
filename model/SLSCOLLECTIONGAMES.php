@@ -9,7 +9,6 @@
  * @author Mauri "mos" Sahlberg
  *
  * */
-require_once("$basepath/helpers/lahjoittajat.php");
 /**
  * Pelikokoelman pelit
  *

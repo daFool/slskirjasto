@@ -1,8 +1,6 @@
 <?php
 require_once("globals.php");
-require_once("$basepath/helpers/users.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/lainat.php");
 require_once("$basepath/helpers/maxrights.php");
 
 $lainat = new SLSLainat($db);
@@ -15,7 +13,7 @@ if($peli===false || $kokoelma===false || $tunniste===false)
 else
     $tulos = $lainat->Palauta($tunniste);
 
-include_once("html_base.html");
+include_once("$basepath/view/html_base.html");
 ?>
 	<title><?php echo _("Palautus");?></title>
 	<script type="text/javascript">
@@ -28,7 +26,7 @@ include_once("html_base.html");
 		
 	</script>
 <body>
-	<?php include_once("$basepath/navbar.html");?>
+	<?php include_once("$basepath/view/navbar.html");?>
 	<div class="container"
 		<section class='col-xs-12 col-sm-6 col-md-8'>
 			<h2><?php echo _("Palautus");?></h2>
@@ -44,6 +42,6 @@ include_once("html_base.html");
 			<button type="button" lass="btn btn-lg btn-default" id="paluu"><?php echo _("Palaa");?></button>
 		</section>
 	</div>
-	 <?php include_once("$basepath/footer.html");?>
+	 <?php include_once("$basepath/view/footer.html");?>
 </body>
 </html>

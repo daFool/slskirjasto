@@ -10,14 +10,33 @@
  * 
  * */
 
+ /**
+  * Class autoloading
+  * @param string $class Name of the class to autoload
+  * */
+ function autoload($class) {
+    global $basepath;
+    if(file_exists("$basepath/model/$class.php")) {
+        require("$basepath/model/$class.php");
+        return;
+    }
+    elseif(file_exists("$basepath/helpers/$class.php")) {
+        require("$basepath/helpoers/$class.php");
+    }
+ }
+
+spl_autoload_register('autoload');
+ 
+$db=false;
 require_once("$basepath/session.php");
 require_once("$basepath/helpers/database.php");
 
 try {
-    $db = new SLSDB();
+    if($db===false)
+        $db = new SLSDB();
 }
 catch (Exception $e) {
-    die("Ooops, joku törmäsi ovenpieleen...");
+    die(_("Tietokanta ei auennut."));
 }
 
 /**
@@ -37,13 +56,18 @@ function SLSMail($to, $subject, $message, $headers) {
     global $email_password;
     global $email_from;
     global $email_host;
+    global $email_auth;
     
     $from = $email_from;
     $host = $email_host;
     $username = $email_user;
     $password = $email_password;
-    $headers = array ('From' => $from,   'To' => $to,   'Subject' => $subject); 
-    $smtp = Mail::factory('smtp',   array ('host' => $host,     'auth' => true,     'username' => $username,     'password' => $password));  
+    $headers = array ('From' => $from,   'To' => $to,   'Subject' => $subject);
+    if($email_auth) 
+        $smtp = Mail::factory('smtp',   array ('host' => $host,     'auth' => true,     'username' => $username,     'password' => $password));
+    else
+        $smtp = Mail::factory('smtp', array('host'=>$host, 'auth'=>false));
+        
     $mail = $smtp->send($to, $headers, $message);  
     if (PEAR::isError($mail)) {   die("<p>" . $mail->getMessage() . "</p>");  }
     return true;

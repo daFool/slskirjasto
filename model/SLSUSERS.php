@@ -19,7 +19,7 @@ class SLSUSERS {
    /** @var handle Database handle **/
     private $db;
     /** @var object SLS Database **/
-        private $dbc;
+    private $dbc;
     
     /**
      * Constructor
@@ -241,6 +241,12 @@ class SLSUSERS {
         }
     }
     
+    /**
+     * Haku käyttäjätunnuksella
+     * Käytetään ensisijaisesti paikallisessa sisäänkirjautumisessa
+     * @param string $ktunnus Käyttäjätunnus, jota haetaan
+     * @return array Palauttaa käyttäjän tiedot
+     * */
     public function fetchWithTunnus($ktunnus) {
         try {
             $s = "select * from kayttaja where tunniste=:tunniste;";
@@ -252,7 +258,7 @@ class SLSUSERS {
             return $row;
         }
         catch(PDOException $e) {
-            die("Programming error: {$e->getMessage()}");
+            die(sprintf(_("Ohjelmointivirhe: %s"),$e->getMessage()));
         }
     }
     

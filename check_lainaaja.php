@@ -15,8 +15,7 @@
  **/
 
 require_once("globals.php");
-require_once("$basepath/helpers/database.php");
-require_once("$basepath/helpers/users.php");
+require_once("$basepath/helpers/common.php");
 
 /**
  * @var string Nimi, jolla lainaajaa haetaan.
@@ -27,7 +26,6 @@ $tunniste = isset($_REQUEST["tunniste"]) ? $_REQUEST["tunniste"] : false;
 $jasennumero = isset($_REQUEST["jasennumero"]) ? $_REQUEST["jasennumero"] : false;
 
 $result = array(_("Ei hakutermiä"));
-$db = new SLSDB();
 $users = new SLSUSERS($db);
     
 if($lainaaja !== false) {

@@ -14,21 +14,19 @@
  * @author Mauri "mos" Sahlberg
  *
  * */
-require_once("../globals.php");
-require_once("$basepath/helpers/users.php");
+require_once("../../globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/collections.php");
 require_once("$basepath/helpers/maxrights.php");
 
 $collection = isset($_REQUEST["collection"]) ? $_REQUEST["collection"] : false;
 $gameid = isset($_REQUEST["tunniste"]) ? $_REQUEST["tunniste"] : false;
 $game = isset($_REQUEST["peli"]) ? $_REQUEST["peli"] : false;
-$_SESSION["paluu"]="$baseurl/forms/lainaus.php?collection=".urlencode($collection)."&tunniste=".urlencode($gameid)."&peli=".urlencode($game);
+$_SESSION["paluu"]="$baseurl/view/forms/lainaus.php?collection=".urlencode($collection)."&tunniste=".urlencode($gameid)."&peli=".urlencode($game);
 if(!$collection) {
-    $target=UrlMungler("{$basepath}/index.php");
+    $target="{$basepath}/index.php";
     header("Location: $target");
 }
-include_once("$basepath/html_base.html");
+include_once("$basepath/view/html_base.html");
 ?>
     <title><?php echo _("Lainaus");?></title>
     <script type="text/javascript">
@@ -77,7 +75,7 @@ include_once("$basepath/html_base.html");
             }
             
             $("#lainaaja").autocomplete({
-                source : "<?php echo $baseurl; ?>/json_lainaaja.php",
+                source : "<?php echo $baseurl; ?>/json/json_lainaaja.php",
                 minlenght: 2,
                 select : function (event, ui) {
                     lainaaja = ui.item.value;
@@ -87,7 +85,7 @@ include_once("$basepath/html_base.html");
             })
             
             $("#tunniste").autocomplete({
-                source : "<?php echo $baseurl; ?>/json_tunniste.php",
+                source : "<?php echo $baseurl; ?>/json/json_tunniste.php",
                 minlenght: 2,
                 select : function (event, ui) {
                     tunniste = ui.item.value;
@@ -145,7 +143,7 @@ include_once("$basepath/html_base.html");
             })
             
             $("#uusi").on('click', function() {
-                window.location="<?php echo $baseurl;?>/forms/register.php?register_type=Lainaaja";
+                window.location="<?php echo $baseurl;?>/view/forms/register.php?register_type=Lainaaja";
             })
             
         })
@@ -155,7 +153,7 @@ include_once("$basepath/html_base.html");
 </head>
 
 <body>
-    <?php include_once("$basepath/navbar.html");?>
+    <?php include_once("$basepath/view/navbar.html");?>
     <div class="container"
 	<section class='col-xs-12 col-sm-6 col-md-8'>
             <h2><?php echo _("Lainaus");?></h2>
@@ -180,6 +178,6 @@ include_once("$basepath/html_base.html");
                 </fieldset>
             </form>
     </div>
-    <?php include_once("$basepath/footer.html");?>
+    <?php include_once("$basepath/view/footer.html");?>
 </body>
 </html>

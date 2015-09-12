@@ -16,6 +16,7 @@ session_set_cookie_params(SESSION_TIMEOUT, SESSION_COOKIEPATH);
 session_cache_expire(SESSION_TIMEOUT);
 session_cache_limiter("nocache");
 session_start();
+setcookie(session_name(), session_id(), time()+SESSION_TIMEOUT, SESSION_COOKIEPATH);
 
 if(!isset($_SESSION['activity'])) {
     $_SESSION['activity']=time();
@@ -40,7 +41,7 @@ if (isset($_REQUEST['logout']) || $logout===true) {
     // Unset all of the session variables.
     $_SESSION = array();
     
-    // If it's desired to kill the session, also delete the session cookie.
+    // If it is desired to kill the session, also delete the session cookie.
     // Note: This will destroy the session, and not just the session data!
     if (ini_get("session.use_cookies")) {
         $params = session_get_cookie_params();

@@ -7,11 +7,7 @@
  * */
 require_once("globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/collections.php");
 require_once("$basepath/helpers/tuoSLS.php");
-require_once("$basepath/helpers/games.php");
-require_once("$basepath/helpers/lahjoittajat.php");
-require_once("$basepath/helpers/collectionGames.php");
 require_once("$basepath/helpers/maxrights.php");
 
 $error="";
@@ -61,6 +57,10 @@ if($slspelit===false) {
             $cg["Huomautus"]=$slspeli["huomautus"];
             $cg["Tunniste"]=$slspeli["id"];
             $cg["Lisaaja"]=$cg["Omistaja"];
+            if(is_array($cg["Lahjoittaja"])) {
+                print_r($cg);
+                die("Um?");
+            }
             $res = $cgames->add($cg);
             if(!$res) {
                 $error = _("Kokoelmapelin lisääminen epäonnistui.");
@@ -70,23 +70,5 @@ if($slspelit===false) {
         }   
     }
 }
-include_once("$basepath/html_base.html");
-?>
-        <title><?php echo _("Tuo SLS-pelit");?></title>
-    </head>
-    <body>
-        <?php include_once("$basepath/navbar.html");?>
-        <div class="container">
-            <section class='col-xs-12 col-sm-6 col-md-8'>
-                <?php if($error!="") {
-                    ?>
-                    <div class="error"><?php echo $error;?></div>
-                <?php } ?>
-                <p><?php printf(_("Tuotiin onnistuneesti %d peliä ja %d merkintää jätettiin käsittelemättä."),$o,$e);?> </p>
-                <?php if($collection) { ?>
-                <p><?php printf(_("Kokoelmaan SLS lisättiin %d peliä."),$ci);?></p>
-                <?php } ?>
-            </section>
-        </div>
-    </body>
-</html>
+include_once("$basepath/view/html_base.html");
+include_once("$basepath/view/slstuonti.php");
