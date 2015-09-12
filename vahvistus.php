@@ -1,7 +1,6 @@
 <?php
 require_once("globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/users.php");
 
 $vahviste = isset($_GET["vahviste"]) ? $_GET["vahviste"] : false;
 if($vahviste !== false) {
