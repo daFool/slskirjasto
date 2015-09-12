@@ -28,7 +28,7 @@ $columns = isset($_REQUEST["columns"]) ? $_REQUEST["columns"] : false;
 $collection = isset($_REQUEST["collection"]) ? $_REQUEST["collection"] : "SLS";
 
 $req = serialize($order)." ".serialize($search);
-$a = ["tunniste", "nimi", "hylly", "paikka", "omistaja", "tila"];
+$a = array("tunniste", "nimi", "hylly", "paikka", "omistaja", "tila");
 $db->log($req, __FILE__,"hum", __LINE__, "DEBUG");
 $g = new SLSCOLLECTIONGAMES($db);
 $od=false;

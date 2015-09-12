@@ -30,7 +30,7 @@ $req = serialize($order)." ".serialize($search);
                 <th>Lisätty</th>
                 <th>Vuosi</th>
 */
-$a = ["nimi", "suunnittelija", "julkaisija", "bgglinkki", "kesto", "pelaajia", "lisatty", "vuosi"];
+$a = array("nimi", "suunnittelija", "julkaisija", "bgglinkki", "kesto", "pelaajia", "lisatty", "vuosi");
 $db->log($req, __FILE__,"hum", __LINE__, "DEBUG");
 $g = new SLSGAMES($db);
 $od=false;

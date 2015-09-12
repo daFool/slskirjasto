@@ -24,7 +24,7 @@ $columns = isset($_REQUEST["columns"]) ? $_REQUEST["columns"] : false;
 /*
  * nimi, laji, omistaja, tapahtuma, lisatty
  * */
-$a = ["nimi", "laji", "omistaja", "tapahtuma", "lisatty"];
+$a = array("nimi", "laji", "omistaja", "tapahtuma", "lisatty");
 $c = new SLSCOLLECTIONS($db);
 $od=false;
 if($order) {
