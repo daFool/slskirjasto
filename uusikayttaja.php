@@ -1,7 +1,6 @@
 <?php
 require_once("globals.php");
 require_once("helpers/common.php");
-require_once("helpers/users.php");
 
 function error($message, $register_method="google", $register_type="Käyttäjä") {
     $a = array("ktunnus", "nimi", "puhelin", "jasennumero", "sahkoposti", "sukupuoli", "syntymavuosi");
@@ -95,12 +94,12 @@ if($register_type=='Lainaaja') {
         die();
     }
 }
-include_once("$basepath/html_base.html");
+include_once("$basepath/view/html_base.html");
 ?>
 <title><?php echo _("Vahvista hakemuksesi");?></title>
 </head>
 <body>
-     <?php include_once("$basepath/navbar.html");?>
+     <?php include_once("$basepath/view/navbar.html");?>
       <section class='container'>
             <div class="row">
                 <section class="col-xs-12 col-sm-6 col-md-6">
