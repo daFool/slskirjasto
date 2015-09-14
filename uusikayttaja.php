@@ -4,7 +4,7 @@ require_once("helpers/common.php");
 
 function error($message, $register_method="google", $register_type="Käyttäjä") {
     $a = array("ktunnus", "nimi", "puhelin", "jasennumero", "sahkoposti", "sukupuoli", "syntymavuosi");
-    $url="forms/register.php?register_method=$register_method&register_type=$register_type";
+    $url="view/forms/register.php?register_method=$register_method&register_type=$register_type";
     $params="&error=$message";
     foreach($a as $i) {
         if(isset($_POST[$i])) {
