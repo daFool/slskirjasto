@@ -140,6 +140,7 @@
 		<div class="container"
 			<section class='col-xs-12 col-sm-6 col-md-8'>
 				<h2><?php printf( _("Kokoelman %s pelit"), htmlentities($collection));?></h2>
+				<?php echo $collection;?>
 				<label for="kokoelmaselect"><?php echo _("Lisää pelit kokoelmasta:");?></label> <select id="kokoelmaseelct" class="kokoelmaselect" style="width: 20%"'></select>
 				<table id="kokoelma" class="display" cellspacing="0" width="100%">
 					<thead>
