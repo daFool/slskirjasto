@@ -16,6 +16,8 @@
   * */
  function autoload($class) {
     global $basepath;
+    global $vendorpaths;
+    
     if(file_exists("$basepath/model/$class.php")) {
         require("$basepath/model/$class.php");
         return;
@@ -23,6 +25,19 @@
     elseif(file_exists("$basepath/helpers/$class.php")) {
         require("$basepath/helpoers/$class.php");
     }
+    else {
+        foreach($vendorpaths as $vp) {
+            if(file_exists("$basepath/$vp/$class.php")) {
+                require("$basepath/$vp/$class.php");
+                break;
+            } else {
+                if(file_exists("$basepath/$vp/$class.barcode.php")) {
+                    require("$basepath/$vp/$class.barcode.php");
+                    break;
+                }
+            }
+        }
+    }    
  }
 
 spl_autoload_register('autoload');
