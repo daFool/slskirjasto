@@ -18,7 +18,8 @@ class SLSCOLLECTIONGAMES {
     /** @var handle Database handle **/
     private $db;
     /** @var object SLS Database **/
-        private $dbc;
+    private $dbc;
+    /** @var array Kokoelman pelit **/
     private $games;
     
     /**
@@ -31,10 +32,16 @@ class SLSCOLLECTIONGAMES {
         
     }
     
+    /**
+     * Lahjoittajatiedot
+     * @param string $lahjoittaja Lahjoittajan nimike
+     * @param string $lahjoittajanurl Lahjoittan www-osoite
+     * */
     private function lahjoittaja($lahjoittaja, $lahjoittajanurl) {
             $l = new SLSLahjoittajat($this->dbc);
             return $l->lisaaLahjoittaja($lahjoittaja, $lahjoittajanurl);
     }
+    
     /**
      * Add collection game
      * @param array $cg Collection game data
@@ -73,8 +80,11 @@ class SLSCOLLECTIONGAMES {
     
     
     /**
-     * Find game with name
-     * @param string/regex $Name of the game to be searched
+     * Find game with regex
+     * @param string/regex $Rex regexp jolla haetaan
+     * @param string $field sarake josta haetaan
+     * @param string $Kokoelma kokoelma, josta haetaan
+     * 
      * @return mixed|boolean False if not found and an array containing game data
      * */
     public function findWithRex($Rex, $Field, $Kokoelma) {
@@ -118,7 +128,11 @@ class SLSCOLLECTIONGAMES {
     
     /**
      * List games in collection with state
-     * @param
+     * @param string $Kokoelma Kokoelma, jota listataan
+     * @param int $start Aloitusrivi
+     * @param int $length Montako peliä sivulle
+     * @param string $order Järjestysehto
+     * @param string $search Filtteri
      * @return mixed|booelan False if not found and array containing collection game data
      * */
     public function collectionTableFetch($Kokoelma, $start, $length, $order, $search) {
@@ -129,7 +143,7 @@ class SLSCOLLECTIONGAMES {
             $v="";
             if(isset($search["value"]) and $search["value"]!="") {
                 $v = $search["value"];
-                $so = "and (nimi ~* :v or tila ~*:v or gtin ~* :v)";
+                $so = "and (nimi ~* :v or tila ~*:v or gtin ~* :v or tunniste ~* :v)";
                 $ds = true;
             }
             if($order !== false) {
@@ -167,7 +181,7 @@ class SLSCOLLECTIONGAMES {
                 $st = $this->db->prepare($s);
                 $res = $st->execute(array("v"=>$v, "k"=>$Kokoelma));
                 if($res && $st->rowCount()>0) {
-		    $a=$st->fetch();
+                    $a=$st->fetch();
                     $tulos["filtered"]=$a["lkm"];
                 }
             }
@@ -263,10 +277,15 @@ class SLSCOLLECTIONGAMES {
             $r["kilroy"]="";
             return $r;
         } catch(PDOException $e) {
-            die("Ohjelmointi vihre {$e->getMessage()}");
+            die("Ohjelmointivihre {$e->getMessage()}");
         }
     }
     
+    /**
+     * Pelitietojen päivittäminen kantaan
+     * @param array $cg Päivittävät tidot
+     * @return boolean True jos onistui, false jos epäonnistui
+     * */
     public function update($cg) {
         try {
             $s = "update kokoelmapeli set omistaja=:Omistaja, lahjoittaja=:Lahjoittaja, hylly=:Hylly, paikka=:Paikka,

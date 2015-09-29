@@ -47,6 +47,12 @@
                     float: left;
                 }
                 
+                .page-break  {
+                    clear: left;
+                    display:block;
+                    page-break-after:always;
+                }
+                
             </style>
         </head>
         <body>
