@@ -17,7 +17,7 @@ class SLSCOLLECTIONS {
     /** @var handle Database handle **/
     private $db;
     /** @var object SLS Database **/
-        private $dbc;
+    private $dbc;
     
     /**
      * Constructor
@@ -28,7 +28,29 @@ class SLSCOLLECTIONS {
         $this->dbc = $db;
         
     }
-    
+    /**
+     * Kokoelmatunnisteen kelvollisuuden tarkistus
+     * @param string $id Kokoelman viivakooditunniste
+     * @return boolean False jos tunniste on huono tai olemassa
+     * */
+    public function checkId($id) {
+        try {
+            if(!preg_match(BARCODE, $id))
+                return false;
+            $s = "select count(*) as lkm from kokoelma where id=:id;";
+            $st = $this->db->prepare($s);
+            $res = $st->execute(array("id"=>$id));
+            if(!$res)
+                return true;
+            $r = $st->fetch(PDO::FETCH_ASSOC);
+            if($r[0]["lkm"]>0)
+                return false;
+            return true;
+        }
+        catch(PDOException $e) {
+            die(sprintf(_("Ohjelmointivirhe: %s"),$e->getMessage()));
+        }
+    }
     /**
      * Add collection with/without event
      * @param mixed $collection Array of collection / event data
@@ -38,7 +60,11 @@ class SLSCOLLECTIONS {
         try {
             $tapahtuma=false;
             $c = array("nimi"=>$collection['nimi'], "laji"=>$collection['laji'],
-                       "omistaja"=>$collection['omistaja']);
+                       "omistaja"=>$collection['omistaja'], "id"=>$collection['id'],
+                       "julkisuusaste"=>$collection['julkisuusaste']);
+            if($this->checkId($c["id"]))
+                return false;
+            
             $sc = "insert into kokoelma (nimi, laji, omistaja";
             if($collection["laji"]==0) {
                 $t = array("nimi"=>$collection['tapahtuma']['nimi'],
@@ -122,15 +148,20 @@ class SLSCOLLECTIONS {
     
     /**
      * Paginate collections
+     * @param int $start Miltä riviltä aloitetaan
+     * @param int $length Montako kokoelmaa listataan
+     * @param string $order Aakkostusjärjestys
+     * @param string $search Hakuehto
+     * @return mixed False jos mitään ei löytynyt
      * */
     public function tableFetch($start, $length, $order, $search) {
         try {
             $ds = false;
             $tulos = array("lkm"=>0, "collections"=>array(), "riveja"=>0, "filtered"=>0);
-            $so="";
+            $so="where julkisuusaste='avoin'";
             if(isset($search["value"])) {
                 $v = $search["value"];
-                $so = "where (nimi ~* :v or omistaja ~* :v or tapahtuma ~* :v)";
+                $so = " and (nimi ~* :v or omistaja ~* :v or tapahtuma ~* :v)";
                 $ds = true;
             }
             if($order !== false) {
@@ -164,7 +195,7 @@ class SLSCOLLECTIONS {
                 $st = $this->db->prepare($s);
                 $res = $st->execute(array("v"=>$v));
                 if($res && $st->rowCount()>0) {
-		    $a=$st->fetch();
+                    $a=$st->fetch();
                     $tulos["filtered"]=$a["lkm"];
                 }
             }
@@ -182,7 +213,7 @@ class SLSCOLLECTIONS {
      * */
     public function getCollectionNames_json() {
         try {
-            $s = "select nimi from kokoelma where laji=1";
+            $s = "select nimi from kokoelma where laji=1 and julkisuusaste='avoin'";
             $st = $this->db->prepare($s);
             $res = $st->execute();
             $base = array();
