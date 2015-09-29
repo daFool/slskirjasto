@@ -3,8 +3,9 @@ require_once("globals.php");
 require_once("helpers/common.php");
 
 function error($message, $register_method="google", $register_type="Käyttäjä") {
+    global $baseurl;
     $a = array("ktunnus", "nimi", "puhelin", "jasennumero", "sahkoposti", "sukupuoli", "syntymavuosi");
-    $url="forms/register.php?register_method=$register_method&register_type=$register_type";
+    $url="$baseurl/view/forms/register.php?register_method=$register_method&register_type=$register_type";
     $params="&error=$message";
     foreach($a as $i) {
         if(isset($_POST[$i])) {
@@ -38,14 +39,24 @@ if(!$nimi || $nimi=="" || strlen($nimi)>255)
 $puhelin = isset($_POST['puhelin']) ? $_POST['puhelin'] : "";
 
 $numero = isset($_POST['jasennumero']) ? $_POST['jasennumero'] : 0;
-if($numero !=0 && $users->checkMember($numero))
+if($numero >0 && $users->checkMember($numero))
     error(_("Jäsennumero on käytössä toisella käyttäjällä!"), $register_method, $register_type);
 
 $email = isset($_POST['sahkoposti']) ? $_POST['sahkoposti'] : false;
-if(!$email || strchr($email, "@")===false)
-    error(_("Sähköpostiosoitteessa on toivomisen varaa."), $register_method, $register_type);
+
+if(!$email || strchr($email, "@")===false) {
+    if($register_type=="Lainaaja" && $puhline=="")
+        error(_("Jompi kumpi, sähköpostiosoite tai puhelinnumero on annettava."));
+    else
+        error(_("Sähköpostiosoitteessa on toivomisen varaa."), $register_method, $register_type);
+
+}
     
-$syntymavuosi = isset($_POST['syntymavuosi']) ? $_POST['syntymavuosi'] : -1;
+if(!isset($_POST['syntymavuosi']) || $_POST['syntymavuosi']=="")
+    $syntymavuosi=-1;
+else
+    $syntymavuosi=$_POST['syntymavuosi'];
+
 $sukupuoli = isset($_POST['sukupuoli']) ? $_POST['sukupuoli'] : "T";
 
 $salasana = isset($_POST['salasana']) ? $_POST['salasana'] : false;
@@ -81,7 +92,7 @@ $user = array("nimi"=>$nimi,
 
 if($register_type=='Lainaaja') {
     if($users->insertUser($user)===false) 
-        error(_("Lainaajan lisääminen epäonnistui"), $resgister_method, $register_type);
+        error(_("Lainaajan lisääminen epäonnistui"), $register_method, $register_type);
 }
 else if($users->addMember($user, $ident)===false) {
     error("Käyttäjän lisääminen epäonnistui.", $register_method);
