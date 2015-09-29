@@ -19,6 +19,7 @@ class Viivakoodi {
         $koodi->parse($teksti);
         $this->kuva = new BCGDrawing('', $valkoinen);
         $this->kuva->setBarcode($koodi);
+        $this->kuva->setDPI(200);
         $this->kuva->draw();
     }
     
@@ -43,8 +44,6 @@ try {
     $koodi->viivakoodi();
 }
 catch(BCGParseException $be) {
-    print_r($be);
-    die();
     $koodi = new Viivakoodi($fontPath, "123");
     $koodi->virhe();
 }
