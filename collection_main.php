@@ -18,11 +18,21 @@ require_once("globals.php");
 require_once("$basepath/helpers/common.php");
 require_once("$basepath/helpers/minrights.php");
 
-$collection = isset($_REQUEST["collection"]) ? $_REQUEST["collection"] : false;
+if(isset($_SESSION["collection_default"])) {
+	$collection = $_SESSION["collection_default"];
+}
+else {
+	$collection = isset($_REQUEST["collection"]) ? $_REQUEST["collection"] : false;
+	$_SESSION["collection_default"]=$collection;	
+}
 
 if($collection===false) {
 	header("Location: index.php");
 	die();
- }
- include_once("$basepath/view/html_base.html");
- include_once("$basepath/view/collectionmain.php");
+}
+
+$col = new SLSCOLLECTIONS($db);
+$_SESSION["collection_id"]=$col->getBarcode($_SESSION["collection_default"]);
+
+include_once("$basepath/view/html_base.html");
+include_once("$basepath/view/collectionmain.php");

@@ -131,6 +131,14 @@
 					}
 					
 				})
+				$("#Tarrat").on('click', function () {
+					var tarrat="";
+					$("#kokoelma tbody").children("tr").each(function() {
+						tarrat=tarrat+$(this).children("td:first").html()+";";
+					})
+					kohde="<?php echo "$baseurl/tarrasivu.php?codes=";?>"+encodeURIComponent(tarrat);
+					window.open(kohde);
+				})
 			} );
 		
 		</script>
@@ -158,7 +166,9 @@
 				</table>
 				<button type="button" class="btn btn-lg btn-default" id="Lainaa"><?php echo _("Lainaa/Palauta");?></button>
 				<button type="button" id="Muokkaa" class="btn btn-lg btn-default"><?php echo _("Muokkaa");?></button>
-				<button type="button" class="btn btn-lg btn-default" id="Lisää"><?php echo _("Lisää");?></button> <button type="button" id="Poista" class="btn btn-lg btn-default">Poista/Deaktivoi</button>
+				<button type="button" class="btn btn-lg btn-default" id="Lisää"><?php echo _("Lisää");?></button>
+				<button type="button" id="Poista" class="btn btn-lg btn-default">Poista/Deaktivoi</button>
+				<button type="button" class="btn btn-lg btn-default" id="Tarrat"><?php echo _("Tarrat");?></button>
 			</section>
 			<div class="alert alert-warning collapse" role="alert" id="varoitus">
 				<button type="button" class="close" id="vbutton" aria-label="Close"><span aria-hidden="true">&times;</span></button>

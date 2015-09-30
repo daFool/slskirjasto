@@ -1,5 +1,13 @@
 <?php
-
+$tunnisteet=isset($_REQUEST["codes"]) ? urldecode($_REQUEST["codes"]) : false;
+if($tunnisteet==false) {
+    die(_("Ei tarroja"));
+}
+$tarrat = explode(";",$tunnisteet);
+$lkm = count($tarrat);
+if(count($lkm)>21) {
+    die(sprintf(_("Liikaa %d tarroja. Enintään 21 kerralla"), $lkm));
+}
 ?>
 <!doctype html>
     <html lang="fi">
@@ -57,8 +65,11 @@
         </head>
         <body>
             <?php
-            for($i=0;$i<21;$i++) {
-                $k=sprintf("daFool%04d", $i);
+            for($i=0;$i<$lkm;$i++) {
+                // $k=sprintf("daFool%04d", $i);
+                $k = substr($tarrat[$i],0,12);
+                if($k=="")
+                    continue;
                 switch($i) {
                     case 0:
                     case 18:

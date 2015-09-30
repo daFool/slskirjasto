@@ -238,6 +238,26 @@ class SLSCOLLECTIONS {
             die("Programming error: {$e->getMessage()}");
         }
     }
+    
+    /** Viivakooditunnisteen haku
+     *
+     * @param string $kokoelma Kokoelman nimi
+     * @return mixed False, jos ei löytynyt ja tunnisteen jos löytyi
+     * */
+    public function getBarcode($kokoelma) {
+        try {
+            $s = "select id from kokoelma where nimi=:kokoelma;";
+            $st = $this->db->prepare($s);
+            $res = $st->execute(array("kokoelma"=>$kokoelma));
+            if($res===false)
+                return false;
+            $row = $st->fetch(PDO::FETCH_ASSOC);
+            return $row["id"];
+        }
+        catch(PDOException $e) {
+            die(sprintf(_("Ohjelmointivirhe: %s"), $e->getMessage()));
+        }
+    }
 }
 
 ?>
