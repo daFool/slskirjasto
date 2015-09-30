@@ -1,5 +1,6 @@
-    <footer class="footer">
-          <div class="container">
+     <footer class="footer">
+      <div class="container-fluid">
+            <p class="text-muted">
             <?php if(isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {?>
             <?php echo _("Olet kirjautunut nimellä: ");?><span class="nimi"><?php echo $_SESSION['user']['nimi'];?></span><?php echo _(" ja käyttäjätasosi on ");?><span class="taso"><?php echo $_SESSION['user']['tila'];?></span>.              
             <?php 
@@ -9,5 +10,6 @@
               printf(_("Ladattu: %s, istunto päättyy %s"), $nyt->format('Y-m-d H:i:s'), $kuolee->format('Y-m-d H:i:s'));
               }
             ?>
+            </p>
           </div>
     </footer>

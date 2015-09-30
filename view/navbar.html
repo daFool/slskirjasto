@@ -10,30 +10,31 @@
                         <a class="navbar-brand" href="#"><?php echo _("Lautapelikirjasto");?></a>
                     </div>
                     <div id="navbar" class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        <li><a href="<?php echo $baseurl;?>/index.php"><?php echo _("Etusivu");?></a></li>
-                        <?php
-                            if(!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
-                        ?>
-                                <li><a href="<?php echo $url;?>"><?php echo _("Google Login");?></a></li>
-                                <li><a href="<?php echo $baseurl;?>/view/forms/login.php"><?php echo _("Local login");?></a></li>
-                        <?php
-                            } else {
-                        ?>          
-                                <li><a href="<?php echo "{$baseurl}/view/forms/collection.php";?>"><?php echo _("Lisää kokoelma");?></a></li>
-                        <?php
-                                if($_SESSION['user']['tila']=='superadmin') {
-                        ?>
-                                    <li><a href="<?php echo "{$baseurl}/tuoslspelit.php";?>"><?php echo _("Tuo SLS-pelit");?></a></li>
-                                    <li><a href="<?php echo "{$baseurl}/view/forms/lainaajat.php";?>"><?php echo ("Tuo SLS-lainaajat");?></a></li>
-                        <?php
-                                }
-                        ?>
-                            <li><a href="<?php echo $baseurl;?>/index.php?logout=true"><?php echo ("Logout");?></a></li>
-            
-                        <?php
-                            }
-                        ?>
-                    </ul>
+                        <ul class="nav navbar-nav">
+                                <li><a href="<?php echo $baseurl;?>/index.php"><?php echo _("Etusivu");?></a></li>
+                                <?php
+                                    if(!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
+                                ?>
+                                        <li><a href="<?php echo $url;?>"><?php echo _("Google Login");?></a></li>
+                                        <li><a href="<?php echo $baseurl;?>/view/forms/login.php"><?php echo _("Local login");?></a></li>
+                                <?php
+                                    } else {
+                                ?>          
+                                        <li><a href="<?php echo "{$baseurl}/view/forms/collection.php?method=add";?>"><?php echo _("Lisää kokoelma");?></a></li>
+                                <?php
+                                        if($_SESSION['user']['tila']=='superadmin') {
+                                ?>
+                                            <li><a href="<?php echo "{$baseurl}/tuoslspelit.php";?>"><?php echo _("Tuo SLS-pelit");?></a></li>
+                                            <li><a href="<?php echo "{$baseurl}/view/forms/lainaajat.php";?>"><?php echo ("Tuo SLS-lainaajat");?></a></li>
+                                <?php
+                                        }
+                                ?>
+                                    <li><a href="<?php echo $baseurl;?>/index.php?logout=true"><?php echo ("Logout");?></a></li>
+                    
+                                <?php
+                                    }
+                                ?>
+                            </ul>
+                    </div>
                 </div>
         </nav>

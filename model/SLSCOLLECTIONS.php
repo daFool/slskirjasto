@@ -43,7 +43,7 @@ class SLSCOLLECTIONS {
             if(!$res)
                 return true;
             $r = $st->fetch(PDO::FETCH_ASSOC);
-            if($r[0]["lkm"]>0)
+            if($r["lkm"]>0)
                 return false;
             return true;
         }
@@ -60,13 +60,17 @@ class SLSCOLLECTIONS {
         try {
             $tapahtuma=false;
             $c = array("nimi"=>$collection['nimi'], "laji"=>$collection['laji'],
-                       "omistaja"=>$collection['omistaja'], "id"=>$collection['id'],
-                       "julkisuusaste"=>$collection['julkisuusaste']);
-            if($this->checkId($c["id"]))
+                       "omistaja"=>$collection['omistaja'], "id"=>$collection['tunnus'],
+                       "julkisuus"=>$collection['julkisuus']);
+            if($this->checkId($c["id"])===false)
                 return false;
             
-            $sc = "insert into kokoelma (nimi, laji, omistaja";
+            $sc = "insert into kokoelma (nimi, laji, omistaja, id, julkisuus ";
+            
+            /* Tapahtuma-kokoelma? */
             if($collection["laji"]==0) {
+                /* Kyllä, käsitellään tapahtuman tiedot. */
+                
                 $t = array("nimi"=>$collection['tapahtuma']['nimi'],
                            "sijainti"=>$collection['tapahtuma']['sijainti'],
                            "alkaa"=>$collection['tapahtuma']['alkaa'],
@@ -80,10 +84,12 @@ class SLSCOLLECTIONS {
                 }
                 $tapahtuma=true;
                 $c['tapahtuma']=$collection['tapahtuma']['nimi'];
-                $sc.=", tapahtuma) values (:nimi, :laji, :omistaja, :tapahtuma);";
+                $sc.=", tapahtuma) values (:nimi, :laji, :omistaja, :id, :julkisuus, :tapahtuma);";
                 $this->dbc->log("Tapahtuma {$collection['tapahtuma']['nimi']} lisätty.", __FILE__,__CLASS__, __LINE__, "INFO");                    
             } else
-                $sc.=") values (:nimi, :laji, :omistaja);";
+                /* Ei, talletetaan pelkkä kokoelma */
+                $sc.=") values (:nimi, :laji, :omistaja, :id, :julkisuus);";
+            
             $st = $this->db->prepare($sc);
             $res = $st->execute($c);
             if($res===false || $st->rowCount()!=1) {
@@ -158,10 +164,10 @@ class SLSCOLLECTIONS {
         try {
             $ds = false;
             $tulos = array("lkm"=>0, "collections"=>array(), "riveja"=>0, "filtered"=>0);
-            $so="where julkisuusaste='avoin'";
+            $so="where julkisuus='avoin'";
             if(isset($search["value"])) {
                 $v = $search["value"];
-                $so = " and (nimi ~* :v or omistaja ~* :v or tapahtuma ~* :v)";
+                $so .= " and (nimi ~* :v or omistaja ~* :v or tapahtuma ~* :v)";
                 $ds = true;
             }
             if($order !== false) {
