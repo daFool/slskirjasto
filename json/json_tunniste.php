@@ -9,9 +9,9 @@
  * @uses database.php
  * @uses users.php
  * */
-require_once("globals.php");
-require_once("$basepath/helpers/database.php");
-require_once("$basepath/helpers/users.php");
+require_once("../globals.php");
+require_once("$basepath/helpers/common.php");
+
 
 $term = isset($_REQUEST["term"]) ? $_REQUEST["term"] : false;
 $result = array(_("Ei hakutermiä"));

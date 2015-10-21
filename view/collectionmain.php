@@ -131,6 +131,14 @@
 					}
 					
 				})
+				$("#Tarrat").on('click', function () {
+					var tarrat="";
+					$("#kokoelma tbody").children("tr").each(function() {
+						tarrat=tarrat+$(this).children("td:first").html()+";";
+					})
+					kohde="<?php echo "$baseurl/tarrasivu.php?codes=";?>"+encodeURIComponent(tarrat);
+					window.open(kohde);
+				})
 			} );
 		
 		</script>
@@ -139,7 +147,7 @@
 		<?php include_once("$basepath/view/navbar.html");?>
 		<div class="container"
 			<section class='col-xs-12 col-sm-6 col-md-8'>
-				<h2><?php printf( _("Kokoelman %s pelit"), htmlentities($collection, ENT_COMPAT|ENT_HTML401, 'UTF-8'));?></h2>
+				<h2><?php printf( _("Kokoelman %s pelit"), htmlentities($collection, ENT_COMPAT|ENT_HTML5, 'UTF-8'));?></h2>
 				<label for="kokoelmaselect"><?php echo _("Lisää pelit kokoelmasta:");?></label> <select id="kokoelmaseelct" class="kokoelmaselect" style="width: 20%"'></select>
 				<table id="kokoelma" class="display" cellspacing="0" width="100%">
 					<thead>
@@ -158,7 +166,9 @@
 				</table>
 				<button type="button" class="btn btn-lg btn-default" id="Lainaa"><?php echo _("Lainaa/Palauta");?></button>
 				<button type="button" id="Muokkaa" class="btn btn-lg btn-default"><?php echo _("Muokkaa");?></button>
-				<button type="button" class="btn btn-lg btn-default" id="Lisää"><?php echo _("Lisää");?></button> <button type="button" id="Poista" class="btn btn-lg btn-default">Poista/Deaktivoi</button>
+				<button type="button" class="btn btn-lg btn-default" id="Lisää"><?php echo _("Lisää");?></button>
+				<button type="button" id="Poista" class="btn btn-lg btn-default">Poista/Deaktivoi</button>
+				<button type="button" class="btn btn-lg btn-default" id="Tarrat"><?php echo _("Tarrat");?></button>
 			</section>
 			<div class="alert alert-warning collapse" role="alert" id="varoitus">
 				<button type="button" class="close" id="vbutton" aria-label="Close"><span aria-hidden="true">&times;</span></button>

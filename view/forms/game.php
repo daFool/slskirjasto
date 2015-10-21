@@ -48,8 +48,7 @@ include_once("$basepath/view/html_base.html");
     <script type="text/javascript">
         $(function() {
             function checkEm() {
-                var lomake = document.getElementById("peli");
-                if (lomake.checkValidity()==true) {
+                if ($("#peli").get(0).checkValidity()==true) {
                     $("#tallenna").removeAttr("disabled");
                 }
                 else {
@@ -57,11 +56,11 @@ include_once("$basepath/view/html_base.html");
                 }
             }
             
-            $("#bgglinkki").blur(function () {
-                var linkki = $("#bgglinkki").val();
-                var foo=document.getElementById("bgglinkki");
-                if (foo.validity.valid==true) {
-                   $.getJSON("<?php echo $baseurl;?>/json/json_geek.php?geekurl="+encodeURIComponent(linkki), function (json) {
+            // $("#bgglinkki").blur(function () {
+			$("#bggnappula").on('click', function () {                
+                if ($("#bgglinkki").get(0).checkValidity()==true) {
+					$("#bggstatus").html("<?php echo _("Haetaan...");?>");   
+                    $.getJSON("<?php echo $baseurl;?>/json/json_geek.php?geekurl="+encodeURIComponent($("#bgglinkki").val()), function (json) {
                         if (json.virhe=="False" || json.virhe==false) {
                             $("#vuosi").val(json.vuosi);
                             $("#nimi").val(json.nimi);
@@ -70,14 +69,17 @@ include_once("$basepath/view/html_base.html");
                             $("#pelaajia").val(json.pelaajia);
                             $("#kesto").val(json.aika);
                             checkEm();
+							$("#bggstatus").html("");
                         }
-                        else
+                        else {
+							$("#bggstatus").html("<?php echo _("Ei löytynyt.");?>");
                             console.log(json.virhe);
-                        
+						}
                    })
                 }
-                else
-                    console.log(linkki+" ei ole validi.");                
+                else {
+					$("#bggstatus").html("<?php echo _("Huono linkki.");?>");
+                }
             })
             $("#omistaja").autocomplete({
                 source : "<?php echo $baseurl; ?>/json/json_lainaaja.php",
@@ -134,13 +136,15 @@ include_once("$basepath/view/html_base.html");
     </head>
     <body>
         <?php include_once("$basepath/view/navbar.html"); ?>
-        <section class='container'>
+        <div class='container'>
             <div class="row">
                 <section class='col-xs-12 col-sm-6 col-md-6'>
                     <section>
                         <h2><?php echo _("Pelin lisääminen/muokkaaminen");?></h2>
-                        <p><?php echo _("Jos lisäät pelin bgg-linkkikentän kautta, käy pyyhkimässä nimien ja julkaisijoiden joukosta väärien edikoiden tiedot!");?>
-                        <?php echo _("<b>BGG-kentässä käyminen</b> palauttaa täydet pelitiedot!");?></p>
+                        <div class="text-warning">
+							<?php echo _("Jos lisäät pelin bgg-linkkikentän kautta, käy pyyhkimässä nimien ja julkaisijoiden joukosta väärien edikoiden tiedot!");?>
+						</div>
+   
                         <form name="peli" id="peli" method="POST" action="<?php echo $baseurl;?>/lisaaPeli.php">
                             <input type="hidden" name="metodi" id="metodi" value="<?php echo $metodi;?>"/>
                             <input type="hidden" name="peliid" id="peliid" value=""/>
@@ -152,8 +156,17 @@ include_once("$basepath/view/html_base.html");
                                                                                                maxlength="255"/></label>
                             <label for="julkaisija"><?php echo _("Julkaisija: ");?><input type="text" name="julkaisija" id="julkaisija" required="true" size="40"
                             maxlength="255"/></label>
-                            <label for="bgglinkki"><?php echo _("BGG-linkki: ");?><input type="url" name="bgglinkki" id="bgglinkki" size="40" maxlength="255"
-                                                                                         pattern="https?://www.boardgamegeek.com/boardgame/[0123456789]+/[0-9a-zA-Z-]*"/></label>
+							
+							<div class="form-group" id="bgglinkkig">
+								<label for="bgglinkki" class="control-label"><?php echo _("BGG-linkki: ");?></label>
+								<div class="input-group">
+									<input type="url" class="form-control" name="bgglinkki" id="bgglinkki" size="40" maxlength="255"
+									                pattern="https?://www.boardgamegeek.com/boardgame.*/[0123456789]+/[0-9a-zA-Z-]*"/>
+									<div class="input-group-addon btn" id="bggnappula"><?php echo _("Hae");?></div>
+								</div>
+								<span id="bgglinkkic" class="glyphicon form-control-feedback" aria-hidden="true"></span>
+								<p class="help-block"><?php echo _("Pelin sivuosoite BoardGameGeekissä.");?> <span id="bggstatus"></span></p>
+							</div>
                             <label for="pelaajia"><?php echo _("Pelaajia: ");?><input type="text" name="pelaajia" size="10" maxlenght="255" id="pelaajia"/></label>
                             <label for="kesto"><?php echo _("Kesto minuuteissa: ");?><input type="number" name="kesto" id="kesto" min="0" max="640"/></label>
                             <label for="vuosi"><?php echo _("Julkaisuvuosi: ");?><input type="number" min="1900" max="2100" name="vuosi" id="vuosi"/></label>
@@ -175,7 +188,7 @@ include_once("$basepath/view/html_base.html");
 				<button type="button" class="close" id="vbutton" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<span id="warning">Varoitus</span>
 			</div>
-                    </section>
+                    </div>
                 </section>
             </div>
         </section>

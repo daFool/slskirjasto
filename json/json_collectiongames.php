@@ -2,9 +2,6 @@
 /**
  * Javascript-palvelu, joka tuottaa listauksen kokoelman peleistä
  * 
- * Lainaajan tietoja etsitään joko nimellä, käyttäjätunnuksella tai Lautapeliseuran jäsennumerolla.
- * Tiedostoa käyttää lainaus.php:ssä kolme javascript-täydennyksellä varustettua kenttää.
- *
  * @uses globals.php
  * @uses database.php
  * @uses games.php
