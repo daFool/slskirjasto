@@ -12,12 +12,29 @@
 require_once("../globals.php");
 require_once("$basepath/helpers/common.php");
 
+function bored($t, $d) {
+    $v = isset($_REQUEST[$t]) ? $_REQUEST[$t] : $d;
+    return $v;
+}
+
 $draw = isset($_REQUEST["draw"]) ? $_REQUEST["draw"] : false;
 $start = isset($_REQUEST["start"]) ? $_REQUEST["start"] : 0;
 $length = isset($_REQUEST["length"]) ? $_REQUEST["length"] : 10;
 $search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : false;
 $order = isset($_REQUEST["order"]) ? $_REQUEST["order"] : false;
 $columns = isset($_REQUEST["columns"]) ? $_REQUEST["columns"] : false;
+
+$nimi = bored("nimi",false);
+$suunnittelija=bored("suunnittelija",false);
+$kesto=bored("kesto", false);
+$kestoe=bored("kestoe", false);
+$pelaajiamin=bored("minpelaajia", false);
+$pelaajiamax=bored("maxpelaajia", false);
+$vuosi = bored("vuosi", false);
+$vuosie = bored("vuosie", false);
+$bggranke = bored("geeke", false);
+$bggrank = bored("geek", false);
+$julkaisija = bored("julkaisija", false);
 
 $req = serialize($order)." ".serialize($search);
 /*
@@ -31,7 +48,32 @@ $req = serialize($order)." ".serialize($search);
                 <th>Lisätty</th>
                 <th>Vuosi</th>
 */
-$a = array("nimi", "bggrank", "bgglinkki", "kesto", "pelaajia",  "vuosi");
+$f=false;
+if($pelaajiamin!==false) {
+    $f["pelaajia"]=array("min"=>$pelaajiamin, "max"=>$pelaajiamax);
+}
+
+if($nimi != false) {
+    $f["nimi"]=array("arvo"=>$nimi);
+}
+if($suunnittelija != false) {
+    $f["suunnittelija"]=array("arvo"=>$suunnittelija);
+}
+if($julkaisija != false) {
+    $f["julkaisija"]=array("arvo"=>$julkaisija);
+}
+if($vuosi != false) {
+    $f["vuosi"]=array("ehto"=>$vuosie, "arvo"=>$vuosi);
+}
+if($kesto !=false ) {
+    $f["kesto"]=array("ehto"=>$kestoe, "arvo"=>$kesto);
+}
+
+if($bggrank != false) {
+    $f["bggrank"]=array("arvo"=>$bggrank, "ehto"=>$bggranke);
+}
+$req.=serialize($f);
+$a = array("nimi", "bggrank", "bgglinkki", "kesto", "pelaajia",  "vuosi", "suunnittelija", "julkaisija");
 $db->log($req, __FILE__,"hum", __LINE__, "DEBUG");
 $g = new SLSGAMES($db);
 $od=false;
@@ -47,7 +89,7 @@ if($order) {
     }
 }
 $db->log($od, __FILE__, "hum",__LINE__, "DEBUG");
-$games = $g->tableFetch($start,$length, $od, $search);
+$games = $g->extendedTableFetch($start,$length, $od, $search, $f);
 $jason = array("draw"=>$draw, "recordsTotal"=>$games["lkm"], "recordsFiltered"=>$games["filtered"]);
 $data=array();
 $i=0;

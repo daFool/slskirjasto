@@ -79,10 +79,10 @@ class SLSGAMES {
                 $ds = true;
             }
             if($order !== false) {
-                $s = "select * from peli $so order by $order limit :length offset :start;";
+                $s = "select nimi, bggrank, bgglinkki, kesto, pelaajia, vuosi from peli $so order by $order limit :length offset :start;";
                 $d = array("length"=>$length, "start"=>$start);
             } else {
-                $s = "select * from peli $so limit :length offset :start;";
+                $s = "select nimi, bggrank, bgglinkki, kesto, pelaajia, vuosi from peli $so limit :length offset :start;";
                 $d = array("length"=>$length, "start"=>$start);
             }
             if($ds) 
@@ -167,6 +167,11 @@ class SLSGAMES {
                 $s.=",vuosi";
                 $sv.=",:vuosi";
             }
+            if(isset($game["bggrank"])) {
+                $v["bggrank"]=$game["bggrank"];
+                $s.=",bggrank";
+                $sv.=",:bggrank";
+            }
             $s.=") $sv) returning tunniste;";
             $st = $this->db->prepare($s);
             $res = $st->execute($v);
@@ -189,7 +194,7 @@ class SLSGAMES {
     public function updateGame($game) {
         try {
             $s = "update Peli set nimi=:nimi, suunnittelija=:suunnittelija, julkaisija=:julkaisija, bgglinkki=:bgglinkki,
-            kesto=:kesto, pelaajia=:pelaajia, gtin=:gtin, vuosi=:vuosi where tunniste=:tunniste;";
+            kesto=:kesto, pelaajia=:pelaajia, gtin=:gtin, vuosi=:vuosi, bggrank=:bggrank where tunniste=:tunniste;";
             
             $st = $this->db->prepare($s);
             $res = $st->execute($game);
@@ -203,5 +208,180 @@ class SLSGAMES {
         }
     }
     
+    /**
+     * All
+     * @return array|boolean All games in the database
+     * */
+    public function all($limit=falsep) {
+        try {
+            if($limit) {
+                $s="select * from peli where bggdate + interval '1 day' < now() or bggdate is null";
+            }
+            else {
+                $s = "select * from peli;";
+            }
+            $st = $this->db->prepare($s);
+            $res = $st->execute();
+            if(!$res) {
+                return false;
+            }
+            $d = $st->fetchAll(PDO::FETCH_ASSOC);
+            return $d;
+        }
+        catch(PDOException $e) {
+            die("Programming error: {$e->getMessage()}");
+        }
+    }
+    
+    /**
+     * Update a game with bgg
+     * @param array of game data from bgg
+     * @return boolean|array False if failed and "tunniste" of inserted row in an array if succeeded
+     * */
+    public function updateGameBGG($game, $mode) {
+        try {
+            if(isset($game["virhe"]))
+                unset($game["virhe"]);
+            switch($mode) {
+                case "Force":
+                    $s = "update Peli set nimi=:nimi, suunnittelija=:suunnittelija, julkaisija=:julkaisija, bgglinkki=:bgglinkki,
+                        kesto=:kesto, pelaajia=:pelaajia, gtin=:gtin, vuosi=:vuosi, bggrank=:bggrank, bggdate=now() where tunniste=:tunniste;";
+                    break;
+                case "Rank":
+                    $s = "update Peli set bggrank=:bggrank, bggdate=now() where tunniste=:tunniste;";
+                    break;
+                case "Missing":
+                    $s = "update Peli set ";
+                    $first=true;
+                    foreach($game as $key=>$value) {
+                        if($key=="tunnniste")
+                            continue;
+                        if(!$first)
+                            $s.=", ";
+                        if($first) {
+                            $first=false;
+                        }
+                        if($key=="aika") {
+                            $s.="kesto=:aika";
+                        } else {
+                            $s.="{$key}=:{$key}";
+                        }
+         
+                    }
+                    $s.=",bggdate=now() where tunniste=:tunniste;";
+                    break;
+            }
+            $st = $this->db->prepare($s);
+            $res = $st->execute($game);
+            if(!$res) {
+                return false;
+            }
+            return true;
+        }
+        catch(PDOException $e) {
+            die("Programming error: {$e->getMessage()}");
+        }
+    }
+    
+     /**
+     * Paginate games with gusto
+     * */
+    public function extendedTableFetch($start, $length, $order, $search, $filter) {
+        try {
+            $ds = false;
+            $tulos = array("lkm"=>0, "pelit"=>array(), "riveja"=>0, "filtered"=>0);
+            $so="";
+            $v="";
+            $d = array("length"=>$length, "start"=>$start);
+            $f=false;
+            if(isset($filter) && $filter!==false) {
+                $so="where ";
+                $f=true;
+                foreach($filter as $key=>$value) {
+                    if(!$f) {
+                        $so.=" and ";
+                    }
+                    switch($key) {
+                        case "nimi":
+                        case "julkaisija":
+                        case "suunnittelija":
+                            $so.="$key ~* :$key";
+                            $d[$key]=$value["arvo"];
+                            $f=false;
+                            break;
+                        case "kesto":
+                        case "vuosi":
+                        case "bggrank":
+                            switch($value["ehto"]) {
+                                case "alle":
+                                    $so.="$key <= :$key";
+                                    break;
+                                case "tasan":
+                                    $so.="$key = :$key";
+                                    break;
+                                case "yli":
+                                    $so.="$key >= :$key";
+                                    break;
+                            }
+                            $d["$key"]=$value["arvo"];
+                            $f=false;
+                            break;
+                        
+                    }                    
+                }
+            }
+        
+            if(isset($search["value"])) {
+                $v = $search["value"];
+                if($so=="")
+                    $so="where ";
+                else
+                    $so.=" and ";
+                $so .= "(nimi ~* :v or julkaisija ~* :v or suunnittelija ~* :v or bgglinkki ~* :v)";
+                $ds = true;
+            }
+            
+            if($order !== false) {
+                $s = "select nimi, bggrank, bgglinkki, kesto, pelaajia, vuosi, suunnittelija, julkaisija from peli $so order by $order limit :length offset :start;";
+            } else {
+                $s = "select nimi, bggrank, bgglinkki, kesto, pelaajia, vuosi, suunnittelija, julkaisija from peli $so limit :length offset :start;";
+            }
+            if($ds) 
+                $d["v"]=$v;
+            
+            $m = "$s ($v)";
+            $this->dbc->log($m, __FILE__, __CLASS__,__LINE__,"DEBUG");
+            $st = $this->db->prepare($s);
+            $res = $st->execute($d);
+            if(!$res || $st->rowCount()==0) {
+                return $tulos;
+            }
+            $pelit = $st->fetchAll();
+            $s = "select count(*) as lkm from peli;";
+            $st = $this->db->prepare($s);
+            $res = $st->execute();
+            if(!$res || $st->rowCount()==0) {
+                return $tulos;
+            }
+            $row = $st->fetch();
+            $tulos["lkm"]=$row["lkm"];
+            $tulos["pelit"]=$pelit;
+            $tulos["riveja"]=count($pelit);
+            $tulos["filtered"]=$row["lkm"];
+            if($ds) {
+                $s = "select count(*) as lkm from peli $so;";
+                $st = $this->db->prepare($s);
+                $res = $st->execute(array("v"=>$v));
+                if($res && $st->rowCount()>0) {
+		    $a=$st->fetch();
+                    $tulos["filtered"]=$a["lkm"];
+                }
+            }
+            return $tulos;
+        }
+        catch(PDOException $e) {
+            die("Programming error: {$e->getMessage()}");
+        }
+    }
 }
 ?>

@@ -28,11 +28,17 @@ function tv($nimi, $def=false, &$ra=false) {
     return $arvo;
 }
 
+function cut255($str) {
+    $i = min(254,strlen($str));
+    $str = substr($str, 0, $i);
+    return $str;
+}
+
 $ra=array();
 $collection = tv("kokoelma", false, $ra);
-$nimi = tv("nimi", false, $ra);
-$suunnittelija= tv("suunnittelija", false, $ra);
-$julkaisija=tv("julkaisija", false, $ra);
+$nimi = cut255(tv("nimi", false, $ra));
+$suunnittelija= cut255(tv("suunnittelija", false, $ra));
+$julkaisija=cut255(tv("julkaisija", false, $ra));
 $bgglinkki=tv("bgglinkki", false, $ra);
 $pelaajia=tv("pelaajia", false, $ra);
 $kesto=tv("kesto", false, $ra);
@@ -49,6 +55,7 @@ $kunto=tv("kunto", "", $ra);
 $metodi=tv("metodi", "", $ra);
 $peliid=tv("peliid", false, $ra);
 $kokoelmapeliid=tv("kokoelmapeliid", false, $ra);
+$bggrank=tv("bggrank", -1, $ra);
 
 if($collection===false || $nimi===false || $suunnittelija===false || $julkaisija===false ||$pelaajia===false || $kesto===false ||$vuosi===false || $omistaja===false) {
     $_SESSION["ra"]=$ra;
@@ -73,29 +80,31 @@ if($metodi=="" || $metodi=="lisää" || $metodi=="uusi") {
 
     if($res === false) {
         $game = array(
-            "suunnittelija" => $suunnittelija,
-            "julkaisija" => $julkaisija,
-            "bgglinkki" => $bgglinkki,
+            "suunnittelija" => cut255($suunnittelija),
+            "julkaisija" => cut255($julkaisija),
+            "bgglinkki" => cut255($bgglinkki),
             "kesto" => $kesto,
             "pelaajia" => $pelaajia,
             "gtin" => $gtin,
             "vuosi" =>$vuosi,
-            "nimi" => $nimi
+            "nimi" => $nimi,
+            "bggrank" => $bggrank
         );
         $res = $pelit->addGame($game);
         $pelitunniste=$res[0];
     }
 } else {
     $game = array(
-            "suunnittelija" => $suunnittelija,
-            "julkaisija" => $julkaisija,
-            "bgglinkki" => $bgglinkki,
+            "suunnittelija" => cut255($suunnittelija),
+            "julkaisija" => cut255($julkaisija),
+            "bgglinkki" => cut255($bgglinkki),
             "kesto" => $kesto,
             "pelaajia" => $pelaajia,
             "gtin" => $gtin,
             "vuosi" =>$vuosi,
             "nimi" => $nimi,
-            "tunniste" => $peliid
+            "tunniste" => $peliid,
+            "bggrank" => $bggrank
         );
     $res = $pelit->updateGame($game);
     $_SESSION["ra"]=$ra;

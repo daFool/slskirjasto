@@ -68,6 +68,7 @@ include_once("$basepath/view/html_base.html");
                             $("#julkaisija").val(json.julkaisija);
                             $("#pelaajia").val(json.pelaajia);
                             $("#kesto").val(json.aika);
+							$("#bggl").html("<?php echo _("BGG-rank: ");?> "+json.bggrank);
                             checkEm();
 							$("#bggstatus").html("");
                         }
@@ -145,7 +146,7 @@ include_once("$basepath/view/html_base.html");
 							<?php echo _("Jos lisäät pelin bgg-linkkikentän kautta, käy pyyhkimässä nimien ja julkaisijoiden joukosta väärien edikoiden tiedot!");?>
 						</div>
    
-                        <form name="peli" id="peli" method="POST" action="<?php echo $baseurl;?>/lisaaPeli.php">
+                        <form name="peli" id="peli" method="POST" action="<?php echo $baseurl;?>/lisaaPeli.php" autocomplete="off">
                             <input type="hidden" name="metodi" id="metodi" value="<?php echo $metodi;?>"/>
                             <input type="hidden" name="peliid" id="peliid" value=""/>
                             <input type="hidden" name="kokoelmapeliid" id="kokoelmapeliid" value="<?php echo htmlspecialchars($peliid);?>"/>
@@ -161,11 +162,15 @@ include_once("$basepath/view/html_base.html");
 								<label for="bgglinkki" class="control-label"><?php echo _("BGG-linkki: ");?></label>
 								<div class="input-group">
 									<input type="url" class="form-control" name="bgglinkki" id="bgglinkki" size="40" maxlength="255"
-									                pattern="https?://www.boardgamegeek.com/boardgame.*/[0123456789]+/[0-9a-zA-Z-]*"/>
+									                pattern="https?://www.boardgamegeek.com/(board)?game.*/[0123456789]+(/[0-9a-zA-Z-])*"/>
 									<div class="input-group-addon btn" id="bggnappula"><?php echo _("Hae");?></div>
 								</div>
 								<span id="bgglinkkic" class="glyphicon form-control-feedback" aria-hidden="true"></span>
 								<p class="help-block"><?php echo _("Pelin sivuosoite BoardGameGeekissä.");?> <span id="bggstatus"></span></p>
+							</div>
+							<div class"form-group" id="bggrankg">
+								<label for="bggrank" class="control-label" id="bggl"></label>
+								<input type="hidden" class="form-control" name="bggrank" disabled="true" id="bggrank" />
 							</div>
                             <label for="pelaajia"><?php echo _("Pelaajia: ");?><input type="text" name="pelaajia" size="10" maxlenght="255" id="pelaajia"/></label>
                             <label for="kesto"><?php echo _("Kesto minuuteissa: ");?><input type="number" name="kesto" id="kesto" min="0" max="640"/></label>

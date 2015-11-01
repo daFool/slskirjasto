@@ -52,8 +52,9 @@ body.signin {
   border-top-right-radius: 0;
 }
 
-.footer {
-  position: absolute;
+footer.slsfooter {
+//  position: fixed;
+//  z-index: -1;
   bottom: 0;
   width: 100%;
   height: 60px;

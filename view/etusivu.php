@@ -53,15 +53,21 @@ include_once("$basepath/view/html_base.html");
                 <table id="games" class="display" cellspacing="0" width="100%">
                 <thead>
                   <tr>
-                    <th><?php echo _("Peli");?></th><th><?php echo _("Suunnittelija");?></th><th><?php echo _("Julkaisija");?></th>
-                    <th><?php echo ("BGG");?></th><th><?php echo _("Kesto");?></th><th><?php echo _("Pelaajia");?></th><th><?php echo _("Lisätty");?></th>
+                    <th><?php echo _("Peli");?></th>
+                    <th><?php echo _("BGG rank");?></th>
+                    <th><?php echo ("BGG");?></th>
+                    <th><?php echo _("Kesto");?></th>
+                    <th><?php echo _("Pelaajia");?></th>
                     <th><?php echo _("Vuosi");?></th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                    <th><?php echo _("Peli");?></th><th><?php echo _("Suunnittelija");?></th><th><?php echo _("Julkaisija");?></th>
-                    <th><?php echo ("BGG");?></th><th><?php echo _("Kesto");?></th><th><?php echo _("Pelaajia");?></th><th><?php echo _("Lisätty");?></th>
+                    <th><?php echo _("Peli");?></th>
+                    <th><?php echo _("BGG rank");?></th>
+                    <th><?php echo ("BGG");?></th>
+                    <th><?php echo _("Kesto");?></th>
+                    <th><?php echo _("Pelaajia");?></th>
                     <th><?php echo _("Vuosi");?></th>
                   </tr>
                 </tfoot>

@@ -219,7 +219,7 @@ class SLSCOLLECTIONS {
      * */
     public function getCollectionNames_json() {
         try {
-            $s = "select nimi from kokoelma where laji=1 and julkisuusaste='avoin'";
+            $s = "select nimi from kokoelma where laji=1 and julkisuus='avoin'";
             $st = $this->db->prepare($s);
             $res = $st->execute();
             $base = array();
