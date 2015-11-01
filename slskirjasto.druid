@@ -2,8 +2,8 @@
 
 <project version="2">
 	<attribs>
-		<attrib name="build">34</attrib>
-		<attrib name="serial">14117</attrib>
+		<attrib name="build">35</attrib>
+		<attrib name="serial">14118</attrib>
 	</attribs>
 	<database>
 		<attribs>
@@ -1894,7 +1894,7 @@ grant all on all tables in schema public to sls;
 						<attrib name="comment"/>
 						<attrib name="matchType">s</attrib>
 						<attrib name="refField">0</attrib>
-						<attrib name="name">julkisuusaste</attrib>
+						<attrib name="name">julkisuus</attrib>
 						<attrib name="id">13935</attrib>
 						<attrib name="onDelete">n</attrib>
 						<attrib name="onUpdate">n</attrib>
