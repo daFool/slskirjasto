@@ -32,8 +32,8 @@ $pelaajiamin=bored("minpelaajia", false);
 $pelaajiamax=bored("maxpelaajia", false);
 $vuosi = bored("vuosi", false);
 $vuosie = bored("vuosie", false);
-$bggranke = bored("geeke", false);
-$bggrank = bored("geek", false);
+$bggranke = bored("bggranke", false);
+$bggrank = bored("bggrank", false);
 $julkaisija = bored("julkaisija", false);
 
 $req = serialize($order)." ".serialize($search);
@@ -50,7 +50,7 @@ $req = serialize($order)." ".serialize($search);
 */
 $f=false;
 if($pelaajiamin!==false) {
-    $f["pelaajia"]=array("min"=>$pelaajiamin, "max"=>$pelaajiamax);
+    $f["pelaajia"]=array("arvo"=>$pelaajiamin." - ".$pelaajiamax);
 }
 
 if($nimi != false) {

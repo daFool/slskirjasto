@@ -65,18 +65,28 @@ include_once("$basepath/view/html_base.html");
 							d.vuosi = document.getElementById("vuosi").value;
 							d.vuosie = document.getElementById("vuosie").value;
 						}
-						
+						else {
+							delete d.vuosi;
+							delete d.vuosie;
+						}
 						if ($("#geektoggle").html()=="<?php echo _("Poista");?>") {
 							d.bggrank = document.getElementById("geek").value;
 							d.bggranke = document.getElementById("geeke").value;
+						}
+						else {
+							delete d.bggrank;
+							delete d.bggranke;
 						}
 						
 						if ($("#pelaajiatoggle").html()=="<?php echo _("Poista");?>") {
 							d.minpelaajia = document.getElementById("minpelaajia").value;
 							d.maxpelaajia = document.getElementById("maxpelaajia").value;
-						} 
+						} else {
+							delete d.minpelaajia;
+							delete d.maxpelaajia;
 						}
-					},
+						console.log(d);
+					}},
 					<?php include("$basepath/datatables_language.js");?>
 				} );
 				
@@ -98,11 +108,26 @@ include_once("$basepath/view/html_base.html");
 				
 				$("#hakuehto").find("input").each(function () {
 					$(this).on("blur", function() {
-						a=$(this).name+"toggle";
-						console.log(a);
-							//code
+						at = $(this).attr("id");
+						if (at=="minpelaajia" || at=="maxpelaajia") {
+							at="pelaajia";//code
 						}
-						);
+						a="#"+at+"toggle";
+						if ($(a).html()=="<?php echo _("Poista");?>") {
+							pelit.ajax.reload();
+						}
+					});
+				});
+				
+				$("#hakuehto").find("select").each(function () {
+					$(this).on("blur", function() {
+						a="#"+$(this).attr("id");
+						a=a.substring(0,a.length-1)+"toggle";
+						console.log(a);
+						if ($(a).html()=="<?php echo _("Poista");?>") {
+							pelit.ajax.reload();
+						}
+					});
 				});
 				
 			})
@@ -167,18 +192,35 @@ include_once("$basepath/view/html_base.html");
 							</div>
 							<p class="help-block"><?php echo _("Pelin suunnittelija");?></p>	   
 						</div>
+					
+						<!-- Julkaisija -->
+						<div class="form-group" id="julkaisijag">
+							<label class="control-label col-xs-3" for="julkaisija"><?php echo _("Julkaisija:");?></label>
+							<div class="input-group col-xs-9">
+								<input type="text" class="form-control" maxlength="255" size="40" name="julkaisija" id="julkaisija" placeholder="Catan GMBH"/>
+								<div class="input-group-addon btn" id="julkaisijatoggle"></div>
+							</div>
+							<p class="help-block"><?php echo _("Pelin julkaisija");?></p>	   
+						</div>
+					
 						
 						<!-- Kesto -->					
 						<div class="form-group" id="kestog">
-							<label class="control-label col-xs-2" for="kesto"><?php echo _("Kesto");?></label>
-							<div class="input-group col-xs-8">
-								<select name="kestoe" class="form-control" id="kestoe">
-									<option value="alle"><?php echo _("Alle");?></option>
-									<option value="tasan"><?php echo _("Tasan");?></option>
-									<option value="yli"><?php echo _("Yli");?></option>
-								</select>
-								<input type="number" id="kesto" class="form-control" maxlength=3 min=0 max=999 />
-								<div class="input-group-addon btn" id="kestotoggle"></div>
+							<div class="row">
+								<div class="col-xs-2">
+									<label class="control-label" for="kesto"><?php echo _("Kesto");?></label>
+								</div>
+								<div class="col-xs-2">
+										<select name="kestoe" class="form-control" id="kestoe">
+											<option value="alle"><?php echo _("Alle");?></option>
+											<option value="tasan"><?php echo _("Tasan");?></option>
+											<option value="yli"><?php echo _("Yli");?></option>
+										</select>
+								</div>
+								<div class="input-group col-xs-4">
+										<input type="number" id="kesto" class="form-control" maxlength=3 min=0 max=999 />
+										<div class="input-group-addon btn" id="kestotoggle"></div>
+								</div>
 							</div>
 							<p class="help-block"><?php echo _("Kauanko pelin pitää kestää");?></p>
 						</div>
@@ -205,30 +247,42 @@ include_once("$basepath/view/html_base.html");
 						
 						<!-- Vuosi -->
 						<div class="form-group" id="vuosig">
-							<label class="control-label col-xs-2" for="kesto"><?php echo _("Vuosi");?></label>
-							<div class="input-group col-xs-6">
-								<select name="vuosie" class="form-control" id="vuosie">
-									<option value="alle"><?php echo _("Alle");?></option>
-									<option value="tasan"><?php echo _("Tasan");?></option>
-									<option value="yli"><?php echo _("Yli");?></option>
-								</select>
-								<input type="number" id="vuosi" class="form-control" maxlength=4 min=1900 max=2100 />
-								<div class="input-group-addon btn" id="vuositoggle"></div>
+							<div class="row">
+								<div class="col-xs-2">
+									<label class="control-label" for="vuosi"><?php echo _("Vuosi");?></label>
+								</div>
+								<div class="col-xs-2">
+									<select name="vuosie" class="form-control" id="vuosie">
+										<option value="alle"><?php echo _("Alle");?></option>
+										<option value="tasan"><?php echo _("Tasan");?></option>
+										<option value="yli"><?php echo _("Yli");?></option>
+									</select>
+								</div>
+								<div class="input-group col-xs-4">
+									<input type="number" id="vuosi" class="form-control" maxlength=4 min=1900 max=2100 />
+									<div class="input-group-addon btn" id="vuositoggle"></div>
+								</div>
 							</div>
 							<p class="help-block"><?php echo _("Koska julkaistu");?></p>
 						</div>
 						
 						<!-- bggrank -->
 						<div class="form-group" id="geekg">
-							<label class="control-label col-xs-2" for="geek"><?php echo _("BGG Rank");?></label>
-							<div class="input-group col-xs-6">
-								<select name="geeke" class="form-control" id="geeke">
-									<option value="alle"><?php echo _("Alle");?></option>
-									<option value="tasan"><?php echo _("Tasan");?></option>
-									<option value="yli"><?php echo _("Yli");?></option>
-								</select>
-								<input type="number" id="geek" class="form-control" maxlength=5 min=1 max=99999 />
-								<div class="input-group-addon btn" id="geektoggle"></div>
+							<div class="row">
+								<div class="col-xs-2">
+									<label class="control-label" for="geek"><?php echo _("BGG Rank");?></label>
+								</div>
+								<div class="col-xs-2">
+									<select name="geeke" class="form-control" id="geeke">
+										<option value="alle"><?php echo _("Alle");?></option>
+										<option value="tasan"><?php echo _("Tasan");?></option>
+										<option value="yli"><?php echo _("Yli");?></option>
+									</select>
+								</div>
+								<div class="input-group col-xs-4">
+									<input type="number" id="geek" class="form-control" maxlength=5 min=1 max=99999 />
+									<div class="input-group-addon btn" id="geektoggle"></div>
+								</div>
 							</div>
 							<p class="help-block"><?php echo _("BGG-rankkaus");?></p>
 						</div>					

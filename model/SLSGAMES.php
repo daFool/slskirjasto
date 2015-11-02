@@ -305,13 +305,16 @@ class SLSGAMES {
                         case "nimi":
                         case "julkaisija":
                         case "suunnittelija":
+                        case "pelaajia":
                             $so.="$key ~* :$key";
                             $d[$key]=$value["arvo"];
                             $f=false;
                             break;
+                        case "bggrank":
+                            // HUOM! TARKOITUKSELLINEN LÄPIVUOTO!
+                            $so.="bggrank >0 and ";
                         case "kesto":
                         case "vuosi":
-                        case "bggrank":
                             switch($value["ehto"]) {
                                 case "alle":
                                     $so.="$key <= :$key";
@@ -371,7 +374,10 @@ class SLSGAMES {
             if($ds) {
                 $s = "select count(*) as lkm from peli $so;";
                 $st = $this->db->prepare($s);
-                $res = $st->execute(array("v"=>$v));
+                $d2=$d;
+                unset($d2["start"]);
+                unset($d2["length"]);
+                $res = $st->execute($d2);
                 if($res && $st->rowCount()>0) {
 		    $a=$st->fetch();
                     $tulos["filtered"]=$a["lkm"];
