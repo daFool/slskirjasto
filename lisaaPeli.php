@@ -56,6 +56,8 @@ $metodi=tv("metodi", "", $ra);
 $peliid=tv("peliid", false, $ra);
 $kokoelmapeliid=tv("kokoelmapeliid", false, $ra);
 $bggrank=tv("bggrank", -1, $ra);
+$score=tv("score", -1, $ra);
+$age=tv("age",0, $ra);
 
 if($collection===false || $nimi===false || $suunnittelija===false || $julkaisija===false ||$pelaajia===false || $kesto===false ||$vuosi===false || $omistaja===false) {
     $_SESSION["ra"]=$ra;
@@ -88,7 +90,9 @@ if($metodi=="" || $metodi=="lisää" || $metodi=="uusi") {
             "gtin" => $gtin,
             "vuosi" =>$vuosi,
             "nimi" => $nimi,
-            "bggrank" => $bggrank
+            "bggrank" => $bggrank,
+            "score" => $score,
+            "age" => $age
         );
         $res = $pelit->addGame($game);
         $pelitunniste=$res[0];
@@ -104,7 +108,9 @@ if($metodi=="" || $metodi=="lisää" || $metodi=="uusi") {
             "vuosi" =>$vuosi,
             "nimi" => $nimi,
             "tunniste" => $peliid,
-            "bggrank" => $bggrank
+            "bggrank" => $bggrank,
+            "score" => $score,
+            "age" => $age
         );
     $res = $pelit->updateGame($game);
     $_SESSION["ra"]=$ra;

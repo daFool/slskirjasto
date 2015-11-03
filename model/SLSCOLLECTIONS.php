@@ -239,6 +239,29 @@ class SLSCOLLECTIONS {
         }
     }
     
+    /**
+     * Julkiset kokoelmat joista löytyy peli
+     *
+     * select vk.*, k.julkisuus from vkokoelma as vk join kokoelma as k on vk.kokoelma=k.nimi where k.julkisuus='avoin' and vk.nimi='Catan';
+     * @param string $game Pelin nimi
+     * @return mixed False, jos ei löytynyt ja kasan kokoelma rivejä, jos löytyi
+     * */
+    public function getGameCollectionsForGame_json($game) {
+        try {
+            $s="select vk.*, k.julkisuus from vkokoelma as vk join kokoelma as k on vk.kokoelma=k.nimi where k.julkisuus='avoin' and vk.nimi=:game;";
+            $st = $this->db->prepare($s);
+            $res = $st->execute(array("game"=>$game));
+            $a=array("lkm"=>0);
+            if($res && $st->rowCount()>0) {            
+                $a["lkm"]=$st->rowCount();
+                $a["rows"] = $st->fetchAll(PDO::FETCH_ASSOC);                
+            }
+            return json_encode($a);
+        }
+        catch(PDOException $e) {
+            die("Programmin error: {$e->getMessage()}");
+        }
+    }
     /** Viivakooditunnisteen haku
      *
      * @param string $kokoelma Kokoelman nimi

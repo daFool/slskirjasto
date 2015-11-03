@@ -77,7 +77,9 @@ class SLSGEEK {
             $julkaisija = $this->persilja($dom, 'boardgamepublisher');
             $suunnittelija = $this->persilja($dom, 'boardgamedesigner');
             $nimi = $this->persilja($dom, 'name');
-        
+            $ika = $this->persilja($dom, 'age');
+            $score = $this->persilja($dom, 'average');
+            
             $this->d["vuosi"]=trim($year);
             $this->d["pelaajia"]=trim("$min -$max");
             $this->d["julkaisija"] = trim($julkaisija);
@@ -86,6 +88,8 @@ class SLSGEEK {
             $this->d["nimi"]=trim($nimi);
             $this->d["aika"]=trim($aika);
             $this->d["bggrank"]=$this->rank($dom);
+            $this->d["age"]=trim($ika);
+            $this->d["score"]=trim($score);
         }
         catch(Exception $e) {
             die($e->getMessage());

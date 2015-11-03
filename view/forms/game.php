@@ -39,7 +39,7 @@ if($kokoelma===false) {
     die();
 }
 $virhe = isset($_REQUEST['virhe']) ? htmlspecialchars(urldecode($_REQUEST['virhe'])) : false;
-$_SESSION["paluu"]="{$baseurl}/forms/game.php";
+$_SESSION["paluu"]="{$baseurl}/view/forms/game.php";
 $metodi = isset($_REQUEST['metodi']) ? $_REQUEST['metodi'] : 'uusi';
 $peliid = isset($_REQUEST['tunniste']) ? $_REQUEST['tunniste'] : false;
 
@@ -69,6 +69,10 @@ include_once("$basepath/view/html_base.html");
                             $("#pelaajia").val(json.pelaajia);
                             $("#kesto").val(json.aika);
 							$("#bggl").html("<?php echo _("BGG-rank: ");?> "+json.bggrank);
+							$("#bggrank").val(json.bggrank);
+							$('#age').val(json.age);
+							$('#scorel').html("<?php echo _("BGG-score:");?>"+json.score);
+							$('#score').val(json.score);
                             checkEm();
 							$("#bggstatus").html("");
                         }
@@ -162,7 +166,7 @@ include_once("$basepath/view/html_base.html");
 								<label for="bgglinkki" class="control-label"><?php echo _("BGG-linkki: ");?></label>
 								<div class="input-group">
 									<input type="url" class="form-control" name="bgglinkki" id="bgglinkki" size="40" maxlength="255"
-									                pattern="https?://www.boardgamegeek.com/(board)?game.*/[0123456789]+(/[0-9a-zA-Z-])*"/>
+									                pattern="https?://www.boardgamegeek.com/(board)?game.*/[0123456789]+(/[0-9a-zA-Z-]*)"/>
 									<div class="input-group-addon btn" id="bggnappula"><?php echo _("Hae");?></div>
 								</div>
 								<span id="bgglinkkic" class="glyphicon form-control-feedback" aria-hidden="true"></span>
@@ -172,6 +176,11 @@ include_once("$basepath/view/html_base.html");
 								<label for="bggrank" class="control-label" id="bggl"></label>
 								<input type="hidden" class="form-control" name="bggrank" disabled="true" id="bggrank" />
 							</div>
+							<div class"form-group" id="scoreg">
+								<label for="score" class="control-label" id="scorel"></label>
+								<input type="hidden" class="form-control" name="score" disabled="true" id="score" />
+							</div>
+							<label for="age" class="control-label" id="agel"><?php echo _("Ikä: ");?><input type="number" min=1 max=99 name="age" size="2" maxlenght="2" id="age"/></label>
                             <label for="pelaajia"><?php echo _("Pelaajia: ");?><input type="text" name="pelaajia" size="10" maxlenght="255" id="pelaajia"/></label>
                             <label for="kesto"><?php echo _("Kesto minuuteissa: ");?><input type="number" name="kesto" id="kesto" min="0" max="640"/></label>
                             <label for="vuosi"><?php echo _("Julkaisuvuosi: ");?><input type="number" min="1900" max="2100" name="vuosi" id="vuosi"/></label>

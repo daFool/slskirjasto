@@ -172,6 +172,16 @@ class SLSGAMES {
                 $s.=",bggrank";
                 $sv.=",:bggrank";
             }
+             if(isset($game["score"])) {
+                $v["score"]=$game["score"];
+                $s.=",score";
+                $sv.=",:score";
+            }
+            if(isset($game["age"])) {
+                $v["age"]=$game["age"];
+                $s.=",age";
+                $sv.=",:age";
+            }
             $s.=") $sv) returning tunniste;";
             $st = $this->db->prepare($s);
             $res = $st->execute($v);
@@ -194,7 +204,7 @@ class SLSGAMES {
     public function updateGame($game) {
         try {
             $s = "update Peli set nimi=:nimi, suunnittelija=:suunnittelija, julkaisija=:julkaisija, bgglinkki=:bgglinkki,
-            kesto=:kesto, pelaajia=:pelaajia, gtin=:gtin, vuosi=:vuosi, bggrank=:bggrank where tunniste=:tunniste;";
+            kesto=:kesto, pelaajia=:pelaajia, gtin=:gtin, vuosi=:vuosi, bggrank=:bggrank, score=:score, age=:age where tunniste=:tunniste;";
             
             $st = $this->db->prepare($s);
             $res = $st->execute($game);
@@ -245,10 +255,10 @@ class SLSGAMES {
             switch($mode) {
                 case "Force":
                     $s = "update Peli set nimi=:nimi, suunnittelija=:suunnittelija, julkaisija=:julkaisija, bgglinkki=:bgglinkki,
-                        kesto=:kesto, pelaajia=:pelaajia, gtin=:gtin, vuosi=:vuosi, bggrank=:bggrank, bggdate=now() where tunniste=:tunniste;";
+                        kesto=:kesto, pelaajia=:pelaajia, gtin=:gtin, vuosi=:vuosi, bggrank=:bggrank, age=:age, score=:score, bggdate=now() where tunniste=:tunniste;";
                     break;
                 case "Rank":
-                    $s = "update Peli set bggrank=:bggrank, bggdate=now() where tunniste=:tunniste;";
+                    $s = "update Peli set bggrank=:bggrank, score=:score, age=:age, bggdate=now() where tunniste=:tunniste;";
                     break;
                 case "Missing":
                     $s = "update Peli set ";
@@ -311,10 +321,14 @@ class SLSGAMES {
                             $f=false;
                             break;
                         case "bggrank":
-                            // HUOM! TARKOITUKSELLINEN LÄPIVUOTO!
-                            $so.="bggrank >0 and ";
                         case "kesto":
                         case "vuosi":
+                        case "age":
+                        case "score":
+                            if($key=="bggrank")
+                                $so.="bggrank >0 and ";
+                            if($key=="score")
+                                $so.="score >0 and ";
                             switch($value["ehto"]) {
                                 case "alle":
                                     $so.="$key <= :$key";
@@ -345,9 +359,9 @@ class SLSGAMES {
             }
             
             if($order !== false) {
-                $s = "select nimi, bggrank, bgglinkki, kesto, pelaajia, vuosi, suunnittelija, julkaisija from peli $so order by $order limit :length offset :start;";
+                $s = "select nimi, bggrank, score, bgglinkki, kesto, pelaajia, age, vuosi, suunnittelija, julkaisija from peli $so order by $order limit :length offset :start;";
             } else {
-                $s = "select nimi, bggrank, bgglinkki, kesto, pelaajia, vuosi, suunnittelija, julkaisija from peli $so limit :length offset :start;";
+                $s = "select nimi, bggrank, score, bgglinkki, kesto, pelaajia, age, vuosi, suunnittelija, julkaisija from peli $so limit :length offset :start;";
             }
             if($ds) 
                 $d["v"]=$v;

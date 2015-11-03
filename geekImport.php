@@ -54,7 +54,9 @@ foreach($games as $game) {
         case "ranks":
             $a["tunniste"]=$game["tunniste"];
             $a["bggrank"]=$d["bggrank"];
-            $g->updateGameBGG($a, "Ranks");
+            $a["age"]=$d["age"];
+            $a["score"]=$d["score"];
+            $g->updateGameBGG($a, "Rank");
             break;
     }
     

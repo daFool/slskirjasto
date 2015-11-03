@@ -35,7 +35,10 @@ $vuosie = bored("vuosie", false);
 $bggranke = bored("bggranke", false);
 $bggrank = bored("bggrank", false);
 $julkaisija = bored("julkaisija", false);
-
+$score = bored("score", false);
+$scoree = bored("scoree", false);
+$age = bored("age", false);
+$agee = bored("agee", false);
 $req = serialize($order)." ".serialize($search);
 /*
  *<th>Nimi</th>
@@ -72,8 +75,17 @@ if($kesto !=false ) {
 if($bggrank != false) {
     $f["bggrank"]=array("arvo"=>$bggrank, "ehto"=>$bggranke);
 }
+
+if($age != false) {
+    $f["age"]=array("arvo"=>$age, "ehto"=>$agee);
+}
+
+if($score != false) {
+    $f["score"]=array("arvo"=>$score, "ehto"=>$scoree);
+}
+
 $req.=serialize($f);
-$a = array("nimi", "bggrank", "bgglinkki", "kesto", "pelaajia",  "vuosi", "suunnittelija", "julkaisija");
+$a = array("nimi", "bggrank", "score", "bgglinkki", "age", "kesto", "pelaajia",  "vuosi", "suunnittelija", "julkaisija");
 $db->log($req, __FILE__,"hum", __LINE__, "DEBUG");
 $g = new SLSGAMES($db);
 $od=false;
