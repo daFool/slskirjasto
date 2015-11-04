@@ -6,6 +6,8 @@
 					"serverSide": true,
 					"responsive": true,
 					"orderMulti": true,
+					"lengthMenu" : [ 10, 21, 25, 50, 75, 100],
+					"pageLength" : 21,
 					"search": {
 					"regex": true,
 					"caseInsensitive": true,
