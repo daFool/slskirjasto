@@ -222,7 +222,7 @@ class SLSGAMES {
      * All
      * @return array|boolean All games in the database
      * */
-    public function all($limit=falsep) {
+    public function all($limit=false) {
         try {
             if($limit) {
                 $s="select * from peli where bggdate + interval '1 day' < now() or bggdate is null";
@@ -282,6 +282,12 @@ class SLSGAMES {
                     break;
             }
             $st = $this->db->prepare($s);
+            if($game["score"]=="Not Ranked") {
+                $game["score"]=-1;
+            }
+            if($game["bggrank"]=="Not Ranked") {
+                $game["bggrank"]=-1;
+            }
             $res = $st->execute($game);
             if(!$res) {
                 return false;

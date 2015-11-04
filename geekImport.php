@@ -5,7 +5,14 @@ require("$basepath/helpers/common.php");
 if($argc !=2) {
     die("geekImport [force|ranks|missing] {$argc}");
 }
-
+switch($argv[1]) {
+    case "ranks":
+    case "force":
+    case "missing":
+        break;
+    default:
+        die("geekImport [force|ranks|missing] {$argc}");
+}
 $g = new SLSGAMES($db);
 $games = $g->all(true);
 $first=true;
@@ -34,11 +41,12 @@ foreach($games as $game) {
         sleep(5);
         continue;
     }
-    echo "Success: {$game["nimi"]}\n";
+    
     $a = array();
             
     switch($argv[1]) {
         case "force":
+            echo "Success: {$game["nimi"]}\n";
             break;
         case "missing":
             foreach($d as $key=>$value) {
@@ -49,14 +57,23 @@ foreach($games as $game) {
             $a["tunniste"]=$game["tunniste"];
             if(isset($a["bggrank"]) && $a["bggrank"]=="Not Ranked")
                 $a["bggrank"]=-1;
-            $g->updateGameBGG($a, "Missing");
+            $res=$g->updateGameBGG($a, "Missing");
+            if($res==false) {
+                die("Failed: {$game["nimi"]}");
+            }
+            echo "Success: {$game["nimi"]}\n";
             break;
         case "ranks":
             $a["tunniste"]=$game["tunniste"];
             $a["bggrank"]=$d["bggrank"];
             $a["age"]=$d["age"];
-            $a["score"]=$d["score"];
-            $g->updateGameBGG($a, "Rank");
+            $a["score"]=$d["score"];            
+            $res=$g->updateGameBGG($a, "Rank");
+            if($res==false) {
+                print_r($a);
+                die("\nFailed: {$game["nimi"]}\n");
+            }
+            echo "Success: {$game["nimi"]}\n";
             break;
     }
     

@@ -150,7 +150,34 @@ include_once("$basepath/view/html_base.html");
 				// Pelit taulun bodyn click-handleri
 				$('#games tbody').on( 'click', 'tr', function () {
 					var peli=$(this).children("td:first").html();
-					console.log(peli);  
+					console.log(peli);
+					$.get("<?php echo "$baseurl/json/json_gamecollections.php";?>", { game: peli} ,
+						  function(data) {
+							if (data.lkm==0) {
+								return;
+							}
+							taulu = $("#finds tbody");
+							taulu.empty();
+							for (i=0;i<data.lkm;i++) {
+								row=data.rows[i];
+								kohde="<?php echo "$baseurl/view/forms/lainaus.php";?>?collection=";
+								kohde+=encodeURIComponent(row.kokoelma)+"&tunniste=";
+								kohde+=encodeURIComponent(row.tunniste)+"&peli=";
+								kohde+=encodeURIComponent(row.nimi);
+								if (row.tila=="<?php echo _("Vapaa");?>") {
+									rivi="<tr onclick='window.document.location="+'"'+kohde+'"'+"'>";	//code
+								}
+								else
+									rivi="<tr>";
+								rivi+="<td>"+row.kokoelma+"</td><td>"+row.tunniste+"</td>";
+								rivi+="<td>"+row.nimi+"</td><td>"+row.hylly+"</td>";
+								rivi+="<td>"+row.paikka;
+								rivi+="<td>"+row.omistaja+"</td><td>"+row.tila+"</td></tr>";
+								taulu.append(rivi);
+							}							
+							$('#kokoelmat').modal('show');
+						  }						  
+						 );
 				} );
 			})
 		</script>
@@ -369,6 +396,46 @@ include_once("$basepath/view/html_base.html");
 						</div>
 					</form>
 				</section>
+			</div>
+			<div class="modal fade" id="kokoelmat" tabindex="-1" role="dialog" aria-labelledby="kokoelmalabel">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" onclick="$('#kokoelmat').modal('hide')" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<table id="finds" class="table table-striped">
+								<thead>
+									<tr>
+										<th><?php echo _("Kokoelma");?></th>
+										<th><?php echo _("Tunniste");?></th>
+										<th><?php echo _("Nimi");?></th>
+										<th><?php echo _("Hylly");?></th>
+										<th><?php echo _("Paikka");?></th>
+										<th><?php echo _("Omistaja");?></th>
+										<th><?php echo _("Tila");?></th>
+									</tr>
+								</thead>
+								<tbody>
+									
+								</tbody>
+								<tfoot>
+									<tr>
+										<th><?php echo _("Kokoelma");?></th>
+										<th><?php echo _("Tunniste");?></th>
+										<th><?php echo _("Nimi");?></th>
+										<th><?php echo _("Hylly");?></th>
+										<th><?php echo _("Paikka");?></th>
+										<th><?php echo _("Omistaja");?></th>
+										<th><?php echo _("Tila");?></th>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<?php include_once("$basepath/view/footer.html");?>

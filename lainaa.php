@@ -42,6 +42,10 @@ include_once("view/html_base.html");
     <section class='container'>
         <div class="row">
             <h2><?php printf(_("Lainaus %s"), $tulos ? _("onnistui") : _("epäonnistui"));?></h2>
+            <?php
+                if($tulos==true)
+                    $_SESSION["collection_default"]=$kokoelma;
+            ?>
             <button type="button" class="btn btn-lg btn-default" id="paluu"><?php echo _("Kokoelmaan");?></button>
         </div>
     </section>
