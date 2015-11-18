@@ -45,11 +45,12 @@ if($numero >0 && $users->checkMember($numero))
 $email = isset($_POST['sahkoposti']) ? $_POST['sahkoposti'] : false;
 
 if(!$email || strchr($email, "@")===false) {
-    if($register_type=="Lainaaja" && $puhline=="")
+    if($register_type=="Lainaaja" && $puhelin=="") {
         error(_("Jompi kumpi, sähköpostiosoite tai puhelinnumero on annettava."));
-    else
+    }
+    else if ($register_type!="Lainaaja") {
         error(_("Sähköpostiosoitteessa on toivomisen varaa."), $register_method, $register_type);
-
+    }
 }
     
 if(!isset($_POST['syntymavuosi']) || $_POST['syntymavuosi']=="")
@@ -117,6 +118,7 @@ include_once("$basepath/view/html_base.html");
                 <h2><?php echo _("Tunnus vahvistusta vailla");?></h2>
                 <p><?php echo _("Antamaasi sähköpostiosoitteeseen on lähetetty vahvistuslinkki, jolla tunnuksesi aktivoituu.");?></p>
             </div>
-      </section>        
+      </section>
+      <?php include("$basepath/view/footer.html");?>
 </body>
 </html>

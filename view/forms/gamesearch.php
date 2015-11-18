@@ -295,7 +295,7 @@ include_once("$basepath/view/html_base.html");
 						<div class="form-group" id="kestog">
 							<div class="row">
 								<div class="col-xs-4">
-									<label class="control-label" for="kesto"><?php echo _("Kesto");?></label>
+									<label class="control-label" for="kesto"><?php echo _("Kesto (min)");?></label>
 								</div>
 								<div class="col-xs-4">
 										<select name="kestoe" class="form-control" id="kestoe">
@@ -336,7 +336,7 @@ include_once("$basepath/view/html_base.html");
 						<div class="form-group" id="vuosig">
 							<div class="row">
 								<div class="col-xs-4">
-									<label class="control-label" for="vuosi"><?php echo _("Vuosi");?></label>
+									<label class="control-label" for="vuosi"><?php echo _("Vuosi (VVVV)");?></label>
 								</div>
 								<div class="col-xs-4">
 									<select name="vuosie" class="form-control" id="vuosie">

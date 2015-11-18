@@ -1,7 +1,7 @@
 <?php
 require_once("globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/maxrights.php");
+require_once("$basepath/helpers/adminrights.php");
 
 $peli = isset($_REQUEST["peli"]) ? $_REQUEST["peli"] : false;
 $kokoelma = isset($_REQUEST["collection"]) ? $_REQUEST["collection"] : false;

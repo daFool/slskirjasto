@@ -91,7 +91,7 @@
 						case "Vapaa":
 							console.log("Deaktivoi");
 							kohde="<?php echo "{$baseurl}/deaktivoi.php/?collection=".urlencode($collection);?>&tunniste=";
-							kohde+=encodeURIComponent(tunniste)+"&peli="+encodeURIComponent(peli);
+							kohde+=encodeURIComponent(tunniste)+"&peli="+encodeURIComponent(peli)+"&metodi="+encodeURIComponent("lisää");
 							window.location=kohde;
 							break;
 						case "Lainassa":
@@ -138,7 +138,7 @@
 					$("#kokoelma tbody").children("tr").each(function() {
 						tarrat=tarrat+$(this).children("td:first").html()+";";
 					})
-					kohde="<?php echo "$baseurl/tarrasivu.php?codes=";?>"+encodeURIComponent(tarrat);
+					kohde="<?php echo "$baseurl/tarratulostus.php?codes=";?>"+encodeURIComponent(tarrat);
 					window.open(kohde);
 				})
 			} );

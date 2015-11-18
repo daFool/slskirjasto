@@ -269,7 +269,7 @@ class SLSCOLLECTIONGAMES {
             $targets = array("nimi"=>"nimi", "suunnittelija"=>"suunnittelija", "julkaisija"=>"julkaisija",
                              "bgglinkki"=>"bgglinkki", "kesto"=>"kesto", "pelaajia"=>"pelaajia", "gtin"=>"gtin", "vuosi"=>"vuosi",
                              "omistaja"=>"omistaja", "la"=>"lahjoittaja", "hylly"=>"hylly", "paikka"=>"paikka", "laatikko"=>"laatikko",
-                             "kunto"=>"kunto", "lv"=>"lahjoittajawww", "ptunniste"=>"peliid", "ktunniste"=>"kokoelmapeliid");
+                             "kunto"=>"kunto", "lv"=>"lahjoittajawww", "ptunniste"=>"peliid", "ktunniste"=>"kokoelmapeliid", "age"=>"age", "score"=>"score", "bggrank"=>"bggrank");
             foreach($rows[0] as $key=>$value) {
                 if(isset($targets[$key]))
                     $r[$targets[$key]]=$value;
@@ -293,7 +293,7 @@ class SLSCOLLECTIONGAMES {
             kokoelma=:Kokoelma;";
             $st = $this->db->prepare($s);
             if(isset($cg["Lahjoittaja"]) && $cg["Lahjoittaja"]!="")
-               if($this->lahjoittaja($cg["Lahjoittaja"], $cg["LahjoittajanUrl"]))
+               if(!$this->lahjoittaja($cg["Lahjoittaja"], $cg["LahjoittajanUrl"]))
                 return false;
             if(isset($cg["LahjoittajanUrl"]))
                 unset($cg["LahjoittajanUrl"]);

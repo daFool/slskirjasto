@@ -54,6 +54,20 @@ include_once("$basepath/view/html_base.html");
                 else {
                     $("#tallenna").attr("disabled", "true");
                 }
+/*				$("#peli").find("input, textarea, select").each(function () {
+					
+					if ($(this).get(0).checkValidity()===true) {
+						if ($(this).parent().hasClass("has-error")) {
+							$(this).parent().removeClass("has-error");
+							console.log("Ehjä: "+$(this).attr("name"));
+						}
+						else {
+							$(this).parent().addClass("has-error");
+							console.log($(this).attr("name"));
+						}
+					}
+				});
+	*/				
             }
             
             // $("#bgglinkki").blur(function () {
@@ -90,16 +104,22 @@ include_once("$basepath/view/html_base.html");
                 source : "<?php echo $baseurl; ?>/json/json_lainaaja.php",
                 minlength: 2
             })
-            $("#nimi").blur(function () { checkEm(); });
-            $("#suunnittelija").blur(function () { checkEm(); });
-            $("#julkaisija").blur(function () { checkEm();});
-            $("#pelaajia").blur(function () { checkEm();});
-            $("#kesto").blur(function () { checkEm();});
-            $("#vuosi").blur(function () { checkEm()});
-            $("#omistaja").blur(function () { checkEm()});
-            $("#lahjoittaja").blur(function () { checkEm()});
-            $("#tallenna").on('click', function () {
-                console.log("Submit");
+			checkEm();
+			
+			$("#peli").find("input").each(function () {
+				$(this).blur(function () {
+					checkEm();
+				});
+			});
+			
+			$("#peli").find("select").each(function () {
+				$(this).blur(function () {
+					checkEm();
+				});
+			});
+			            
+		    $("#tallenna").on('click', function () {
+                // console.log($("#peli").serialize());
                 $("#peli").submit();
             })
             $("#vbutton").on('click', function () {
@@ -115,9 +135,16 @@ include_once("$basepath/view/html_base.html");
                 $.each(json, function (index, value) {
                     console.log(index);
                     console.log(value)
+					if (index=="bggrank") {
+						$("#bggl").html("<?php echo _("BGG-rank: ");?> "+value);//code
+					}
+					if (index=="score") {
+						$('#scorel').html("<?php echo _("BGG-score:");?>"+value);//code
+					}
                     $("#"+index).val(value);
                     
                 })
+				checkEm();
             })
             <?php
             }
@@ -155,8 +182,12 @@ include_once("$basepath/view/html_base.html");
                             <input type="hidden" name="peliid" id="peliid" value=""/>
                             <input type="hidden" name="kokoelmapeliid" id="kokoelmapeliid" value="<?php echo htmlspecialchars($peliid);?>"/>
                             <input type="hidden" name="kokoelma" value="<?php echo $kokoelma;?>"/>
-                            <input type="hidden" id="kilroy" value=""/>
-                            <label for="nimi"><?php echo _("Pelin nimi: ");?><input type="text" name="nimi" id="nimi" required="true" size="40" maxlength="255"/></label>
+                            <input type="hidden" id="score" name="score" value="-1" id="score" />
+							<input type="hidden" id="bggrank" name="bggrank" value="-1" id="bggrank">
+							<input type="hidden" id="kilroy" value=""/>
+							
+                            
+							<label for="nimi"><?php echo _("Pelin nimi: ");?><input type="text" name="nimi" id="nimi" required="true" size="40" maxlength="255"/></label>
                             <label for="suunnittelija"><?php echo _("Suunnittelija: ");?><input type="text" name="suunnittelija" id="suunnittelija" required="true" size="40"
                                                                                                maxlength="255"/></label>
                             <label for="julkaisija"><?php echo _("Julkaisija: ");?><input type="text" name="julkaisija" id="julkaisija" required="true" size="40"
@@ -166,19 +197,17 @@ include_once("$basepath/view/html_base.html");
 								<label for="bgglinkki" class="control-label"><?php echo _("BGG-linkki: ");?></label>
 								<div class="input-group">
 									<input type="url" class="form-control" name="bgglinkki" id="bgglinkki" size="40" maxlength="255"
-									                pattern="https?://www.boardgamegeek.com/(board)?game.*/[0123456789]+(/[0-9a-zA-Z-]*)"/>
+									                pattern="https?://www.boardgamegeek.com/(board)?game.*/[0123456789]+(/[0-9a-zA-Z-]*)?"/>
 									<div class="input-group-addon btn" id="bggnappula"><?php echo _("Hae");?></div>
 								</div>
 								<span id="bgglinkkic" class="glyphicon form-control-feedback" aria-hidden="true"></span>
 								<p class="help-block"><?php echo _("Pelin sivuosoite BoardGameGeekissä.");?> <span id="bggstatus"></span></p>
 							</div>
 							<div class"form-group" id="bggrankg">
-								<label for="bggrank" class="control-label" id="bggl"></label>
-								<input type="hidden" class="form-control" name="bggrank" disabled="true" id="bggrank" />
+								<label for="bggrank" class="control-label" id="bggl"></label>								
 							</div>
 							<div class"form-group" id="scoreg">
 								<label for="score" class="control-label" id="scorel"></label>
-								<input type="hidden" class="form-control" name="score" disabled="true" id="score" />
 							</div>
 							<label for="age" class="control-label" id="agel"><?php echo _("Ikä: ");?><input type="number" min=1 max=99 name="age" size="2" maxlenght="2" id="age"/></label>
                             <label for="pelaajia"><?php echo _("Pelaajia: ");?><input type="text" name="pelaajia" size="10" maxlenght="255" id="pelaajia"/></label>

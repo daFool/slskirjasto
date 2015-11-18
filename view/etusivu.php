@@ -55,7 +55,7 @@ include_once("$basepath/view/html_base.html");
                   <tr>
                     <th><?php echo _("Peli");?></th>
                     <th><?php echo _("BGG rank");?></th>
-                    <th><?php echo ("BGG");?></th>
+                    <th><?php echo _("BGG");?></th>
                     <th><?php echo _("Kesto");?></th>
                     <th><?php echo _("Pelaajia");?></th>
                     <th><?php echo _("Vuosi");?></th>
@@ -65,7 +65,7 @@ include_once("$basepath/view/html_base.html");
                   <tr>
                     <th><?php echo _("Peli");?></th>
                     <th><?php echo _("BGG rank");?></th>
-                    <th><?php echo ("BGG");?></th>
+                    <th><?php echo _("BGG");?></th>
                     <th><?php echo _("Kesto");?></th>
                     <th><?php echo _("Pelaajia");?></th>
                     <th><?php echo _("Vuosi");?></th>

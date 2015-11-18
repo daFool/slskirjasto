@@ -16,7 +16,7 @@
  * */
 require_once("../../globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/maxrights.php");
+require_once("$basepath/helpers/adminrights.php");
 
 $collection = isset($_REQUEST["collection"]) ? $_REQUEST["collection"] : false;
 $gameid = isset($_REQUEST["tunniste"]) ? $_REQUEST["tunniste"] : false;

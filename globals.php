@@ -44,4 +44,5 @@ define("REDIRECT_URI", "$baseurl/google_login.php");
 define("URL_MUNGLER", true);
 $vendorpaths=array("vendor/barcodegen.1d-php5.v5.2.1/class");
 define("BARCODE", "/^[a-zA-Z0123456789]{1,6}$/");
+$fontPath="$basepath/vendor/barcodegen.1d-php5.v5.2.1/font/Arial.ttf";
 ?>

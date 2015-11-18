@@ -9,12 +9,10 @@ globals.php
 google_login.php
 index.php
 lainaa.php
-LICENSE
 lisaaPeli.php
 messages.po
 palauta.php
 private.sample.php
-README.md
 search_collectiongames.php
 search_users.php
 session.php
@@ -29,4 +27,5 @@ tuoslspelit_cmd.php
 tuoslspelit.php
 uusikayttaja.php
 vahvistus.php
-
+vaihdasalasana.php
+talletaKayttaja.php

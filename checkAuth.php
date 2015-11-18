@@ -22,6 +22,7 @@ require_once("helpers/common.php");
  * @param string $message Virheilmoitus
  * */
 function error($message) {
+    global $baseurl;
     $url="$baseurl/view/forms/login.php?";
     $params="error=$message";
     header("Location: {$url}{$params}");

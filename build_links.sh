@@ -1,5 +1,5 @@
 #!/bin/bash -x
-srcdir="../slskirjasto.cloud"
+srcdir="../slskirjasto.redhat"
 hakemistot="helpers json model sql vendor view css img"
 for i in $hakemistot;do 
 	rm -rf $i;

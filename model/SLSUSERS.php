@@ -154,6 +154,19 @@ class SLSUSERS {
             die("Programming error: {$e->getMessage()}");
         }
     }
+    
+    /**
+     * Local password
+     * @param string $salasana password to hash
+     * @return array with hashed password and password hash
+     * */
+    private function salakala($salasana) {
+        $suola = openssl_random_pseudo_bytes(5);
+        $salasana = openssl_digest($suola.$salasana,"sha256");
+        $d = array("Salaisuusavain"=>base64_encode($suola), "Salaisuus"=>$salasana);
+        return $d;
+    }
+    
     /**
      * Register a new user
      * @param array $user User details
@@ -164,12 +177,9 @@ class SLSUSERS {
         try {
             global $baseurl;
             if($ident['method']=="local") {
-                $suola = openssl_random_pseudo_bytes(5);
-                $salasana = openssl_digest($suola.$ident['salasana'],"sha256");
-                $d = array("Kayttaja"=>$user['ktunnus'],
-                                             "Tyyppi"=>'local',
-                                             "Salaisuusavain"=>base64_encode($suola),
-                                             "Salaisuus"=>$salasana);
+                $d = $this->salakala($ident["salasana"]);
+                $d["Kayttaja"]=$user['ktunnus'];
+                $d["Tyyppi"]='local';                                                     
             } else {
                 $d = array("Kayttaja"=>$user['ktunnus'],
                            "Tyyppi"=>'Google',
@@ -197,6 +207,25 @@ class SLSUSERS {
         }
         catch(PDOException $e) {
             die("Programming error: {$e->getMessage()}");
+        }
+    }
+    
+    /**
+     * Salasanan vaihtaminen
+     * @param string $kayttajatunnus Käyttäjätunnus, jonka salasanaa vaihdetaan
+     * @param string $salasana, Salasana, johon vaihdetaan
+     * @return boolean False jos epäonnistui, True jos onnistui
+     * */
+    public function vaihdaSalasana($kayttajatunnus, $salasana) {
+        try {
+            $s = "update KayttajaTunnistus set salaisuusavain=:Salaisuusavain, salaisuus=:Salaisuus where kayttaja=:kayttajatunnus and tyyppi='local';";
+            $d = $this->salakala($salasana);
+            $d["kayttajatunnus"]=$kayttajatunnus;
+            $st = $this->db->prepare($s);
+            $res = $st->execute($d);
+            return $res;
+        } catch(PDOException $e) {
+            die("Ohjelmointivirhe {$e->getMessage()}");
         }
     }
     
@@ -397,5 +426,103 @@ class SLSUSERS {
         }
     }
     
+      /**
+     * Paginate games with gusto
+     * */
+    public function tableFetch($start, $length, $order, $search) {
+        try {
+            $ds = false;
+            $tulos = array("lkm"=>0, "kayttajat"=>array(), "riveja"=>0, "filtered"=>0);
+            $so="";
+            $v="";
+            if(isset($search["value"])) {
+                $v = $search["value"];
+                $so = "where (nimi ~* :v or tunniste ~* :v)";
+                $ds = true;
+            }
+            $base="select nimi, tunniste, tila, lisatty, slsjasennumero, puhelin, sahkoposti, syntymavuosi, sukupuoli, vahvistus from kayttaja $so";
+            $d = array("length"=>$length, "start"=>$start);
+            if($order !== false) {
+                $s = "$base order by $order limit :length offset :start;";              
+            } else {
+                $s = "$base limit :length offset :start;";
+            }
+            if($ds) 
+                $d["v"]=$v;
+            
+            $m = "$s ($v)";
+            $this->dbc->log($m, __FILE__, __CLASS__,__LINE__,"DEBUG");
+            $st = $this->db->prepare($s);
+            $res = $st->execute($d);
+            if(!$res || $st->rowCount()==0) {
+                return $tulos;
+            }
+            $kayttajat = $st->fetchAll();
+            $s = "select count(*) as lkm from kayttaja;";
+            $st = $this->db->prepare($s);
+            $res = $st->execute();
+            if(!$res || $st->rowCount()==0) {
+                return $tulos;
+            }
+            $row = $st->fetch();
+            $tulos["lkm"]=$row["lkm"];
+            $tulos["kayttajat"]=$kayttajat;
+            $tulos["riveja"]=count($kayttajat);
+            $tulos["filtered"]=$row["lkm"];
+            if($ds) {
+                $s = "select count(*) as lkm from kayttaja $so;";
+                $st = $this->db->prepare($s);
+                $res = $st->execute(array("v"=>$v));
+                if($res && $st->rowCount()>0) {
+		    $a=$st->fetch();
+                    $tulos["filtered"]=$a["lkm"];
+                }
+            }
+            return $tulos;
+        }
+        catch(PDOException $e) {
+            die("Programming error: {$e->getMessage()}");
+        }
+    }
+    
+    public function update($user) {
+        try {
+            $d=array();
+            $alku = "update kayttaja set ";
+            $eka=true;
+            $loppu = " where tunniste=:tunniste;";
+            foreach($user as $k=>$v) {
+                switch($k) {
+                    case "salasana":
+                        $this->vaihdaSalasana($user["tunniste"], $user["salasana"]);
+                        break;
+                    case "tunniste":
+                        $d["tunniste"]=$v;
+                        break;
+                    case "nimi":
+                    case "slsjasennumero":
+                    case "puhelin":
+                    case "sahkoposti":
+                    case "syntymavuosi":
+                    case "sukupuoli":
+                    case "tila":
+                        if(!$eka) {
+                            $alku.=", ";
+                        }
+                        $eka=false;
+                        $alku.="$k=:$k";
+                        $d[$k]=$v;
+                        break;
+                }
+            }
+            $s=$alku.$loppu;
+            $st = $this->db->prepare($s);
+            $res = $st->execute($d);
+            return $res;
+        }
+        catch(PDOException $e) {
+            die("Ohjelmointivirhe {$e->getMessage()}");
+        }
+    }
 }
 ?>

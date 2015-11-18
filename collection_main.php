@@ -33,6 +33,7 @@ if($collection===false) {
 
 $col = new SLSCOLLECTIONS($db);
 $_SESSION["collection_id"]=$col->getBarcode($_SESSION["collection_default"]);
+unset($_SESSION["ra"]);
 
 include_once("$basepath/view/html_base.html");
 include_once("$basepath/view/collectionmain.php");

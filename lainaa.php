@@ -12,7 +12,7 @@
  * */
 require_once("globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/maxrights.php");
+require_once("$basepath/helpers/adminrights.php");
 
 $lainat = new SLSLainat($db);
 $lainaaja = isset($_REQUEST["tunniste"]) ? $_REQUEST["tunniste"] : false;

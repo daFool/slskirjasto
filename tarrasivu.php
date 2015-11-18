@@ -1,14 +1,3 @@
-<?php
-$tunnisteet=isset($_REQUEST["codes"]) ? urldecode($_REQUEST["codes"]) : false;
-if($tunnisteet==false) {
-    die(_("Ei tarroja"));
-}
-$tarrat = explode(";",$tunnisteet);
-$lkm = count($tarrat);
-if(count($lkm)>21) {
-    die(sprintf(_("Liikaa %d tarroja. Enintään 21 kerralla"), $lkm));
-}
-?>
 <!doctype html>
     <html lang="fi">
         <head>
@@ -65,9 +54,9 @@ if(count($lkm)>21) {
         </head>
         <body>
             <?php
-            for($i=0;$i<$lkm;$i++) {
+            for($i=0;$i<21;$i++) {
                 // $k=sprintf("daFool%04d", $i);
-                $k = substr($tarrat[$i],0,12);
+                $k = substr($t[$i]["viivakoodi"],0,12);
                 if($k=="")
                     continue;
                 switch($i) {
@@ -89,8 +78,9 @@ if(count($lkm)>21) {
                         break;
                 }
                 ?>
-                <div class="<?php echo $c;?>"><img src="tarratesti.php?teksti=<?php echo $k;?>"></div>
-                <?php
+                <div class="<?php echo $c;?>"><img src="tarratesti.php?teksti=<?php echo $k;?>"><br/><?php echo $t[$i]["nimi"];?><br/>
+                <?php echo $t[$i]["hylly"]." ".$t[$i]["hyllypaikka"];?><br/></div>                
+            <?php
             }
             ?>
         </body>

@@ -17,12 +17,15 @@
  * */
 require_once("globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/maxrights.php");
+require_once("$basepath/helpers/adminrights.php");
 
 $paluu = isset($_SESSION["paluu"]) ? $_SESSION["paluu"] : false;
 
 function tv($nimi, $def=false, &$ra=false) {
     $arvo = isset($_POST[$nimi]) ? $_POST[$nimi] : $def;
+    if(is_numeric($def) && $_POST[$nimi]=="")
+        $arvo=$def;
+        
     if($ra!==false)
         $ra[$nimi]=$arvo;
     return $arvo;
@@ -67,7 +70,9 @@ if($collection===false || $nimi===false || $suunnittelija===false || $julkaisija
 $db = new SLSDB();
 
 $pelit = new SLSGAMES($db);
-
+if($bggrank=="Not Ranked")
+  $bggrank=-1;
+  
 if($metodi=="" || $metodi=="lisää" || $metodi=="uusi") {
     $res = $pelit->findWithRex($nimi, "Nimi");
     if($res===false && $gtin!="")
@@ -122,7 +127,8 @@ if($metodi=="" || $metodi=="lisää" || $metodi=="uusi") {
 }
 
 $u = new SLSUSERS($db);
-@list($foo, $omistaja)=explode("/", $omistaja);
+if(strpos($omistaja, "/")>0)
+    @list($foo, $omistaja)=explode("/", $omistaja);
 $res = $u->findWithRex(trim($omistaja), "Tunniste");
 
 if($res===false) {
@@ -142,13 +148,20 @@ $cg["Paikka"]=$paikka;
 $cg["Laatikko"]=$laatikko;
 $cg["Lahjoittaja"]=$lahjoittaja;
 $cg["LahjoittajanUrl"]=$lahjoittajanurl;
-
+   
 $c = new SLSCOLLECTIONGAMES($db);
 $res = $c->findWithRex($pelitunniste, "Tunniste", $collection);
-
-if($res === false) {   
+if($res === false || $metodi=="lisää" || $metodi=="uusi") {   
+    $uusikpl=$cg["Tunniste"];
+    $i=0;        
+    $t=$c->haePeli($uusikpl);
+    while($t["kilroy"]=="") {
+        $uusikpl=sprintf("%s%02d%05d", $_SESSION["collection_id"], $i++, $pelitunniste);
+        $t=$c->haePeli($uusikpl);        
+    }
+    $cg["Tunniste"]=$uusikpl;
     $cg["Lisaaja"]=$_SESSION['user']['tunniste'];
-    $c->add($cg);
+    $c->add($cg);   
 } else {
     $cg["Muokkaaja"]=$_SESSION['user']['tunniste'];
     $cg["Tunniste"]=$kokoelmapeliid;
