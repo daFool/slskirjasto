@@ -13,6 +13,7 @@
  /**
   * Class autoloading
   * @param string $class Name of the class to autoload
+  * @return boolean True if class was found and false if it wasn't.
   * */
  function autoload($class) {
     global $basepath;
@@ -20,24 +21,30 @@
     
     if(file_exists("$basepath/model/$class.php")) {
         require("$basepath/model/$class.php");
-        return;
+        return true;
     }
     elseif(file_exists("$basepath/helpers/$class.php")) {
-        require("$basepath/helpoers/$class.php");
+        require("$basepath/helpers/$class.php");
+        return true;
+    }
+    elseif(file_exists("$basepath/json/$class.php")) {
+         require("$basepath/json/$class.php");
+         return true;
     }
     else {
         foreach($vendorpaths as $vp) {
             if(file_exists("$basepath/$vp/$class.php")) {
                 require("$basepath/$vp/$class.php");
-                break;
+                return true;
             } else {
                 if(file_exists("$basepath/$vp/$class.barcode.php")) {
                     require("$basepath/$vp/$class.barcode.php");
-                    break;
+                    return true;
                 }
             }
         }
-    }    
+    }
+    return false;
  }
 
 spl_autoload_register('autoload');
@@ -109,5 +116,17 @@ function SLSMail($to, $subject, $message, $headers) {
     }
     $url.="?pid=$pid&nyh=$nyh";
     return $url;
+ }
+ 
+ /**
+  * Virheistä palaaminen
+  * @param string $viesti Virheviesti
+  * @param $url Paluuosoite
+  * */
+ function error($viesti, $url) {
+   global $baseurl;
+   
+   header("Location: $baseurl/$url?virhe=".urlencode($viesti));
+   die();
  }
 ?>

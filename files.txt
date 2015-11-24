@@ -18,8 +18,7 @@ search_users.php
 session.php
 slskirjasto.druid
 slskirjasto.ini
-tarrasivu.php
-tarratesti.php
+tarratulostus.php
 test.php
 tuoKokoelmasta.php
 tuolainaajat.php

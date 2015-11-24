@@ -193,7 +193,7 @@ class SLSCOLLECTIONS {
             }
             $row = $st->fetch();
             $tulos["lkm"]=$row["lkm"];
-            $tulos["collections"]=$kokoelmat;
+            $tulos["rivit"]=$kokoelmat;
             $tulos["riveja"]=count($kokoelmat);
             $tulos["filtered"]=$row["lkm"];
             if($ds) {

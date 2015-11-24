@@ -12,45 +12,14 @@
 require_once("../globals.php");
 require_once("$basepath/helpers/common.php");
 
-$db = new SLSDB();
-
-$draw = isset($_REQUEST["draw"]) ? $_REQUEST["draw"] : false;
-$start = isset($_REQUEST["start"]) ? $_REQUEST["start"] : 0;
-$length = isset($_REQUEST["length"]) ? $_REQUEST["length"] : 10;
-$search = isset($_REQUEST["search"]) ? $_REQUEST["search"] : false;
-$order = isset($_REQUEST["order"]) ? $_REQUEST["order"] : false;
-$columns = isset($_REQUEST["columns"]) ? $_REQUEST["columns"] : false;
-
 /*
  * nimi, laji, omistaja, tapahtuma, lisatty
  * */
 $a = array("nimi", "laji", "omistaja", "tapahtuma", "lisatty");
 $c = new SLSCOLLECTIONS($db);
-$od=false;
-if($order) {
-    $od = "";
-    $first=true;
-    foreach($order as $o) {
-        if(isset($a[$o["column"]])) {
-            $od.= $first ? "" : ", ";
-            $od.=$a[$o["column"]]." ".$o["dir"];
-            $first=false;
-        }
-    }
-}
-$collections = $c->tableFetch($start, $length, $od, $search);
-$jason = array("draw"=>$draw, "recordsTotal"=>$collections["lkm"], "recordsFiltered"=>$collections["filtered"]);
-$data=array();
-$i=0;
+$j = new JsonBase($a, $c);
+$jason = $j->tableFetch();
 
-foreach($collections["collections"] as $rivi) {
-    $j=0;
-    foreach($a as $aa) {
-            $data[$i][$j++]=$rivi[$aa];
-    }
-    $i++;
-}
-$jason["data"]=$data;
 header("Content-type: application/json");
 echo json_encode($jason);
 ?>

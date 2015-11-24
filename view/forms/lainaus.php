@@ -49,7 +49,7 @@ include_once("$basepath/view/html_base.html");
                         tsekkaa = { jasennumero : jasennumero };
                         break;
                 }
-                $.post("<?php echo $baseurl;?>/check_lainaaja.php", tsekkaa , function ( data ) {
+                $.post("<?php echo $baseurl;?>/json/check_lainaaja.php", tsekkaa , function ( data ) {
                         gotEm(data);
                 });                
             }

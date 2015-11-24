@@ -104,7 +104,7 @@ class SLSGAMES {
             }
             $row = $st->fetch();
             $tulos["lkm"]=$row["lkm"];
-            $tulos["pelit"]=$pelit;
+            $tulos["rivit"]=$pelit;
             $tulos["riveja"]=count($pelit);
             $tulos["filtered"]=$row["lkm"];
             if($ds) {

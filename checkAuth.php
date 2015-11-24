@@ -14,35 +14,23 @@
 require_once("globals.php");
 require_once("helpers/common.php");
 
-/**
- * Virhe kirjautumisessa
- *
- * Asettaa virheilmoitusparametrin get-pyynnölle ja siirtää takaisin kirjautumissivulle
- *
- * @param string $message Virheilmoitus
- * */
-function error($message) {
-    global $baseurl;
-    $url="$baseurl/view/forms/login.php?";
-    $params="error=$message";
-    header("Location: {$url}{$params}");
-    die();
-}
-
+$paluu="view/forms/login.php";
 $salasana = isset($_POST['salasana']) ? $_POST['salasana'] : false;
 $ktunnus = isset($_POST['ktunnus']) ? $_POST['ktunnus'] : false;
 
 if($salasana===false || $ktunnus===false)
-    error(_("Käyttäjätunnus tai salasana puuttui."));
+    error(_("Käyttäjätunnus tai salasana puuttui."), $paluu);
 
 $users = new SLSUSERS($db);
 if($users->checkLocalAuth($salasana, $ktunnus)===false)
-    error(_("Huono käyttäjätunnus tai salasana"));
+    error(_("Huono käyttäjätunnus tai salasana"), $paluu);
 
 $_SESSION["loggedin"]=true;
 $_SESSION["user"]=$users->fetchWithTunnus($ktunnus);
 if($_SESSION['user']===false) {
-    die(_("WTF? Kirjautunut, mutta ei tietoja?"));
+    $m = sprintf(_("Käyttäjä %s kirjautui, muttei käyttäjätietoja"), $ktunnus);
+    $db->log($m, __FILE__, __FUNCTION__, __LINE__, "ERROR");
+    die($m);
 }
 $db->log(sprintf(_("Käyttäjä %s kirjautui paikallisesti."), $ktunnus),__FILE__,__FUNCTION__,__LINE__, "AUDIT");
 $target="{$baseurl}/index.php";
