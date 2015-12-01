@@ -79,10 +79,10 @@ include_once("$basepath/view/html_base.html");
                 <h2><?php echo _("Kokoelmat");?></h2>
                 <table id="kokoelmat" class="display" cellspacing="0" width="100%">
                 <thead>
-                  <th><?php echo _("Peli");?></th><th><?echo _("Laji");?></th><th><?php echo _("Omistaja");?></th><th><?php echo _("Tapahtuma");?></th><th><?php echo _("Lisätty");?></th>
+                  <th><?php echo _("Kokoelma");?></th><th><?echo _("Laji");?></th><th><?php echo _("Omistaja");?></th><th><?php echo _("Tapahtuma");?></th><th><?php echo _("Lisätty");?></th>
                 </thead>
                 <tfoot>
-                  <th><?php echo _("Peli");?></th><th><?echo _("Laji");?></th><th><?php echo _("Omistaja");?></th><th><?php echo _("Tapahtuma");?></th><th><?php echo _("Lisätty");?></th>
+                  <th><?php echo _("Kokoelma");?></th><th><?echo _("Laji");?></th><th><?php echo _("Omistaja");?></th><th><?php echo _("Tapahtuma");?></th><th><?php echo _("Lisätty");?></th>
                 </tfoot>                
                 </table>
           </section>

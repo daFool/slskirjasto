@@ -14,7 +14,7 @@
  * @author Mauri "mos" Sahlberg
  **/
 
-require_once("globals.php");
+require_once("../globals.php");
 require_once("$basepath/helpers/common.php");
 
 /**

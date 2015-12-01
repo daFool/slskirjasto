@@ -117,7 +117,8 @@ function SLSMail($to, $subject, $message, $headers) {
     $url.="?pid=$pid&nyh=$nyh";
     return $url;
  }
- 
+
+if (!defined("NOERROR")) { 
  /**
   * Virheistä palaaminen
   * @param string $viesti Virheviesti
@@ -129,4 +130,5 @@ function SLSMail($to, $subject, $message, $headers) {
    header("Location: $baseurl/$url?virhe=".urlencode($viesti));
    die();
  }
+}
 ?>

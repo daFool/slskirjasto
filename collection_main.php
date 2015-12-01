@@ -16,7 +16,7 @@
  * */
 require_once("globals.php");
 require_once("$basepath/helpers/common.php");
-require_once("$basepath/helpers/minrights.php");
+/* require_once("$basepath/helpers/minrights.php"); */
 
 if(isset($_SESSION["collection_default"])) {
 	$collection = $_SESSION["collection_default"];

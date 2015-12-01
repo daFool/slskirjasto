@@ -2,8 +2,8 @@
 
 <project version="2">
 	<attribs>
-		<attrib name="build">31</attrib>
-		<attrib name="serial">13570</attrib>
+		<attrib name="build">35</attrib>
+		<attrib name="serial">14673</attrib>
 	</attribs>
 	<database>
 		<attribs>
@@ -829,6 +829,27 @@ grant all on all tables in schema public to sls;
 									<row>
 										<elem>admin</elem>
 									</row>
+								</list>
+							</domain>
+						</alias>
+						<alias>
+							<attribs>
+								<attrib name="name">Viivakoodi</attrib>
+								<attrib name="ddEquiv">varchar(6)</attrib>
+								<attrib name="id">13752</attrib>
+								<attrib name="size">6</attrib>
+							</attribs>
+							<domain>
+								<attribs>
+									<attrib name="minValue"/>
+									<attrib name="outRange">false</attrib>
+									<attrib name="maxValue"/>
+									<attrib name="type">none</attrib>
+								</attribs>
+								<list>
+									<header>
+										<elem>value</elem>
+									</header>
 								</list>
 							</domain>
 						</alias>
@@ -1665,6 +1686,78 @@ grant all on all tables in schema public to sls;
 					</attribs>
 					<modsConfig/>
 				</field>
+				<field>
+					<fieldAttribs>
+						<attribs>
+							<attrib name="17">false</attrib>
+							<attrib name="16">false</attrib>
+							<attrib name="15">false</attrib>
+							<attrib name="339"/>
+							<attrib name="338">false</attrib>
+							<attrib name="340">false</attrib>
+						</attribs>
+					</fieldAttribs>
+					<attribs>
+						<attrib name="comment"/>
+						<attrib name="matchType">s</attrib>
+						<attrib name="refField">0</attrib>
+						<attrib name="name">Luotu</attrib>
+						<attrib name="id">13934</attrib>
+						<attrib name="onDelete">n</attrib>
+						<attrib name="onUpdate">n</attrib>
+						<attrib name="refTable">0</attrib>
+						<attrib name="type">42</attrib>
+					</attribs>
+					<modsConfig/>
+				</field>
+				<field>
+					<fieldAttribs>
+						<attribs>
+							<attrib name="17">false</attrib>
+							<attrib name="16">false</attrib>
+							<attrib name="15">false</attrib>
+							<attrib name="339"/>
+							<attrib name="338">false</attrib>
+							<attrib name="340">false</attrib>
+						</attribs>
+					</fieldAttribs>
+					<attribs>
+						<attrib name="comment"/>
+						<attrib name="matchType">s</attrib>
+						<attrib name="refField">0</attrib>
+						<attrib name="name">Muokattu</attrib>
+						<attrib name="id">13935</attrib>
+						<attrib name="onDelete">n</attrib>
+						<attrib name="onUpdate">n</attrib>
+						<attrib name="refTable">0</attrib>
+						<attrib name="type">42</attrib>
+					</attribs>
+					<modsConfig/>
+				</field>
+				<field>
+					<fieldAttribs>
+						<attribs>
+							<attrib name="17">false</attrib>
+							<attrib name="16">false</attrib>
+							<attrib name="15">false</attrib>
+							<attrib name="339"/>
+							<attrib name="338">false</attrib>
+							<attrib name="340">false</attrib>
+						</attribs>
+					</fieldAttribs>
+					<attribs>
+						<attrib name="comment"/>
+						<attrib name="matchType">s</attrib>
+						<attrib name="refField">628</attrib>
+						<attrib name="name">Omistaja</attrib>
+						<attrib name="id">14488</attrib>
+						<attrib name="onDelete">s</attrib>
+						<attrib name="onUpdate">s</attrib>
+						<attrib name="refTable">39</attrib>
+						<attrib name="type">0</attrib>
+					</attribs>
+					<modsConfig/>
+				</field>
 			</table>
 			<table>
 				<vars>
@@ -1831,6 +1924,54 @@ grant all on all tables in schema public to sls;
 						<attrib name="onUpdate">n</attrib>
 						<attrib name="refTable">0</attrib>
 						<attrib name="type">401</attrib>
+					</attribs>
+					<modsConfig/>
+				</field>
+				<field>
+					<fieldAttribs>
+						<attribs>
+							<attrib name="17">false</attrib>
+							<attrib name="16">false</attrib>
+							<attrib name="15">false</attrib>
+							<attrib name="339"/>
+							<attrib name="338">false</attrib>
+							<attrib name="340">false</attrib>
+						</attribs>
+					</fieldAttribs>
+					<attribs>
+						<attrib name="comment"/>
+						<attrib name="matchType">s</attrib>
+						<attrib name="refField">0</attrib>
+						<attrib name="name">id</attrib>
+						<attrib name="id">13572</attrib>
+						<attrib name="onDelete">n</attrib>
+						<attrib name="onUpdate">n</attrib>
+						<attrib name="refTable">0</attrib>
+						<attrib name="type">13752</attrib>
+					</attribs>
+					<modsConfig/>
+				</field>
+				<field>
+					<fieldAttribs>
+						<attribs>
+							<attrib name="17">false</attrib>
+							<attrib name="16">false</attrib>
+							<attrib name="15">false</attrib>
+							<attrib name="339"/>
+							<attrib name="338">false</attrib>
+							<attrib name="340">false</attrib>
+						</attribs>
+					</fieldAttribs>
+					<attribs>
+						<attrib name="comment"/>
+						<attrib name="matchType">s</attrib>
+						<attrib name="refField">0</attrib>
+						<attrib name="name">Muokattu</attrib>
+						<attrib name="id">14302</attrib>
+						<attrib name="onDelete">n</attrib>
+						<attrib name="onUpdate">n</attrib>
+						<attrib name="refTable">0</attrib>
+						<attrib name="type">42</attrib>
 					</attribs>
 					<modsConfig/>
 				</field>

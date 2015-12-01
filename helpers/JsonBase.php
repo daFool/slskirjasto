@@ -19,6 +19,15 @@ class JsonBase {
         $this->l = $malli;
     }
     
+    protected function fetch($start,  $length, $od, $search) {
+        if(isset($_SESSION["user"])) {
+            $rivit=$this->l->tableFetch($start, $length, $od, $search, $_SESSION['user']['tunniste'], $_SESSION['user']['tila']);
+        }
+        else
+            $rivit = $this->l->tableFetch($start, $length, $od, $search);
+        return $rivit;
+    }
+    
     public function tableFetch() {
         global $db;
        
@@ -45,12 +54,12 @@ class JsonBase {
             }
             $db->log($od, __FILE__, __CLASS__."/".__METHOD__,__LINE__, "DEBUG");
         }
-        $rivit = $this->l->tableFetch($start, $length, $od, $search);
+        
         $jason = array("draw"=>$draw, "recordsTotal"=>$rivit["lkm"], "recordsFiltered"=>$rivit["filtered"]);
         
         $data=array();
         $i=0;
-
+        $rivit=$this->fetch($start, $length, $od, $search);
         foreach($rivit["rivit"] as $rivi) {
             $j=0;
             foreach($this->a as $aa) {
