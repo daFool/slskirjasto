@@ -2,8 +2,8 @@
 
 <project version="2">
 	<attribs>
-		<attrib name="build">35</attrib>
-		<attrib name="serial">14673</attrib>
+		<attrib name="build">36</attrib>
+		<attrib name="serial">15238</attrib>
 	</attribs>
 	<database>
 		<attribs>
@@ -2380,6 +2380,78 @@ grant all on all tables in schema public to sls;
 						<attrib name="onDelete">s</attrib>
 						<attrib name="onUpdate">c</attrib>
 						<attrib name="refTable">39</attrib>
+						<attrib name="type">0</attrib>
+					</attribs>
+					<modsConfig/>
+				</field>
+				<field>
+					<fieldAttribs>
+						<attribs>
+							<attrib name="17">false</attrib>
+							<attrib name="16">false</attrib>
+							<attrib name="15">false</attrib>
+							<attrib name="339"/>
+							<attrib name="338">false</attrib>
+							<attrib name="340">false</attrib>
+						</attribs>
+					</fieldAttribs>
+					<attribs>
+						<attrib name="comment"/>
+						<attrib name="matchType">s</attrib>
+						<attrib name="refField">0</attrib>
+						<attrib name="name">Tuotu</attrib>
+						<attrib name="id">14675</attrib>
+						<attrib name="onDelete">n</attrib>
+						<attrib name="onUpdate">n</attrib>
+						<attrib name="refTable">0</attrib>
+						<attrib name="type">401</attrib>
+					</attribs>
+					<modsConfig/>
+				</field>
+				<field>
+					<fieldAttribs>
+						<attribs>
+							<attrib name="17">false</attrib>
+							<attrib name="16">false</attrib>
+							<attrib name="15">false</attrib>
+							<attrib name="339"/>
+							<attrib name="338">false</attrib>
+							<attrib name="340">false</attrib>
+						</attribs>
+					</fieldAttribs>
+					<attribs>
+						<attrib name="comment"/>
+						<attrib name="matchType">s</attrib>
+						<attrib name="refField">2474</attrib>
+						<attrib name="name">TuotuKokoelmasta</attrib>
+						<attrib name="id">14862</attrib>
+						<attrib name="onDelete">s</attrib>
+						<attrib name="onUpdate">c</attrib>
+						<attrib name="refTable">2473</attrib>
+						<attrib name="type">0</attrib>
+					</attribs>
+					<modsConfig/>
+				</field>
+				<field>
+					<fieldAttribs>
+						<attribs>
+							<attrib name="17">false</attrib>
+							<attrib name="16">false</attrib>
+							<attrib name="15">false</attrib>
+							<attrib name="339"/>
+							<attrib name="338">false</attrib>
+							<attrib name="340">false</attrib>
+						</attribs>
+					</fieldAttribs>
+					<attribs>
+						<attrib name="comment"/>
+						<attrib name="matchType">s</attrib>
+						<attrib name="refField">4292</attrib>
+						<attrib name="name">AlkuperainenTunniste</attrib>
+						<attrib name="id">15050</attrib>
+						<attrib name="onDelete">s</attrib>
+						<attrib name="onUpdate">c</attrib>
+						<attrib name="refTable">2872</attrib>
 						<attrib name="type">0</attrib>
 					</attribs>
 					<modsConfig/>

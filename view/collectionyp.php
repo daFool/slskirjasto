@@ -38,7 +38,13 @@ include("$basepath/view/html_base.html");
 					"ajax": "<?php echo "$baseurl/json/";?>json_collections.php",
 					<?php include("$basepath/datatables_language.js");?>
                 });
-                $("#kokoelmat tbody").on("click", "tr", function () {
+				
+				$("#omistaja").autocomplete({
+					source : "<?php echo $baseurl; ?>/json/json_tunniste.php",
+					minlength: 2
+				})
+                
+				$("#kokoelmat tbody").on("click", "tr", function () {
                     kokoelma=($(this).children("td:first").html());
                     load(kokoelma);
                 })
@@ -59,7 +65,8 @@ include("$basepath/view/html_base.html");
                     $.post("<?php echo $baseurl;?>/json/json_collection.php", {"id" : id }, function(data) {
                         data = $.parseJSON(data);
                         if(data["virhe"]=="OK") {
-                          
+							kokoelmanimi=false;
+							tapahtumanimi=false;
                             $.each(data["rivi"], function (index, value) {
                                 switch(index) {
                                     case "id":
@@ -88,9 +95,9 @@ include("$basepath/view/html_base.html");
                             });
                             $("#chatbox").removeClass("alert-info");
                             $("#chatbox").attr("hidden", true);
-                            $("#poista").attr("disabled", false);
-                            $("#oikeudet").attr("disabled", false);
-                            $("#talleta").attr("disabled", false);
+                            $("#poista").removeAttr("disabled");
+                            $("#oikeudet").removeAttr("disabled");
+                            $("#talleta").removeAttr("disabled");
                     
                        }
                     });
@@ -181,6 +188,11 @@ include("$basepath/view/html_base.html");
                     </tfoot>                
                 </table>                
             </div>
+			   <?php
+				function returnValues($field, $type="INPUT", $value="") {}
+				?>
+			<?php require("$basepath/view/forms/event.php");?>			   
+			<?php // require("$basepath/view/forms/collectionrights.php");?>
             <?php include_once("$basepath/view/footer.html");?>
         </body>
     </html>

@@ -12,6 +12,7 @@ ini_set("variables_order","EGPCS");
 ini_set('session.referer_check', "");
 
 $dbuser=getenv('OPENSHIFT_POSTGRESQL_DB_USERNAME');
+$basepath=__DIR__;
 if($dbuser===false) {
     define("ENV","Test");    
     $dbuser='sls';
@@ -20,6 +21,7 @@ if($dbuser===false) {
     $dbhost="localhost";
     $dbname="slskirjasto";
     $baseurl="http://localhost/slskirjasto";
+    $privatepath="$basepath/../private.php";
 }
 else {
     define("ENV", "Production");
@@ -29,10 +31,11 @@ else {
     $dbhost=getenv("OPENSHIFT_POSTGRESQL_DB_HOST");
     $baseurl="http://slskirjasto-claymountain.rhcloud.com";
     $dbname="slskirjasto";
+    $privatepath="/var/lib/openshift/545605614382ec3a89000467/app-root/runtime/repo/";
+    
 }
-$basepath=__DIR__;
 
-require_once("$basepath/private.php");
+require("$privatepath/private.php");
 
 $dsn="pgsql:host=$dbhost;port=$dbport;dbname=$dbname";
 

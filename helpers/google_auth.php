@@ -8,14 +8,12 @@
  * @author Mauri "mos" Sahlberg
  
  * */
-require_once ("$basepath/helpers/google/autoload.php");
+// require_once ("$basepath/helpers/google/autoload.php");
+require ("$basepath/vendor/google-api-php-client/vendor/autoload.php");
 
 $google_client= new Google_Client();
-$google_client->setApplicationName($google_appname);
-$google_client->setClientId($google_clientid);
-$google_client->setClientSecret($google_clientsecret);
+$google_client->setAuthConfigFile("$privatepath/google.json");
 $google_client->setRedirectUri(REDIRECT_URI);
-// $google_client->setDeveloperKey('AIzaSyCrt6l0poiypjNfiPizHcPaFKwrWnp5gmc');
 $google_client->setScopes(array('https://www.googleapis.com/auth/userinfo.profile'));
 
 if (isset($_SESSION['access_token'])) {

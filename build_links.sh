@@ -1,6 +1,6 @@
 #!/bin/bash -x
 srcdir="../slskirjasto.redhat"
-hakemistot="helpers json model sql vendor view css img"
+hakemistot="web"
 for i in $hakemistot;do 
 	rm -rf $i;
 	a=$srcdir/$i
@@ -15,5 +15,5 @@ for i in $hakemistot;do
 done
 for i in `cat files.txt`; do
 	rm $i;
-	ln $srcdir/$i .
+#	ln $srcdir/$i .
 done;

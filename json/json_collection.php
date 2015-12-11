@@ -13,6 +13,10 @@ if(isset($_SESSION['user'])) {
     $kuka = isset($_SESSION['user']['tunniste']) ? $_SESSION['user']['tunniste'] : "";
     $tila = isset($_SESSION['user']['tila']) ? $_SESSION['user']['tila'] : "";
 }
+else {
+    $kuka ="";
+    $tila="";
+}
 $r = $c->get($_REQUEST["id"], $kuka, $tila);
 header("Content-type: application/json");
 echo json_encode($r);

@@ -7,8 +7,8 @@
  * @author Mauri "mos" Sahlberg
  * */
 class JsonBase {
-    private $a; /** @var array $a taulun sarakkeiden nimet **/
-    private $l; /** @var object $l luokka, joka tekee tietokantatyöt **/
+    protected $a; /** @var array $a taulun sarakkeiden nimet **/
+    protected $l; /** @var object $l luokka, joka tekee tietokantatyöt **/
     
     /** Konstruktori
      * @param array $sarakkeet Taulun sarakkeet
@@ -54,9 +54,7 @@ class JsonBase {
             }
             $db->log($od, __FILE__, __CLASS__."/".__METHOD__,__LINE__, "DEBUG");
         }
-        
-        $jason = array("draw"=>$draw, "recordsTotal"=>$rivit["lkm"], "recordsFiltered"=>$rivit["filtered"]);
-        
+            
         $data=array();
         $i=0;
         $rivit=$this->fetch($start, $length, $od, $search);
@@ -68,6 +66,8 @@ class JsonBase {
             }
             $i++;
         }
+        $jason = array("draw"=>$draw, "recordsTotal"=>$rivit["lkm"], "recordsFiltered"=>$rivit["filtered"]);
+   
         $jason["data"]=$data;
         return $jason;
     }
