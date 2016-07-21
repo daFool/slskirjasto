@@ -1,6 +1,6 @@
 drop view if exists vKokoelma;
 create view vKokoelma as 
-	select kokoelma, kp.tunniste, nimi, hylly, paikka, omistaja, pelinTila(huomautus,kp.tunniste) as tila, gtin
+	select kokoelma, kp.tunniste, nimi, hylly, paikka, omistaja, pelinTila(huomautus,kp.tunniste) as tila, gtin, alkuperainentunniste
 	from 
 		kokoelmapeli as kp 
 	join 
