@@ -1,0 +1,125 @@
+body {
+    width: 220mm;
+    margin: 10mm;
+}
+
+/**
+ * Top left, shrink height and width with margins
+ * */
+.labelTL {
+    width: 60mm;
+    height: 42mm;
+    padding: 5mm 0mm 0mm 5mm;
+    margin: 0mm;
+    background-color: rgb(252,251,250); 
+    float: left;
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+
+}
+
+/**
+ * Two next ones on the top row
+ * */
+.labelU {
+    width: 70mm;
+    height: 42mm;
+    padding: 5mm 0mm 0mm 5mm;
+    margin: 0mm;
+    background-color: rgb(250,240,240);
+    float: left;
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+
+}
+/**
+ * Left column, shrink widht with left margin
+ * */
+.labelL {
+    width: 60mm;
+    height: 42mm;
+    padding: 5mm 0mm 0mm 5mm;
+    margin: 0mm 0mm 0mm 0mm;
+    background-color: rgb(248,255,255);
+    float: left;
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+
+}
+
+/**
+ * Center and right column, no shrinks.
+ * We don't care about right margin much
+ * let it get cut by printer
+ * */
+.label {
+    width: 70mm;
+    height: 42mm;
+    padding: 5mm 0mm 0mm 5mm;
+    margin: 0mm;
+    background-color: rgb(230,230,250);
+    float: left;
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+
+}
+
+/**
+ * Bottom left corner
+ * Just shrink size with 10mm for the margins
+ * */
+.labelBL {
+    width: 60mm;
+    height: 32mm;
+    padding: 5mm 0mm 0mm 5mm;
+    margin: 0mm;
+    background-color: rgb(240,230,250);
+    float: left;                    
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+
+}
+
+/**
+ * Bottom, shrink height for 10mm for the margins
+ * */
+.labelB {
+    width: 70mm;
+    height: 32mm;
+    padding: 5mm 0mm 0mm 5mm;
+    margin: 0mm 0mm 0mm 0mm;
+    background-color: rgb(230,240,240);
+    /* border: solid thin; */
+    float: left;
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+
+}
+
+.page-break  {
+    clear: left;
+    display:block;
+    page-break-after:always;
+}
+
+@media print {
+    div.noprint img {
+        display:none;
+    }
+    div.noprint span {
+        display:none;
+    }
+    div.noprint {
+        background-color : transparent;
+    }
+}
+
+div.noprint {
+    background-color : rgb(242,242,242);
+} 

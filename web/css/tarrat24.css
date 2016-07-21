@@ -1,0 +1,101 @@
+body {
+    width: 220mm;
+    margin: 10mm;
+}
+
+.labelTL {
+    width: 60mm;
+    height: 37mm;
+    padding: 0mm 0mm 0mm 5mm;
+    margin: 0mm 0mm 0mm 0mm ;
+    background-color: rgb(252,251,250); 
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+    float: left;
+}
+
+.labelU {
+    width: 70mm;
+    height: 37mm;
+    padding: 0mm 0mm 0mm 7mm;
+    margin: 0mm 0mm 0mm 0mm;
+    background-color: rgb(250,240,240);
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+    float: left;
+}
+
+
+.labelL {
+    width: 60mm;
+    height: 37mm;
+    padding: 5mm 0mm 0mm 5mm;
+    margin: 0mm 0mm 0mm 0mm;
+    background-color: rgb(248,255,255);
+    float: left;
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+    float: left;
+}
+
+.label {
+    width: 70mm;
+    height: 37mm;
+    padding: 5mm 0mm 0mm 7mm;
+    margin: 0mm;
+    background-color: rgb(230,230,250);
+    float: left;
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+    float: left;
+}
+
+
+.labelB {
+    width: 70mm;
+    height: 27mm;
+    padding: 5mm 0mm 0mm 7mm;
+    margin: 0mm 0mm 0mm 0mm;
+    background-color: rgb(230,240,240);
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+    float: left;
+}
+
+.labelBL {
+    width: 60mm;
+    height: 27mm;
+    padding: 5mm 0mm 0mm 05mm;
+    margin: 0mm 0mm 0mm 0mm;
+    background-color: rgb(240,230,250);
+    overflow: hidden;
+    white-space: nowrap; /* Don't forget this one */
+    text-overflow: ellipsis;
+    float: left;                    
+}
+.page-break  {
+    clear: left;
+    display:block;
+    page-break-after:always;
+}
+
+@media print {
+    div.noprint img {
+        display:none;
+    }
+    div.noprint span {
+        display:none;
+    }
+    div.noprint {
+        background-color : transparent;
+    }
+}
+
+div.noprint {
+    background-color : rgb(242,242,242);
+} 
