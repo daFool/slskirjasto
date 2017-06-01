@@ -1,0 +1,21 @@
+{% extends "page.html" %}
+{% block head %}
+    {{ parent() }}
+    <title>{{ lainakuittaus }}</title>
+    <script type="text/javascript">
+        $(function() {
+           $(function() {
+            $("#paluu").on('click',function () {
+                var kohde="{{ baseurl }}/collection_main.php?collection={{ collection |raw}}";
+                window.location=kohde;
+            })
+        })
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <h2><{{ LainausTulos }}</h2>
+            <button type="button" class="btn btn-lg btn-default" id="paluu">{{ Takaisin }}</button>
+        </div>
+    </div>
+{% endblock %}

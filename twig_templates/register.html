@@ -1,0 +1,270 @@
+{% extends "page.html" %}
+{% block head %}
+    {{ parent() }}
+    <title>{{ rekisteroityminen }}</title>
+    <script type="text/javascript" src="{{ baseurl }}/js/kontrolli.js"></script>
+    <script type="text/javascript">        
+        $(document).ready(function() {
+            $("#ktunnus").on("change", function (foo) {
+				url="{{ baseurl }}/api/kayttaja/taydenna/ktunnus";
+				term=encodeURIComponent($("#ktunnus").val());
+				
+                $.get(url, {term : term }, function ( data ) {
+                    match=false;
+                    $.each(data, function (key, value) {
+                        if (value==$("#ktunnus").val()) {
+                            match=true;
+                        }
+                    })
+                    if (match==true) {
+                        $("#kaytossa").html("{{ kaytossa }}");
+                        checkEm();
+                    }
+                    else {
+                        $("#kaytossa").html("{{ vapaa }}");
+						checkEm();
+                    }
+                }).fail(function(d) {
+					console.log(d);
+				});
+            });
+        });
+        
+     
+        function checkEm() {
+            ok=false;
+            
+            $("#uusikayttaja").find("input, textarea, select").each(function () {
+				check(this);										
+			});
+            
+            if ($("#uusikayttaja").get(0).checkValidity()==true) {
+                ok=true;
+            }
+			else {
+                ok=false;            	
+			}
+            if ($("#kaytossa").html()=="{{ kaytossa }}") {
+                ok=false;
+                parent=$("#kaytossa").parent('div');
+                spani=$("#kaytossa").prev();
+                lisaaVirhe(parent, spani);
+            }
+            
+            {% if kayttaja %}
+                if ($("#salasana").val()=="" || $("#salasana").val()!=$("#salasana2").val()) {
+                    parent=$("#salasana").parent("div");
+                    spani=$("#salasana").next();
+                    lisaaVirhe(parent, spani);
+                    parent=$("#salasana2").parent("div");
+                    spani=$("#salasana2").next();
+                    lisaaVirhe(parent, spani);
+                    ok=false;       
+                }
+            {% endif %}
+			if (ok) {
+                $("#talleta").removeAttr("disabled");//code
+            } else {
+                $("#talleta").attr("disabled", "true");
+            }
+        }
+        
+        $(function() {
+            $("#uusikayttaja").find("input, textarea, select").each(function () {
+                $(this).blur(function () {
+                    checkEm();
+                });
+            });
+            checkEm();
+			
+			$("#nollaa").on("click", function() {
+				$("#uusikayttaja")[0].reset();				
+			})
+			
+			$("#talleta").on("click", function() {
+				url="{{ baseurl }}/api/kayttaja";
+				{% if kayttaja %}
+					url+="/newUser/";
+				{% else %}
+					url+="/newCustomer/";
+				{% endif %}
+				url+=encodeURIComponent($("#ktunnus").val());
+				$.post(url, $("#uusikayttaja").serialize(), function(d) {
+					if (d.tulos!="OK") {
+                        virhe(d.tulos);
+                    } else {
+						{% if kayttaja %}
+							$("#valmis").modal('show');							
+						{% else %}
+							nimi = d.nimi + " / "+d.ktunnus;
+							paluu="{{ baseurl }}/lainaa/lainaus.php?collection="+encodeURIComponent("{{ collection|raw }}")+"&tunniste="+
+							encodeURIComponent("{{ gameid }}")+"&peli="+encodeURIComponent("{{ game }}")+"&ktunnus="+encodeURIComponent(d.ktunnus)+
+							"&vlainaaja="+encodeURIComponent(nimi)+"&slsjasennumero="+encodeURIComponent(d.slsjasennumero);
+							window.location=paluu;    //code                            
+						{% endif %}
+                    }
+				});
+			})
+        
+			$("#valmisbutton").on("click", function() {
+				$("#valmis").modal("hide");
+				window.location="{{baseurl}}/index.php";
+			})
+		});
+		
+		
+		function virhe(v) {
+			s = '<div class="alert alert-warning alert-dismissible" role="alert" id="virhe"><button type="button" class="close" data-dismiss="alert" arial-label="Close"><span aria-hidden="true">&times;</span></button>';
+			s +=v+'</div>';
+			$("#otsikko").append(s);					
+		}
+		
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <h2 id="otsikko">{{ rekisteroidy }}</h2>
+		<div class="alert alert-warning collapse hidden" role="alert" id="virhe">
+			<button type="button" class="close" id="vbutton" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<span id="virhes">{{ errormsg }}</span>
+		</div>
+        <form method="post" id="uusikayttaja" name="uusikayttaja" action="{{ kohde }}" class="form">
+
+            <div class="form-group" id="nimig">
+                <div class="col-lg-1 col-md-1 col-sm-2 col-xs-4">					
+                    <label for="nimi" class="control-label">{{ Nimi }}</label>    
+                </div>        
+                <div class="col-lg-11 col-mdg-11 col-sm-10 col-xs-8">
+                    <input type="text" name="nimi" id="nimi" size="40" required placeholder="{{ nimip }}" maxlength="255"
+                        {{ nimi }} class="form-control"/>
+                    </label>
+                    <span  class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ nimi_ohje }}</p>
+                </div>
+            </div>
+
+           <div class="form-group" id="ktunnusg">
+                <div class="col-sm-3">					
+                    <label for="ktunnus" class="control-label">{{ kayttajatunnus }}</label>
+                </div>
+                <div class="col-sm-9">
+                    <div class="input-group">
+                        <input type="text" name="ktunnus" size="20" id="ktunnus" required="true" placeholder="Geek2" maxlength="255"
+                            {{ ktunnus }} class="form-control" aria-describedby="kaytossa"/>
+                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span id="kaytossa" class="input-group-addon"></span>                        
+                    </div>
+					<p class="help-block">{{ ktunnus_ohje }}</p>
+                </div>
+            </div>        
+            
+            <div class="form-group" id="puheling">
+                <div class="col-lg-2 col-md-2 col-sm-3 col-xs-6">					
+                    <label for="puhelin" class="control-label">{{ Puhelinnumero }}</label>    
+                </div>        
+                <div class="col-lg-10 col-mdg-10 col-sm-9 col-xs-6">
+                    <input type="tel" name="puhelin" id="puhelin" size="40" placeholder="+358 12 123 1234" maxlength="255"
+                        {{ puhelin }} class="form-control"/>
+                    </label>
+                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ puhelin_ohje }}</p>
+                </div>
+            </div>
+
+            <div class="form-group" id="sahkopostig">
+                <div class="col-lg-2 col-md-2 col-sm-3 col-xs-6">					
+                    <label for="email" class="control-label">{{ Sahkoposti }}</label>    
+                </div>        
+                <div class="col-lg-10 col-mdg-10 col-sm-9 col-xs-6">
+                    <input type="email" name="email" id="email" size="40" placeholder="john.doe@anonymous.org" maxlength="255"
+                        {{ email }} class="form-control" {% if kayttaja %} required="true" {% endif %}/>
+                    </label>
+                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ sahkoposti_ohje }}</p>
+                </div>
+            </div>
+
+            <div class="form-group" id="syntymag">
+                <div class="col-lg-2 col-md-2 col-sm-3 col-xs-6">					
+                    <label for="syntymavuosi" class="control-label">{{ Syntymavuosi }}</label>    
+                </div>        
+                <div class="col-lg-10 col-mdg-10 col-sm-9 col-xs-6">
+                    <input type="number" min="1900" max="2030" step="1" name="syntymavuosi" id="syntymavuosi" placeholder="1985" {{ syntymavuosi }} class="form-control"/>
+                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ syntymavuosi_ohje }}</p>
+                </div>
+            </div>
+
+            <div class="form-group" id="sukupuolig">
+                <div class="col-lg-1 col-md-1 col-sm-2 col-xs-4">					
+                    <label for="sukupuoli" class="control-label">{{ Sukupuoli }}</label>    
+                </div>        
+                <div class="col-lg-11 col-mdg-11 col-sm-10 col-xs-8">
+                    <select class="form-control" id="sukupuoli" name="sukupuoli">
+                        {% for i in sukupuolet %}
+                            <option value={{i.arvo}} {% if sukupuoli==i.arvo %}"selected"{% endif %}>{{i.teksti}}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ sukupuoli_ohje }}</p>
+                </div>
+            </div>
+
+            <div class="form-group" id="jasennrog">
+                <div class="col-lg-2 col-md-2 col-sm-3 col-xs-6">					
+                    <label for="jasennumero" class="control-label">{{ Jasennumero }}</label>    
+                </div>        
+                <div class="col-lg-10 col-mdg-10 col-sm-9 col-xs-6">
+                    <input type="number" size="8" name="jasennumero" maxlength="8" placeholder="90500123" {{ jasennumero }} class="form-control"/>
+                    <span id="nimic" class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ jasennumero_ohje }}</p>
+                </div>
+            </div>
+
+            {% if kayttaja %}
+            <div class="form-group" id="salasanag">
+                <div class="col-lg-1 col-md-1 col-sm-2 col-xs-4">					
+                    <label for="salasana" class="control-label">{{ Salasana }}</label>    
+                </div>        
+                <div class="col-lg-11 col-mdg-11 col-sm-10 col-xs-8">
+                    <input type="password" name="salasana" id="salasana" required="true" maxlength="255" size="16" class="form-control"/>
+                    <span id="nimic" class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ salasana_ohje }}</p>
+                </div>
+            </div>
+
+            <div class="form-group" id="salasana2g">
+                <div class="col-lg-1 col-md-1 col-sm-2 col-xs-4">					
+                    <label for="salasana2" class="control-label">{{ SalasanaU }}</label>    
+                </div>        
+                <div class="col-lg-11 col-mdg-11 col-sm-10 col-xs-8">
+                    <input type="password" name="salasana2" id="salasana2" required="true" maxlength="255" size="16" class="form-control"/>
+                    <span id="nimic" class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ salasana_ohje }}</p>
+                </div>
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <button type="button" class="btn btn-default" id="talleta" disabled="true">{{ talleta }}</button>
+                <button type="button" class="btn btn-default" id="nollaa">{{ nollaa }}</button>
+            </div>
+        </form>
+    </div>
+	<div class="modal fade" tabindex="-1" role="dialog" id="valmis">
+		<div class="modal-dialog" role="dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">{{Onnistui}}</h4>
+				</div>
+				<div class="modal-body">
+					<p>{{ lahetetty }}</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" id="valmisbutton">{{ Sulje }}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+{% endblock %}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+    <html lang="fi">
+        <head>
+            {% block head %}
+            {{ include ("ScriptsAndStyles.html") }}
+            {% endblock%}
+        </head>
+        <body>
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">{{ T["ShowNav"] }}</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">{{ T["Lautapelikirjasto"] }}</a>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            <li><a href="{{ baseurl }}/index.php">{{ T["Etusivu"] }}</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ T["Pelitoiminnot"] }}<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    {% for pelitoiminto in pelitoiminnot %}
+                                        <li><a href="{{ pelitoiminto.url }}">{{ pelitoiminto.teksti }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            {% if not kirjautunut %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ T["Kirjaudu"] }}<span class="caret"></span></a>
+                                <ul class="dropdown-menu">                                
+                                    {% for k in kirjautumiset %}
+                                    <li><a href="{{ k.url }}">{{ k.teksti }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            {% else %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ T["Kokoelmat"] }}<span class="caret"></span></a>
+                                <ul class="dropdown-menu"> 
+                                    {% for k in kokoelmat %}
+                                    <li><a href="{{ k.url }}">{{ k.teksti }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                                
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ T["Ylläpito"]}}<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    {% if rooli=='superadmin' %}
+                                    {% for s in superit %}
+                                    <li><a href="{{ s.url }}">{{ s.teksti }}</a></li>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% for y in yllapito %}
+                                    <li><a href="{{ y.url }}">{{ y.teksti }}</a></li>
+                                    {% endfor %}                                                
+                                </ul>
+                            </li>   
+                            <li><a href="{{ baseurl }}/index.php?logout=true">{{ T["Logout"] }}</a></li>
+                            {% endif %}
+                            <li><a href="{{ baseurl }}/korimain.php">{{ T["Kori"] }}</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <section class="container">
+                {% block content %}
+                {% endblock %}
+            </section>
+            <footer class="slsfooter">
+                 <div class="container-fluid">
+                    <p class="text-muted">
+                        {% if kirjautunut %}
+                            {{ kirjautumistiedot }} <span class="nimi">{{ nimi }}</span> {{ tasoteksti }} <span class="taso">{{ taso }}</span> {{ ladattu }}
+                        {% endif %}
+                    </p>
+                </div>
+            </footer>
+        </body>
+    </html>

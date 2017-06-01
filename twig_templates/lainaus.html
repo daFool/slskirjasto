@@ -1,0 +1,229 @@
+{% extends "page.html" %}
+{% block head %}
+    {{ parent() }}
+    <title>{{ lainaus }}</title>
+    <script type="text/javascript" src="{{ baseurl }}/js/kontrolli.js"></script>
+    <script type="text/javascript">
+        var tarkistettu= {{ tarkistettu }} ;
+        var lastGood = { ktunnus : "{{ ktunnus }}", jrnro: "{{ slsjasennumero }}" , nimi : "{{ vlainaaja }}"};
+		
+        $(document).ready(function() {
+        
+			if (tarkistettu) {
+                $("#pantti").focus();
+            }
+		    $("#tunniste").autocomplete({
+                source : "{{ baseurl }}/api/kayttaja/taydenna/ktunnus",
+                minLength : 3,
+                delay : 500,
+                select : function (event, ui) {
+                    hae("tunniste", ui.item.value);
+                }
+            })
+            
+            $("#lainaaja").autocomplete({
+                source : "{{ baseurl }}/api/kayttaja/taydenna/nimi",
+                minLength : 3,
+                delay : 500,
+                select : function (event, ui) {
+                    hae("lainaaja", ui.item.value);
+                }
+            })
+            
+            $("#uusi").on('click', function() {				
+                url = "{{ baseurl }}/lainaa/lainaaja.php?collection="+encodeURIComponent("{{ collection|raw }}")+"&game="+encodeURIComponent("{{ peli }}")+"&gameid="+
+					encodeURIComponent("{{ jaska }}");
+                window.location=url;
+            })
+            
+            $("#lainaaja").blur(function() {
+				if ($("#lainaaja").val() == lastGood.nimi) {
+                    return;
+                }
+                hae("lainaaja", $("#lainaaja").val());                
+            })
+            
+            $("#tunniste").blur(function() {
+				if ($("#tunniste").val() == lastGood.ktunnus) {
+                    return;
+                }
+                hae("tunniste", $("#tunniste").val());
+            })
+            
+            $("#jnumero").blur(function() {
+				if ($("#jnumero").val() == lastGood.jrnro) {
+                    return;
+                }
+                hae("jasennumero", $("#jnumero").val());
+            })
+            
+            $("#pantti").blur(function () {
+                tarkista();
+            })
+			
+			$("#lainaa").on('click', function () {                
+                    url = "{{ baseurl }}/api/laina/lainaa/"+encodeURIComponent("{{ jaska }}");
+					$.post(url, { kokoelma : "{{ collection|raw }}", lainaaja: $("#tunniste").val(), pantti: $("#pantti").val() }, function (data) {
+						if(data.tulos=="OK")
+							$("#tulosh").html("{{ LainausOnnistui }}");
+						else
+							$("#tulosh").html("{{ LainausFeilasi }}");
+						$("#tulos").modal('show');
+					}).fail(function () {
+						$("#tulosh").html("{{ LainausFeilasi }}");
+						$("#tulos").modal('show');
+					});            
+					
+            })
+			
+			$("#paluu").on('click', function() {
+				window.location="{{ baseurl }}/collection_main.php?collection={{ tunniste }}";
+			});
+        })
+        
+        function tarkista() {
+            ok=false;
+            
+            $("#lainaus").find("input, textarea, select").each(function () {
+				check(this);										
+			});
+            
+            if ($("#lainaus").get(0).checkValidity()==false || tarkistettu==false) {
+                ok=false;
+            }
+			else {
+                ok=true;            	
+			}
+            
+            if (ok) {
+                $("#lainaa").removeAttr("disabled");//code
+            }
+            else {
+                $("#lainaa").attr("disabled", true);
+            }            
+        }
+        
+        function hae(mika, arvo) {
+			$("#chatbox").removeClass("hidden");
+			$("#chatbox").html("{{ Haetaan }}");
+            var url = "{{ baseurl }}/api/kayttaja/lainauscheck/";
+            var k=mika;
+            switch (mika) {
+                case "lainaaja":
+                case "tunniste":
+                    url+=mika;
+                    k=mika;
+                    break;
+                case "jasennumero":
+                    url+="slsjasennumero";
+                    k="jnumero";
+                    break;
+            }
+            $.get(url, { term : arvo }, function ( data ) {
+				if (typeof data.tulos !== 'undefined') {
+                    $("#chatbox").removeClass("alert-info");
+					$("#chatbox").addClass("alert-warning");
+					$("#chatbox").html(data.tulos);
+					tarkistettu=false;
+					tarkista();
+					parent=$("#"+k).parent("div");
+					spani=$("#"+k).next();
+					lisaaVirhe(parent, spani);
+					lastGood.jrnro="notset";
+					lastGood.ktunnus="notset";
+					lastGood.nimi="notset";
+                } else {
+					$("#lainaaja").val(data[0].nimi+" / "+data[0].tunniste);
+					$("#jnumero").val(data[0].slsjasennumero);
+					$("#tunniste").val(data[0].tunniste);
+					lastGood.jrnro=data[0].slsjasennumero;
+					lastGood.ktunnus=data[0].tunniste;
+					lastGood.nimi=data[0].nimi+" / "+data[0].tunniste;
+					tarkistettu=true;
+					tarkista();
+					$("#chatbox").addClass("hidden");
+					$("#pantti").focus();
+				}
+            }).fail(function () {
+                tarkista();
+                tarkistettu=false;
+                parent=$("#"+k).parent("div");
+                spani=$("#"+k).next();
+                lisaaVirhe(parent, spani);
+            });            
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <h2 id="otsikko">{{ Lainaus }}</h2>
+		<div class="alert alert-info hidden" role="alert" id="chatbox"></div>
+        <form name="lainaus" id="lainaus" method="post" class="form form-horizontal" action="{{ baseurl }}/lainaa.php">
+            <div class="form-group">
+                <div class="col-sm-1"><label class="control-label">{{ Kokoelma }}</label></div>                
+                <div class="col-sm-3"><p class="form-control-static" id="kokoelma">{{ collection }}</p></div>
+                <div class="col-sm-1"><label class="control-label">{{ Peli }}</label></div>                
+                <div class="col-sm-3"><p class="form-control-static" id="peli">{{ peli }}</p></div>
+                <div class="col-sm-2"><label class="control-label">{{ Kokoelmatunniste }}</label></div>                
+                <div class="col-sm-2"><p class="form-control-static" id="kokoelmatunniste">{{ tunniste }}</p></div>                
+            </div>
+    
+            <div class="form-group">
+                <div class="col-sm-1">
+                    <label class="control-label">{{ Lainaaja }}</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" id="lainaaja" required="true" name="lainaaja" class="form-control" size="40" maxlength="255" value="{{ vlainaaja }}"/>
+                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ LainaajanNimi }}</p>
+                </div>
+                <div class="col-sm-1">
+                    <label class="control-label">{{ jasennumero }}</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" name="jnumero" id="jnumero" class="form-control" value="{{ slsjasennumero }}"/></label>
+                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ Jasennumeroviivakoodi }}</p>
+                </div>
+                <div class="col-sm-2">
+                    <label for="tunniste" class="control-label">{{ Tunniste }}</label>
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" id="tunniste" class="form-control" name="tunniste" equired="true" size="20" maxlength="255" value="{{ ktunnus }}"/>
+                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ KayttajaTunniste }}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-1"><label for="pantti" class="control-label">{{ Pantti }}</label></div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="pantti" name="pantti" value="" required="true"
+                       placeholder="{{ Ajokortti }}"/>
+                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ LainanPantti }}</p>
+    
+                </div>
+                <button type="button" class="btn btn-lg btn-default" id="lainaa" disabled="true">{{ Lainaa }}</button>
+            </div>
+            <label class="control-label">{{ Lisaa }} <button type="button" class="btn btn-default" id="uusi">{{ uusi }}</button> {{ lainaaja }}</label>
+        
+        </form>
+    </div>
+	<div class="modal fade" id="tulos">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="tulosh"></h4>
+				</div>
+				<div class="modal-body">
+					<p>{{ peli }} : {{ collection|raw }} : {{ tunniste }}</p>
+				</div>
+				 <div class="modal-footer">
+					<button type="button" class="btn btn-lg btn-default" data-dismiss="modal">{{ tSulje }}</button>
+					<button type="button" class="btn btn-lg btn-default" id="paluu">{{ Palaa }}</button>             
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

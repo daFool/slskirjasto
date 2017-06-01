@@ -1,0 +1,130 @@
+<script type="text/javascript">    
+    function lataaPelinTila(id) {
+		url = "{{ jsonPelinTila }}";
+		$.get(url, {id : id }, function(data) {
+			if (data["Virhe"]=="OK") {
+				var lainassa=false;
+                $.each(data.data, function(indeksi, arvo) {
+					switch (indeksi) {
+                        case "pt_lainattu":
+							if (arvo != "1970-01-01 01:02:03") {
+                                lainassa=true;
+								$("poista").attr("disabled", "true");
+								$("#pt_lainattu").html(arvo);
+                            }
+							break;
+						case "pt_lainaaja":
+						case "pt_koti":
+						case "pt_nimi":
+						case "pt_julkaisija":
+						case "pt_vuosi":
+						case "pt_kesto":
+						case "pt_pelaajia":
+						case "pt_bggrank":
+						case "pt_score":
+						case "pt_age":
+						case "pt_suunnittelija":
+							$("#"+indeksi).html(arvo);
+							break;
+						case "pt_bgg":
+							$("#"+indeksi).attr("href", arvo);
+							break;
+                    }
+				});
+				if (lainassa==true) {
+					l = data.data["pt_lainattu"];
+					l = l.substr(0, l.lastIndexOf("."));
+                    lainattu = new Date(l);
+					palautuu = new Date(lainattu.getTime() + 60 * data.data["pt_kesto"]*1000);
+					$("#pt_palautuu").html(palautuu.toLocaleString());//code
+                    if (lainassa) {
+                        $("#Lainaa").html="{{ tPalauta }}";
+                    } else {
+                        $("#Lainaa").html="{{ tLainaa }}";
+                    }
+                    
+                }
+            }
+		});
+        //code
+    }
+</script>
+
+<div class="modal fade" id="pelinTila">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{ tPelinTiedot }}</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tilatiedot" class="table">
+                            <thead>
+                                <tr>
+                                    <th>{{ tLainattu }} </th>
+                                    <th>{{ tLainaaja }} </th>
+                                    <th>{{ tPalautumishetki }}</th>
+                                    <th>{{ tLokaatio }} </th>                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td id="pt_lainattu"></td>
+                                    <td id="pt_lainaaja"></td>
+                                    <td id="pt_palautuu"></td>
+                                    <td id="pt_koti"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="pelitiedot" class="table">
+                            <tbody>
+                                <tr>
+                                    <th>{{ tPeli }}</th>
+                                    <td id="pt_nimi"></td>
+                                    <th>{{ tJulkaisija }}</th>
+                                    <td id="pt_julkaisija"></td>
+                                    <th>{{ tVuosi }}</th>
+                                    <td id="pt_vuosi"></td>
+                                </tr>
+                                <tr>
+                                    <th>{{ tSuunnittelija }}</th>
+                                    <td id="pt_suunnittelija"></td>
+                                    <th>{{ tKesto }}</th>
+                                    <td id="pt_kesto"></td>
+                                    <th>{{ tPelaajia }}</th>
+                                    <td id="pt_pelaajia"></td>
+                                    <th><a href="" id="pt_bgg" target="_blank">{{ tBGG }}</a></th>
+                                </tr>
+                                <tr>
+                                    <th>{{ tBGGRank }}</th>
+                                    <td id="pt_bggrank"></td>
+                                    <th>{{ tBGGScore }}</th>
+                                    <td id="pt_score"></td>
+                                    <th>{{ tAge }}</th>
+                                    <td id="pt_age"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-lg btn-default" id="Lainaa">{{ tLainaa }}</button>
+                <button type="button" id="Poista" class="btn btn-lg btn-default">{% if not koritila %} {{ tPoistaKorista }} {% else %} {{ tDeaktivoi }}	{% endif %}</button>
+				<button type="button" id="Muokkaa" class="btn btn-lg btn-default">{{ tMuokkaa }}</button>
+				{% if koritila %}                
+					<button type="button" id="Koriin" class="btn btn-lg btn-default">{{ tKoriin }}</button>
+				{% endif %}
+				<button type="button" class="btn btn-lg btn-default" data-dismiss="modal">{{ tSulje }}</button>                
+            </div>
+        </div>
+    </div>
+</div>
