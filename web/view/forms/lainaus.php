@@ -83,7 +83,7 @@ include_once("$basepath/view/html_base.html");
             
             $("#lainaaja").autocomplete({
                 source : "<?php echo $baseurl; ?>/json/json_lainaaja.php",
-                minlenght: 2,
+                minLenght: 2,
                 select : function (event, ui) {
                     lainaaja = ui.item.value;
                     checkEm("lainaaja");

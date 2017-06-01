@@ -28,12 +28,12 @@ if(($register_type != "Käyttäjä") && ($register_type != "Lainaaja"))
     $register_type="Käyttäjä";
     
 $ktunnus = isset($_POST['ktunnus']) ? $_POST['ktunnus'] : false;
-if(!$ktunnus || $users->checkUser($ktunnus)) {
+if($ktunnus===false || $users->checkUser($ktunnus)) {
     local_error(_("Huono käyttäjätunnus"), $register_method, $register_type);    
 }
 
 $nimi = isset($_POST['nimi']) ? $_POST['nimi'] : false;
-if(!$nimi || $nimi=="" || strlen($nimi)>255)
+if($nimi===false || $nimi=="" || strlen($nimi)>255)
     local_error(_("Nimi on pakollinen kenttä"), $register_method, $register_type);
 
 $puhelin = isset($_POST['puhelin']) ? $_POST['puhelin'] : "";
@@ -44,7 +44,7 @@ if($numero >0 && $users->checkMember($numero))
 
 $email = isset($_POST['sahkoposti']) ? $_POST['sahkoposti'] : false;
 
-if(!$email || strchr($email, "@")===false) {
+if($email===false || strchr($email, "@")===false) {
     if($register_type=="Lainaaja" && $puhelin=="") {
         local_error(_("Jompi kumpi, sähköpostiosoite tai puhelinnumero on annettava."));
     }

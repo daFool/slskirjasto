@@ -22,12 +22,7 @@ class RandomWordID {
      * */
     public function give($base="") {
         $index = mt_rand(0, $this->wordCount-1);
-        return $base.$this->wordList[$index];
+        return trim($base.$this->wordList[$index]);
     } 
 }
-
-/*
- $word=new RandomWordID("../../words.txt");
- echo $word->give();
- */
 ?>

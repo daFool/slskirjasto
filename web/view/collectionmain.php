@@ -54,7 +54,8 @@
 					switch(tila) {
 						case "Vapaa":
 							console.log("Lainaa");
-							kohde="<?php echo "{$baseurl}/view/forms/lainaus.php/?collection=".urlencode($collection);?>&tunniste=";
+							// kohde="<?php echo "{$baseurl}/view/forms/lainaus.php/?collection=".urlencode($collection);?>&tunniste=";
+							kohde="<?php echo "{$baseurl}/lainaa/lainaus.php/?collection=".urlencode($collection);?>&tunniste=";
 							kohde+=encodeURIComponent(kokoelmaTunniste)+"&peli="+encodeURIComponent(peli);
 							window.location=kohde;
 							break;
@@ -154,6 +155,8 @@
 					kohde+="&codes="+encodeURIComponent(tarrat);
 					window.open(kohde);
 				})
+				
+				$('div.dataTables_filter input').focus();
 			} );
 		
 		</script>

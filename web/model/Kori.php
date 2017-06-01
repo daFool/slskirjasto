@@ -1,7 +1,51 @@
 <?php
+/**
+ * Pelikori
+ * 
+ * @package SLS-Kirjasto
+ * @subpackage Kori
+ * @license http://opensource.org/licenses/GPL-2.0
+ * @author Mauri "mos" Sahlberg
+ **/
+
+ /**
+  * Pelikori
+  *
+  * Sisältää käyttäjän koriin valitsemat pelit, mahdollisesti jopa eri kokoelmista.
+  *
+  * Korilla on nimi ja omistaja. Koria jäljitetään $_SESSION['kori'] ja $_COOKIE[KORIPIPARI] muuttujilla,
+  * session.php:ssa asetetaan pipariin sen korin id, joka on kulloinkin asetettuna session koriksi. Session.php
+  * ladataan lähes jokaisen sivunlatauksen yhteydessä.
+  * 
+  * Koriin kuuluu kaksi relaatiota, toisessa on korin perustiedot ja toisessa korin pelit.
+  * 
+  * _*Kori*_
+  * <pre>
+  * | Sarake     | Tyyppi     | Selitys                                    |
+  * +------------+------------+--------------------------------------------+
+  * | id         | int        | Korin avain                                |
+  * | omistaja   | varchar    | Vierasavain kayttajaan, korin omistaja     |
+  * | paivitetty | timestamp  | Koska kori on viimeksi päivitetty          |
+  * | lisatty    | timestamp  | Koska kori on lisätty                      |
+  * | nimi       | varchar    | Korin nimi                                 |
+  * </pre>
+  * _*Korinpelit*_
+  * <pre>
+  * | Sarake | Tyyppi  | Selitys                                    |
+  * +--------+---------+--------------------------------------------+
+  * | id     | int     | Vierasavain koriin, kori johon peli kuuluu |
+  * | peli   | varchar | Vierasavain peliin, peli korissa           |
+  * </pre>
+  * @uses Model
+  * */
 class Kori extends Model {
-    var $kori;
     /**
+     * @var array Kori-relaation rivi
+     * */
+    private $kori;
+    /**
+     * Konstruktori
+     * 
      * @param object $db database handle
      * **/
     public function __construct($db) {
@@ -11,8 +55,17 @@ class Kori extends Model {
     
     /**
      * Luo uuden korin
+     *
+     * Sekä lisää pelin uuteen koriin. Jos samalla nimellä on olemassa kori, kasvattaa numeroa nimen perässä
+     * kunnes korin nimi on uniikki.
+     * 
      * @param string $omistaja Korin omistaja
      * @param string $peli Koriin lisättävä peli
+     * @return boolean
+     * @uses RandomWordID::RandomWordID() RandomWordID::RandomWordID() Luokka korin nimeämiseen
+     * @uses \RandomWordID::give() RandomWordID::give() Satunnainen korin nimi
+     * @uses \Model::give() Model::give() Lisätyn koririvin noutaminen
+     * @uses \Model::exists() Model::exists() Onko tällä nimellä jo kori olemassa
      * **/
      public function luoKori($omistaja, $peli) {
         try {
@@ -45,29 +98,32 @@ class Kori extends Model {
             return $res;
         }
         catch(PDOException $pe) {
-            print_r($s);
-            print_r($d);
             die("Kantavirhe {$pe->getMessage()}");
         }
      }
     
+    /**
+     * Vaihtaa käsittelyssä olevaa koria
+     * @param string $id Uuden korin tunniste
+     * @return void
+     * */
     public function asetaKori($id) {
         $this->kori=$id;
+        if(isset($_SESSION["kori"]))
+            $_SESSION["kori"]=$id;
     }
     /**
-     * Korin päivittäminen
+     * Korin aikalaiman päivittäminen
      * @param int $ID korin tunniste
      * */
     protected function paivataKori($ID) {
         try {
-            $s = "updata Kori set paivitetty=now() where id=:id;";
+            $s = "update Kori set paivitetty=now() where id=:id;";
             $st = $this->db->prepare($s);
             $st->execute(array("id"=>$ID));
             return;
         }
         catch(PDOException $pe) {
-            print_r($s);
-            print_r($d);
             die("Kantavirhe {$pe->getMessage()}");            
         }
     }
@@ -76,18 +132,19 @@ class Kori extends Model {
      * @param int $ID Korin tunniste
      * @param string $peli Lisättävä peli
      * @return boolean Onnistuiko
+     * @uses \SLSDB::log()
      * */
     public function lisaaPeli($ID, $peli) {
-        try {
+        try {            
             $s = "insert into KorinPelit(id, peli) values(:id, :peli);";
             $d = array("id"=>$ID, "peli"=>$peli);
             $st = $this->db->prepare($s);
             $res = $st->execute($d);
+            $this->paivataKori($ID);
+            $this->dbc->log("$peli lisättiin koriin $ID",__FILE__,__METHOD__,__LINE__,"Audit");
             return $res;
         }
         catch(PDOException $pe) {
-            print_r($s);
-            print_r($d);
             die("Kantavirhe {$pe->getMessage()}");
         }
     }
@@ -98,6 +155,7 @@ class Kori extends Model {
      * @param string $peli Lisättävä peli
      * @param boolean $kaikki, poistetaanko kaikki?
      * @return boolean Onnistuiko poisto?
+     * @uses \SLSDB::log()
      * */
     public function poistaPeli($ID, $peli, $kaikki) {
         try {
@@ -110,11 +168,14 @@ class Kori extends Model {
             }
             $st = $this->db->prepare($s);
             $res = $st->execute($d);
+            $this->paivataKori($ID);
+            if($kaikki)
+                $this->dbc->log("Kaikki pelit poistettiin korista $ID",__FILE__,__METHOD__,__LINE__,"Audit");
+            else
+                $this->dbc->log("$peli poistettiin korista $ID",__FILE__,__METHOD__,__LINE__,"Audit");
             return $res;
         }
         catch(PDOException $pe) {
-            print_r($s);
-            print_r($d);
             die("Kantavirhe {$pe->getMessage()}");
         }
     }
@@ -124,7 +185,7 @@ class Kori extends Model {
      * @param int $ID korin tunniste
      * @return array korin pelit
      * */
-    public function haePelienlkm($ID) {
+    public function haeKorinPelit($ID) {
         try {
             $s = "select k.kokoelma, pt.* from
                     KorinPelit as kp
@@ -133,7 +194,7 @@ class Kori extends Model {
                 on (kp.id=:id and kp.peli=pt.pt_tunniste)
                 join
                     kokoelmapeli as k
-                on (kp.id=k.tunniste);";
+                on (pt.pt_tunniste=k.tunniste);";
             $st = $this->db->prepare($s);
             $res = $st->execute(array("id"=>$ID));
             $rows = $st->fetchAll(PDO::FETCH_ASSOC);
@@ -144,8 +205,6 @@ class Kori extends Model {
             return $rows;
         }
         catch(PDOException $pe) {
-            print_r($s);
-            print_r($d);
             die("Kantavirhe {$pe->getMessage()}");
         }
     }
@@ -264,6 +323,11 @@ class Kori extends Model {
     
     /**
      * Etsitään koria
+     *
+     * Jos parametreistä jompi kumpi tai molemmat on annettu, etsitään ensin
+     * niillä. Jos kumpaakaan ei olle annettu katsotaan ensin istunnosta ja sitten
+     * evästeestä, josko jommassa kummassa olisi annettu korin tunniste.
+     * 
      * @param string $omistaja Kirjautunut käyttäjä tahi false
      * @param string $nimi Korin nimi tahi false
      * @return mixed Korin tunniste, jos löytyi ja false jos ei. **/
@@ -302,6 +366,34 @@ class Kori extends Model {
             return $kori["id"];
         }
         return false;
+    }
+    
+    /**
+     * Korin haku nimen alkuosalla
+     *
+     * Hakee aakkosissa viisi ensimmäistä nimen alkuosaan sopivaa riviä 
+     * @param string $nimi Nimen osa
+     * @return mixed False, jos ei löydy. Array korien nimiä, jotka sopivat
+     * */
+    public function haeNimenOsalla($nimi) {
+        try {
+            $s = "select * from kori where nimi ilike :osa order by nimi limit 5;";
+            $osa = $nimi."%";
+            $st = $this->db->prepare($s);
+            $res=$st->execute(array("osa"=>$osa));
+            if($res===false)
+                return $res;
+            $rivit = $st->fetchAll();
+            if(count($rivit)==0)
+                return false;
+            if(!is_array($rivit)) {
+                $rivit = array($rivit);
+            }
+            return $rivit;
+        }
+        catch(PDOExecption $pe) {
+            die("Tietokantavirhe {$pe->getMessge()}");
+        }
     }
 }
 

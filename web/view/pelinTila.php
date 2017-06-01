@@ -29,6 +29,7 @@
 						case "pt_score":
 						case "pt_age":
 						case "pt_suunnittelija":
+						case "huomautus":
 							$("#"+indeksi).html(arvo);
 							break;
 						case "pt_bgg":
@@ -37,12 +38,15 @@
                     }
 				});
 				if (lainassa==true) {
+					$("#Lainaa").html("<?php echo _("Palauta");?>");
 					l = data.data["pt_lainattu"];
 					l = l.substr(0, l.lastIndexOf("."));
                     lainattu = new Date(l);
 					palautuu = new Date(lainattu.getTime() + 60 * data.data["pt_kesto"]*1000);
 					$("#pt_palautuu").html(palautuu.toLocaleString());//code
-                }
+                } else {
+					$("#Lainaa").html("<?php echo _("Lainaa");?>");
+				}
             }
 		});
         //code
@@ -110,6 +114,9 @@
                                     <th><?php echo _("Ikä");?></th>
                                     <td id="pt_age"></td>
                                 </tr>
+								<tr><th><?php echo _("Huomautus");?></th>
+								<td id="huomautus"></td>
+								</tr>
                             </tbody>
                         </table>
                     </div>

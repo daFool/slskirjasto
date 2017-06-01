@@ -2,8 +2,42 @@
 /**
  * Käyttäjät
  *
- * Käyttäjien ylläpito
+ * Käyttäjien ylläpito. Ei mitään käyttäjätasotarkistuksia ja
+ * datatables-haku olettaa, että sille on suojatusti pureskeltu
+ * järjestysehto
  *
+ * Käyttäjä voi kirjautua kahta tietä sovellukseen, joko paikallisesti käyttäen (käyttäjätunnus, salasana)-paria
+ * tai käyttäen google-autentikaatiota. Jos käyttäjä on kirjautunut, niin hänen tietonsa löytyvät $_SESSION["user"].
+ *
+ * Käyttäjään liittyy kaksi taulua: kayttaja ja kayttajarooli
+ *
+ * _kayttaja_
+ * <pre>
+ * +--------------------+-----------+--------------------------+
+ * | Sarake             | Tyyppi    | Selitys                  |
+ * +--------------------+-----------+--------------------------+
+ * | nimi               | varchar   | Käyttäjän nimi           |
+ * | slsjasennumero     | int       | SLS-jäsennumero          |
+ * | puhelin            | varchar   | Puhelinnumero            |
+ * | sahkoposti         | varchar   | Sähköpostiosoite         |
+ * | syntymavuosi       | int       | Käyttäjän syntymävuosi   |
+ * | sukupuoli          | varchar   | Käyttäjän sukupuoli      |
+ * | tunniste           | varchar   | Käyttäjätunnus           |
+ * | vahvistus          | varchar   | Vahvistuskoodi           |
+ * | vahvistuslahetetty | timestamp | Vahvistuskoodi lähetetty |
+ * | tila               | varchar   | Käyttäjän "taso"         |
+ * | lisatty            | timestamp | Käyttäjän lisätty        |
+ * </pre>
+ * _kayttajatunnistus_
+ * <pre>
+ * +--------------------+-----------+----------------------------------+
+ * | Sarake             | Tyyppi    | Selitys                          |
+ * +--------------------+-----------+----------------------------------+
+ * | kayttaja           | varchar   | Viiteavain käyttäjätauluun       |
+ * | tyyppi             | varchar   | Tunnistustyyppi                  |
+ * | salaisuusavain     | varchar   | Salasanan hash tai google id     |
+ * | salaisuus          | varchar   | Salasana tai Setec Astronomy     |
+ * </pre>
  * @package SLS-Kirjasto
  * @license http://opensource.org/licenses/GPL-2.0
  * @author Mauri "mos" Sahlberg
@@ -80,6 +114,8 @@ class SLSUSERS {
     }
     
     /**
+     * Checks to see if given membership number is in use
+     * 
      * @param int $jasennumero Membership number to be checked
      * @param string $type Boolean or json result
      * @return mixed existense of membership number in boolean or in json
@@ -107,7 +143,13 @@ class SLSUSERS {
         }
     }
     
-    public function insertUser ($user) {
+    /**
+     * This "insert user" is meant for actually inserting someone into Kayttaja table
+     * there is a higher level funtion insertMember that processes full user data
+     * @param array $user data to be insterted
+     * @return boolean
+     * */
+    public function insertUser ($user) {                        
             $s = "insert into Kayttaja (Nimi, SLSJasenNumero, Puhelin, Sahkoposti,
             syntymavuosi, Sukupuoli, Tunniste, Tila) values
             (:nimi, :numero, :puhelin, :email, :syntymavuosi, :sukupuoli, :tunniste, :tila);";
@@ -124,7 +166,7 @@ class SLSUSERS {
                        "tila"=>$user['tila']);
             
             
-            if(!isset($user['jasennumero']) || $user['jasennumero']=='') {
+            if(!isset($user['jasennumero']) || $user['jasennumero']=='' || !preg_match("/[123456789][0-9]+/", $user['jasennumero'])){
                 $s = "insert into Kayttaja (Nimi, SLSJasenNumero, Puhelin, Sahkoposti, syntymavuosi, Sukupuoli, Tunniste, Tila) values
                 (:nimi, nextval('pseudojasen'), :puhelin, :email, :syntymavuosi, :sukupuoli, :tunniste, :tila);";
             } else {
@@ -133,6 +175,8 @@ class SLSUSERS {
             try {
                 $st = $this->db->prepare($s);
                 $res = $st->execute($d);
+                $this->dbc->log("Added user {$user["nimi"]}/{$user["tunniste"]}",__FILE__,
+                               __CLASS__, __LINE__, "AUDIT");
                 return $res;
             }
             catch(PDOException $e) {
@@ -142,12 +186,19 @@ class SLSUSERS {
         
     }
     
+    /**
+     * @param array $ident User identity information
+     * @return boolean
+     * */
     public function insertTunniste($ident) {
         $s = "insert into KayttajaTunnistus (Kayttaja, Tyyppi, Salaisuusavain, Salaisuus)
         values (:Kayttaja, :Tyyppi, :Salaisuusavain, :Salaisuus);";
         try {
             $st = $this->db->prepare($s);
             $res = $st->execute($ident);
+            $this->dbc->log("Added ident {$ident["tunniste"]}/{$ident["tyyppi"]}",__FILE__,
+                               __CLASS__, __LINE__, "AUDIT");
+                
             return $res;
         }
         catch(PDOException $e) {
@@ -172,6 +223,7 @@ class SLSUSERS {
      * @param array $user User details
      * @param array $ident Identification details
      * @return boolean
+     * @uses insertUser insertTunniste salakala SLSMail
      * */
     public function addMember($user, $ident) {
         try {
@@ -239,6 +291,9 @@ class SLSUSERS {
             $s = "update kayttaja set tila='käyttäjä', vahvistus='', vahvistuslahetetty=null where tila='prospekti' and vahvistuslahetetty + interval '1 day' > now() and vahvistus=:vahviste;";
             $st = $this->db->prepare($s);
             $res = $st->execute(array("vahviste"=>$vahviste));
+            $this->dbc->log("Confirmed {$vahviste}",__FILE__,
+                               __CLASS__, __LINE__, "AUDIT");
+                
             if($st->rowCount()==1)
                 return true;
             return false;
@@ -249,6 +304,12 @@ class SLSUSERS {
         
     }
     
+    /**
+     * Login with local database based authentication
+     * @param string $salasana password
+     * @param string $ktunnus User id
+     * @return boolean;
+     * */
     public function checkLocalAuth($salasana, $ktunnus) {
         try {
             $s = "select salaisuusavain, salaisuus from kayttajatunnistus where kayttaja=:kayttaja and tyyppi='local';";
@@ -291,7 +352,11 @@ class SLSUSERS {
         }
     }
     
-    public function getUsers($ktunnus) {
+    /**
+     * Fetch all users from the database
+     * @return all rows as an array
+     * */
+    public function getUsers() {
         try {
             $s = "select * from kayttaja;";
             $st = $this->db->prepare($s);
@@ -306,6 +371,13 @@ class SLSUSERS {
         }
     }
     
+    /**
+     * Searches users with regexp against one of the allowed search fields.
+     * Allowed fields can be found from $fields-array.
+     * @param string/regexp $Rex regexp to match against
+     * @param string $Field whose contents are searched
+     * @return mixed False if nothing was found or an array of matched rows
+     * */
     public function findWithRex($Rex, $Field) {
         try {
             $fields = array("Nimi", "SLSjasenNumero", "Puhelin", "Sahkoposti", "syntymavuosi", "sukupuoli", "Tunniste", "Tila", "lisatty");
@@ -339,6 +411,11 @@ class SLSUSERS {
         }
     }
     
+    /**
+     * Finds users with partial name
+     * @param string $part Part to be searched
+     * @return mixed false if none was found or an array of matched users - max 5
+     * */
     public function searchWithNamePart($part) {
         try {
             $part.='%';
@@ -357,6 +434,11 @@ class SLSUSERS {
         }
     }
     
+    /**
+     * Matches users with parts of username. Returns first 10 matches
+     * @param string $part Part to be searched with
+     * @return mixed False if none was found or an array of at most 10 matches
+     * */
     public function searchWithTunnistePart($part) {
         try {
              $part.='%';
@@ -375,6 +457,11 @@ class SLSUSERS {
         }
     }
     
+    /**
+     * Search users with partial membership number
+     * @param string $part Part of membership number to look for
+     * @return mixed False if none was found or an array of matches max 10 matches
+     * */
     public function searchWithJasennumeroPart($part) {
         try {
              $part.='%';
@@ -393,6 +480,12 @@ class SLSUSERS {
         }
     }
     
+    /**
+     * Lainausnäytön käyttäjähaku
+     * @param string $kentta Millä kentällä haetaan
+     * @param string $arvo Mitä arvoa haetaan
+     * @return mixed false jos ei löytynyt, muutoin löytyneet rivit, yleensä yksi
+     * */
     public function lainausCheck($kentta, $arvo) {
         try {
             $s = "select nimi, tunniste, slsjasennumero from kayttaja where ";
@@ -427,7 +520,15 @@ class SLSUSERS {
     }
     
       /**
-     * Paginate games with gusto
+     * Haku datatablesia varten
+     * @param int $start Rivi, jolta alkaen palautetaan
+     * @param int $length Kuinka munta riviä palautetaan
+     * @param string $order järjestysehto DANGER WILL ROBINSSON!
+     * @param string $search "globaali" hakuehto
+     * @return array lkm, montako riviä saatiin - ei tarvita
+     * kayttajat, rivit jotka saatiin
+     * riveja, montako riviä kannassa kaiken kaikkiaan on
+     * filtered, montako riviä kannassa on hakuehdolla kaiken kaikkiaan
      * */
     public function tableFetch($start, $length, $order, $search) {
         try {
@@ -485,6 +586,12 @@ class SLSUSERS {
         }
     }
     
+    /**
+     * Käyttäjän tietojen päivittäminen
+     * @param array $user - päivitettävät tiedot
+     * @param boolean
+     * @uses vaihdaSalasana
+     * */
     public function update($user) {
         try {
             $d=array();
@@ -518,6 +625,8 @@ class SLSUSERS {
             $s=$alku.$loppu;
             $st = $this->db->prepare($s);
             $res = $st->execute($d);
+            $this->dbc->log("Päivitettiin käyttäjän {$user["tunniste"]} tietoja", __FILE,
+                            __METHOD__,__LINE__,"AUDIT");
             return $res;
         }
         catch(PDOException $e) {

@@ -31,6 +31,10 @@
          require("$basepath/json/$class.php");
          return true;
     }
+    elseif(file_exists("$basepath/view/$class.php")) {
+         require("$basepath/view/$class.php");
+         return true;
+    }
     else {
         foreach($vendorpaths as $vp) {
             if(file_exists("$basepath/$vp/$class.php")) {
@@ -52,10 +56,14 @@ spl_autoload_register('autoload');
 $db=false;
 require_once("$basepath/session.php");
 require_once("$basepath/helpers/database.php");
+require_once("$basepath/vendor/autoload.php");
+date_default_timezone_set("Europe/Helsinki");
 
 try {
     if($db===false)
         $db = new SLSDB();
+    $loader = new Twig_Loader_Filesystem($twigTemplates);
+    $twig = new Twig_Environment($loader, array("cache"=>$twigCache));
 }
 catch (Exception $e) {
     die(_("Tietokanta ei auennut."));

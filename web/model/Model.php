@@ -8,46 +8,148 @@
  *
  *
  * */
-
+/**
+ * Yhteiset perusoperaatiot tauluille
+ *
+ * Useampi luokka perii tämän luokan toiminnallisuuden
+ * */
  class Model {
-    /** @var object $db Tietokantaolio mallia PDO **/
+    /** @var object Tietokantaolio mallia PDO **/
     protected $db;
-    /** @var object $dbc Tietokantaolio mallia SLS Database **/
+    
+    /** @var object Tietokantaolio mallia SLS Database **/
     protected $dbc;
     
-    /** @var string $perustaulu Mitä taulua tämä instanssi operoi **/
+    /** @var string Mitä taulua tämä instanssi operoi **/
     protected $perustaulu;
     
-    /** @var array $cache   Viimeksi taulusta luettu rivi **/
+    /** @var array  Viimeksi taulusta luettu rivi **/
     protected $cache;
     
-    /** @var boolean $empty Onko cachessa tavaraa? **/
+    /** @var boolean Onko cachessa tavaraa? **/
     protected $empty;
     
-    /** @var array $hakukentat DataTables haun sarakkeet **/
+    /** @var array  DataTables haun sarakkeet **/
     protected $hakukentat;
+    
+    /** @var array $avain Taulun avain **/
+    protected $avain;
+    
+    /** @var array $uniikit Taulun uniikit **/
+    protected $uniikit;
+    
+     /**
+     * Käsittelee pdo-virheen
+     * @param object $o joko PDO-objekti tai PDOStatement objekti
+     * @param string $s virheen aiheuttanut sql-kysely
+     * @throws Exception 
+     * */
+    protected function pdoError($o, $s) {        
+        $error = $o->errorInfo();
+        $msg = sprintf("Start failed (%s, %s, %s) to parse: '$s'!\n",
+                        $error[0], $error[1], $error[2]);
+        throw new \Exception($msg);
+    }
+    
+    
+    /**
+     * SQL-lauseen prepare virheenkäsittelyllä
+     * @param string $s SQL-lause, joka preparoidaan
+     * @return object PDO::Statement-objekti
+     * @uses pdoError()
+     * @throws Exception tai oikeammin pdoError heittää poikkeuksen
+     * */
+    protected function pdoPrepare($s) {                
+        $st = $this->db->prepare($s);
+        if($st===False) {
+            $this->pdoError($db, $s);
+        }
+        return $st;
+    }
+    
+    /**
+     * Tyhjätään cache
+     * @return void
+     * */
+    protected function clear() {
+        $this->cache = array();
+        $this->empty=true;
+    }
+    
+     /**
+     * "Avaimen" purkaminen sarake-datasta
+     * @param array $data Sarake-data, mistä avainta etsitään,
+     * @return mixed Boolean=false, mikäli ei löytynyt avainta ja array, jossa on where-ehto, positio ja avainsarakkeet arvoineen
+     * */
+    protected function getKey($data) {
+        $i=0;
+        $nullrex="/\w*NULL\w*/";
+        foreach($this->avaimet as $avain=>$sarakkeet) {
+            $w = "";
+            $d = array();
+            $i++;
+     
+            $found=False;
+            $all=True;
+            if(is_array($sarakkeet)) {
+                foreach($sarakkeet as $sarake) {
+                    if(isset($data[$sarake]) && $data[$sarake]!="" && !preg_match($nullrex, $data[$sarake])) {
+                        $d[$sarake]=$data[$sarake];
+                        if($w=="") {
+                            $w="where {$sarake}:={$sarake}";
+                        } else {
+                            $w.=" and {$sarake}:={$sarake}";
+                        }
+                        $found=True;
+                    }
+                    else {
+                        $all=False;
+                        break;
+                    }
+                }
+                if($all && $found) {
+                    $r = array("d"=>$d, "w"=>$w);
+                    return $r;
+                }
+            }
+            else {
+                if(isset($data[$sarakkeet]) && $data[$sarakkeet]!="" && !preg_match($nullrex, $data[$sarakkeet])) {
+                    $d[$sarakkeet]=$data[$sarakkeet];
+                    $w="where {$sarakkeet}:={$sarakkeet}";
+                    $r = array("d"=>$d, "w"=>$w);
+                    return $r;
+                }
+            }
+        }
+        return False;        
+    }
+   
     
     /**
      * Konstruktori
      * 
      * @param object $db            Tietokantaolio mallia SLS Database
      * @param string $perustaulu    Otuksen perustaulu
-     * @param array $avain          Avainkenttien nimet
-     * @param array $uniikki        Uniikkien kenttien nimet
+     * @param array $avain          Avainkenttien nimet, tai avaimet
+     * @param array $uniikit        Uniikkien kenttien nimet
      * @param array $hakukentat     Mitä sarakkeita voi käyttää tauluhaussa?
      * 
      * */
-    public function __construct($db, $perustaulu, $avain, $uniikki, $hakukentat) {
+    public function __construct($db, $perustaulu, $avain, $uniikit, $hakukentat) {
         $this->db =$db->getHandle();
         $this->dbc = $db;
         $this->perustaulu=$perustaulu;
         $this->avain = $avain;
-        $this->uniikki=$uniikki;
+        $this->uniikit=$uniikit;
         $this->hakukentat=$hakukentat;
     }
     
-    /*
+    /**
      * Tarkistetaan onko entuudestaan olemassa
+     *
+     * Käydään lävitse $avaimet siinä järjestyksessä kuin ne on objektia alustettaessa luotu,
+     * joille $datassa on arvo. Heti kun löytyy yksi osuma, lopetetaan löytymiseen, jos löytyy useampia kerralla, todetaan
+     * että taulun eheys on rikki, mutta palautetaan silti true. Jos taas cols on olemassa, niin etsitään sen määrittelemillä sarakkeilla.
      * @param array $data Tarkistettavat tiedot
      * @param array $cols Vaihtoehtoisesti tarkistettavat sarakkeet
      * @return boolean  False, jos on olemassa, True jos ei ole olemassa
@@ -91,19 +193,10 @@
             return false;                    
         }
         catch(PDOException $e) {
-            print_r($s);
-            print_r($d);
             die("Kantavirhe {$e->getMessage()}");
         }
     }
 
-      /**
-     * Tyhjätään cache
-     * */
-    protected function clear() {
-        $this->cache = array();
-        $this->empty=true;
-    }
     
     
     /**
@@ -122,6 +215,10 @@
         return $this->cache;
     }
 
+    /**
+     * Onko taululle merkitty tämä kenttä avaimeksi
+     * @param string $avain Oletetun avainkentän nimi.
+     * */
     private function hasKey($avain) {
         foreach($this->avain as $arvo) {
             if($avain==$arvo)
@@ -133,7 +230,11 @@
      /**
      * Lisätään tai päivitetään rivi
      * @param array $data rivi
-     * @return mixed false jos epäonnistui true, jos onnistui
+     * @return mixed false jos epäonnistui ja lisätty tai päivitetty rivi, jos onnistui
+     * @uses SLSDB::log()
+     * @uses Model::hasKey()
+     * @uses Model::exists()
+     * 
      * */
     public function upsert($data) {
         try {
@@ -183,6 +284,7 @@
      * Rivin poistaminen taulusta
      * @param array $data Avainten arvot
      * @return boolean True jos poistui, false jos meni kätöseen
+     * @uses SLSDB::log()
      * */
     public function delete($data) {
         try {

@@ -20,7 +20,7 @@ if($dbuser===false) {
     $dbport="5432";
     $dbhost="localhost";
     $dbname="slskirjasto";
-    $baseurl="http://localhost/slskirjasto/web";
+    $baseurl="http://localhost/slskirjasto";
     $privatepath="$basepath/..";
 }
 else {
@@ -50,4 +50,6 @@ define("URL_MUNGLER", true);
 $vendorpaths=array("vendor/barcodegen.1d-php5.v5.2.1/class");
 define("BARCODE", "/^[a-zA-Z0123456789]{1,6}$/");
 $fontPath="$basepath/vendor/barcodegen.1d-php5.v5.2.1/font/Arial.ttf";
+$twigTemplates="$privatepath/twig_templates";
+$twigCache="$basepath/cache";
 ?>

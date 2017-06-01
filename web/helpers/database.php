@@ -5,25 +5,40 @@
  * @package SLS-Kirjasto
  * @license http://opensource.org/licenses/GPL-2.0
  * @author Mauri "mos" Sahlberg
- * @uses users.php
- * @uses SLSUSERS
  * */
 
 /**
  * Tietokantarajapinta
  *
  * Tietokannan käsitteleminen, logaus.
+ * _logi_
+ * <pre>
+ * +----------+-----------+----------------------------------------+
+ * | Sarake   | Tyyppi    | Selite                                 |
+ * +----------+-----------+----------------------------------------+
+ * | kuka     | varchar   | Kenen tapahtuma, viiteavain kayttajaan |
+ * | koska    | timestamp | Koska logattu tapahtuma tapahtui       |
+ * | mita     | text      | Mitä tapahtui                          |
+ * | tiedosto | varchar   | Mikä tiedosto aiheutti                 |
+ * | mika     | varchar   | Mikä metodi aiheutti                   |
+ * | rivi     | int       | Millä rivillä                          |
+ * | luokka   | varchar   | Minkä tason logauksesta on kyse        |
+ * +----------+-----------+----------------------------------------+
+ * </pre>
  * */
 
 class SLSDB {
-    private $dbh;   /** @var handle database handle **/
+    /** @var object PDO-objekti, joka sisältää kantayhteyden. **/
+    private $dbh;   
     
     /**
      * Konstruktori
      *
-     * Yrittää luoda PDO-objektin ja avata kantayhteyden
+     * Yrittää luoda PDO-objektin ja avata kantayhteyden. Kantayhteyden tiedot haetaan
+     * käyttäen globaaleja muuttujia $dsn, $dbuser ja $dbpassword.
      *
      * @throws Exception jos kantayhteys ei aukea.
+     * 
      * */
     public function __construct(){
         try {
@@ -51,7 +66,9 @@ class SLSDB {
     /**
      * Tietokantalogi
      *
-     * Kirjoittaa tauluun Logi
+     * Kirjoittaa tauluun Logi. Jos käyttäjällä ei ole istuntoa auki, eikä $_SESSION['user'] sisällä
+     * käyttäjän tietoja, merkitsee käyttäjäksi anonymous.
+     * 
      * @param string $viesti Vapaa logiviesti
      * @param string $tiedosto Tiedosto, joka generoi viestin
      * @param string $mika funktio/luokka, joka generoi viestin

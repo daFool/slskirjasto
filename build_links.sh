@@ -1,6 +1,6 @@
 #!/bin/bash -x
 srcdir="../slskirjasto.redhat"
-hakemistot="web"
+hakemistot="web twig_templates"
 for i in $hakemistot;do 
 	rm -rf $i;
 	a=$srcdir/$i
@@ -13,7 +13,11 @@ for i in $hakemistot;do
 		ln $j $b
 	done;
 done
-for i in `cat files.txt`; do
-	rm $i;
+mkdir web/cache
+setfacl -d -m user:apache:rwx web/cache
+setfacl -m user:apache:rwx web/cache
+chcon -Rv --type=httpd_sys_rw_content_t web/cache/
+#for i in `cat files.txt`; do
+#	rm $i;
 #	ln $srcdir/$i .
-done;
+#done;

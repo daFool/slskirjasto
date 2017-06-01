@@ -5,7 +5,8 @@
  * @param jquery-objekti kontrolli Kontrollin
  * */
 function check(kontrolli) {
-    parent = $(kontrolli).parent('div [class^="col-sm"]');
+    // parent = $(kontrolli).parent('div [class^="col-sm"]');
+    parent = $(kontrolli).parent('div');
     spani = $(kontrolli).next('span.glyphicon');
     if(!spani.hasClass("glyphicon")) {
         spani=false;
@@ -42,4 +43,13 @@ function check(kontrolli) {
         }
                     
     }
+}
+
+function lisaaVirhe(parent, spani) {
+    if ($(parent).hasClass("has-success")) {
+          $(parent).removeClass("has-success");
+          $(spani).removeClass("glyphicon-ok");
+    }
+    $(parent).addClass("has-error");
+    $(spani).addClass("glyphicon-remove");
 }

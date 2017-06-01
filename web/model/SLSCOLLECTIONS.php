@@ -3,6 +3,7 @@
  * Pelikokoelmat
  *
  * @package SLS-Kirjasto
+ * @subpackage Pelikokoelma
  * @license http://opensource.org/licenses/GPL-2.0
  * @author Mauri "mos" Sahlberg
  *
@@ -15,16 +16,21 @@
  *
  * Kokoelmia on kahdenlaisia:
  * 1) Pysyviä kokoelmia, jotka ovat jonkin organisaation "varasto"-kokoelmia.
- * 2) Tapahtuma kokoelmia, jotka yleensä koostuvat usean eri organisaation peleistä ja ovat hetkellisesti olemassa.
+ * 2) Tapahtumakokoelmia, jotka yleensä koostuvat usean eri organisaation peleistä ja ovat hetkellisesti olemassa.
  *
  * Taulu: kokoelma
- * nimi varchar(255)        Kokoelman nimi, pääavain
- * laji int2                Onko kokoelma tapahtuma=0 vai varasto=1
- * omistaja varchar(255)    Kokoelman omistajan tunniste, viiteavain kayttaja-tauluun
- * tapahtuma varchar(255)   Tapahtuman nimi, viiteavain tapahtuma-tauluun
- * lisatty timestamp nz     Koska kokoelmarivi on lisätty kantaan
- * julkisuus varchar(255)   Onko kokoelma yksityinen vai avoin
- * muokattu timestamp wz    Koska kokoelmariviä on viimeksi muokattu
+ * <pre>
+ * +
+ * | Sarake    | Tyyppi        | Tarkoitus                                                 |
+ * +-----------+---------------+-----------------------------------------------------------+
+ * | nimi      | varchar(255)  | Kokoelman nimi, pääavain                                  |
+ * | laji      | int2          | Onko kokoelma tapahtuma=0 vai varasto=1                   |
+ * | omistaja  | varchar(255)  | Kokoelman omistajan tunniste, viiteavain kayttaja-tauluun |
+ * | tapahtuma | varchar(255)  | Tapahtuman nimi, viiteavain tapahtuma-tauluun             |
+ * | lisatty   | timestamp nz  | Koska kokoelmarivi on lisätty kantaan                     |
+ * | julkisuus | varchar(255)  | Onko kokoelma yksityinen vai avoin                        |
+ * | muokattu  | timestamp wz  | Koska kokoelmariviä on viimeksi muokattu                  |
+ * | id        | varchar       | Kokoelmatunniste, käytetään tarroissa ja pelitunnisteissa |
  *
  * Käyttöoikeudet:
  * - Yksityisen kokoelman saa nähdä vain omistaja
@@ -34,9 +40,18 @@
  * - Kokoelman roolipohjaiset oikeudet:
  *   - Admin, saa muokata kokoelmaa ja antaa pelejä lainaan
  *   - User, saa katsella kokoelman pelejä ja tietoja
- * */
+ *
+ *   @uses Model
+ *
+ *  Kokoelmien ylläpito: view/collectionyp.php
+ *  
+ **/
 class SLSCOLLECTIONS extends Model {
 
+    /**
+     * Konstruktori
+     * @param object $db Tietokantaolio
+     **/
     public function __construct($db) {
         $hakukentat=array();
         $hakukentat[0]["nimi"]="nimi";
@@ -52,6 +67,7 @@ class SLSCOLLECTIONS extends Model {
      * Kokoelmatunnisteen kelvollisuuden tarkistus
      * @param string $id Kokoelman viivakooditunniste
      * @return boolean False jos tunniste on huono tai olemassa
+     * @uses Model::exists() Model::exists() Onko tunniste käytössä.
      * */
     public function checkId($id) {
         try {
@@ -67,6 +83,10 @@ class SLSCOLLECTIONS extends Model {
      * Add collection with/without event
      * @param mixed $collection Array of collection / event data
      * @return boolean True if addition was successfull or false if it failed
+     * @uses Tapahtuma::upsert() Tapahtuma::upsert() Tapahtuman lisääminen kantaan
+     * @uses SLSDATABASE::log() SLSDATABASE::log() Logaus
+     * @uses Model::upsert() Model::upsert() Rivin lisääminen
+     * @uses Tapahtuma::delete() Tapahtuma::delete() Tapahtuman poistaminen kannasta
      * */
     public function addCOllection($collection) {
         try {
@@ -90,6 +110,7 @@ class SLSCOLLECTIONS extends Model {
                     $this->dbc->log("Tapahtuman {$collection['tapahtuma']['nimi']} lisäys mätti", __FILE__,__METHOD__, __LINE__, "ERROR");
                     return false;
                 }
+                $c["tapahtuma"]=$t["nimi"];
             }
             
             if(!parent::upsert($c)) {
@@ -106,6 +127,8 @@ class SLSCOLLECTIONS extends Model {
      * Check existenz of a colleciton
      * @param string $nimi Name of the collection
      * @return mixed False if not exists array of collection data if it does
+     * @uses Model::exists() Model::exists() Onko tällä nimellä kokoelma
+     * @uses SLSCOLLECTIONS::give() SLSCOLLECTIONS::give() Löytyneen rivin palauttaminen
      * */
     public function checkCollection($nimi) {
         if(parent::exists(array("nimi"=>$nimi)))
@@ -117,6 +140,8 @@ class SLSCOLLECTIONS extends Model {
      * Check existence of an event
      * @param string $nimi Name of the event
      * @return mixed False if not exists, array of event data if it does
+     * @uses Tapahtuma::exists() Tapahtuma::exists() Onko tapahtuma olemassa
+     * @uses Tapahtuma::give() Tapahtuma::give() Tapahtuman tiedot
      * */
     public function checkEvent($nimi) {
         $t = new Tapahtuma($this->dbc);
@@ -127,6 +152,8 @@ class SLSCOLLECTIONS extends Model {
         
     /**
      * Paginate collections
+     *
+     * Ero perusversioon on, että näytetään vain "sallitut" kokoelmat
      * @param int $start Miltä riviltä aloitetaan
      * @param int $length Montako kokoelmaa listataan
      * @param string $order Aakkostusjärjestys
@@ -134,6 +161,8 @@ class SLSCOLLECTIONS extends Model {
      * @param string $kuka Käyttäjän tunniste
      * @param string $taso Käyttäjän taso
      * @return mixed False jos mitään ei löytynyt
+     * @uses SLSCOLLECTIONS::buildWhere() SLSCOLLECTIONS::buildWhere() Hakuehdon rakentaminen
+     * @uses Model::tableFetch() Model::tableFetch() Varsinainen tietojen hakeminen
      * */
     public function tableFetch($start, $length, $order, $search, $kuka="", $taso="") {
         try {
@@ -150,7 +179,8 @@ class SLSCOLLECTIONS extends Model {
      * @param string $kuka Käyttäjän tunniste
      * @param string $taso Käyttäjän taso
      * @param string $mihin Mihin etsitään oikeuksia?
-     * @return string where-ehdon pohjat
+     * @param boolean $quote Parametri, joka ei tee mitään!?
+     * @return array ("w"=>string where-ehdon pohjat ja "gb"=> group by ehdon pohjat. 
      * */
     private function buildWhere($kuka, $taso, $mihin, $quote=false) {
         $w="";
@@ -158,7 +188,7 @@ class SLSCOLLECTIONS extends Model {
         if($kuka!="") {
             if($taso=='superadmin') {
                 $w="";
-                $b="";
+                $gb="";
             }
             else {
                 if($quote) {
@@ -184,9 +214,12 @@ class SLSCOLLECTIONS extends Model {
      * Palauttaa kokoelmien nimet json-notaatiossa.
      * @param string $kuka Käyttäjän tunniste
      * @param string $taso Käyttäjän taso
+     * @param string $filter Kokoelma, jota ei "lasketa"
      * @return array json_tauluna kokoelmat
+     * @uses SLSCOLLECTIONS::buildWhere() SLSCOLLECTIONS::buildWhere() Hakuehto
+     * 
      * */
-    public function getCollectionNames_json($kuka="", $taso="") {
+    public function getCollectionNames_json($kuka="", $taso="", $filter="") {
         try {
             $w = $this->buildWhere($kuka, $taso, "nimi");
             if($w!==false and $w["w"]!="")
@@ -203,6 +236,8 @@ class SLSCOLLECTIONS extends Model {
                 $rows = $st->fetchAll(PDO::FETCH_ASSOC);
                 $i=1;
                 foreach($rows as $key=>$row) {
+                    if($row == $filter)
+                        continue;
                     array_push($base,array("id"=>$i++,"text"=>$row, "value"=>$row));
                 }
             }
@@ -219,6 +254,7 @@ class SLSCOLLECTIONS extends Model {
      * select vk.*, k.julkisuus from vkokoelma as vk join kokoelma as k on vk.kokoelma=k.nimi where k.julkisuus='avoin' and vk.nimi='Catan';
      * @param string $game Pelin nimi
      * @return mixed False, jos ei löytynyt ja kasan kokoelma rivejä, jos löytyi
+     * @uses SLSCOLLECTIONS::buildWhere() SLSCOLLECTIONS::buildWhere() Hakuehdon rakentaminen
      * */
     public function getGameCollectionsForGame_json($game, $kuka, $taso) {
         try {
@@ -265,6 +301,7 @@ class SLSCOLLECTIONS extends Model {
     /**
      * Hakee jsonina annetun kokoelman tiedot
      * @param string $kokoelma Mitä kokoelmaa haetaan
+     * @uses SLSCOLLECTIONS::buildWhere() SLSCOLLECTIONS::buildWhere() Hakuehdon rakentaminen
      * */
     public function get($kokoelma, $kuka, $tila) {
         try {            

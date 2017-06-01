@@ -198,23 +198,30 @@ class SLSCOLLECTIONGAMES {
     }
     
     /**
-     * Toisesta kokoelmasta tuonti
+     * Pelin tai pelien tuominen toisesta kokoelmasta
      *
      * Tarkoitettu pääsääntöisesti Tapahtuma-kokoelman luomiseen.
      * @param string $mista Sen kokoelman tunniste, josta tuodaan
      * @param string $mihin Sen kokoelman tunniste, johon tuodaan
      * @param string $kuka Kuka tuo pelejä.
+     * @param string $peli Tuodaanko vain yksi peli.
+     * 
      * return mixed False, jos tuonti epäonnistui
      * */
-    public function tuoKokoelmasta($mista, $mihin, $kuka) {
+    public function tuoKokoelmasta($mista, $mihin, $kuka, $peli=False) {
         try {
             /* insert into kokoelmapeli
             (select :mihin, peli, omistaja, lahjoittaja, hylly, paikka, varasto, laatikko, kunto, huomautus, :mihin||tunniste,
             now(), :kuka, now(), :kuka from kokoelmapeli where kokoelma=:mista) */
-            
-            $s = "insert into kokoelmapeli (kokoelma, peli, omistaja, lahjoittaja, kunto, huomautus, tunniste, lisatty, lisaaja) (select :mihin,
-            peli, omistaja, lahjoittaja, kunto, huomautus, cast(:mihin as varchar(255))||'.'||tunniste, now(), :kuka from kokoelmapeli where kokoelma=:mista) ;";
             $d = array("mihin"=>$mihin, "kuka"=>$kuka, "mista"=>$mista);
+            
+            $s = "insert into kokoelmapeli (kokoelma, peli, omistaja, lahjoittaja, kunto, huomautus, tunniste, lisatty, lisaaja, tuotu, tuotukokoelmasta, alkuperainentunniste, hylly, paikka) (select :mihin,
+            peli, omistaja, lahjoittaja, kunto, huomautus, cast(:mihin as varchar(255))||'.'||tunniste, now(), :kuka, now(), kokoelma, tunniste, hylly, paikka from kokoelmapeli where kokoelma=:mista";
+            if($peli != false) {
+                $s.=" and tunniste=:peli";
+                $d["peli"]=$peli;
+            }
+            $s.=") ;";
             $st = $this->db->prepare($s);
             $res = $st->execute($d);
             if(!$res)

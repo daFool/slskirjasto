@@ -60,3 +60,12 @@ footer.slsfooter {
   height: 60px;
   background-color: #f5f5f5;
 }
+
+span.nimi {
+  font-variant: small-caps;
+  font-weight: bold;
+}
+
+span.taso {
+  font-weight: bold;
+}

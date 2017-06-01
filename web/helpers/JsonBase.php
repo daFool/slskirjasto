@@ -19,6 +19,18 @@ class JsonBase {
         $this->l = $malli;
     }
     
+    /**
+     * Table-fetch alla olevaan luokkaan
+     *
+     * Jos käyttäjätiedot ovat tiedossa, käytetään niitä.
+     * 
+     * @param int $start Mistä rivistä aloitetaan
+     * @param int $length Kuinka monta riviä haetaan
+     * @param string $od Järjestysehto
+     * @param string $search Globaali hakuehto
+     * 
+     * @return mixed False, jos mitään ei löytynyt ja array rivejä, jos löytyi.
+     * */
     protected function fetch($start,  $length, $od, $search) {
         if(isset($_SESSION["user"])) {
             $rivit=$this->l->tableFetch($start, $length, $od, $search, $_SESSION['user']['tunniste'], $_SESSION['user']['tila']);
@@ -28,6 +40,14 @@ class JsonBase {
         return $rivit;
     }
     
+    /**
+     * Haku taulusta json-tablefetchiä varten
+     *
+     * Pureskellaan json-vastauksen tarvitsemat lähtöparametrit valmiiksi.
+     * @return array json_encodea vaille valmis vastaus
+     * 
+     * @uses \JsonBase::tableRow() \JsonBase::tableRow() Yhden saadun rivin käsittely
+     * */
     public function tableFetch() {
         global $db;
        
@@ -39,7 +59,7 @@ class JsonBase {
         $columns = isset($_REQUEST["columns"]) ? $_REQUEST["columns"] : false;
 
         $req = serialize($order)." ".serialize($search);
-        $db->log($req, __FILE__,__CLASS__."/".__METHOD__, __LINE__, "DEBUG");
+        // $db->log($req, __FILE__,__CLASS__."/".__METHOD__, __LINE__, "DEBUG");
         
         $od=false;
         if($order) {
@@ -52,7 +72,7 @@ class JsonBase {
                     $first=false;
                 }
             }
-            $db->log($od, __FILE__, __CLASS__."/".__METHOD__,__LINE__, "DEBUG");
+            // $db->log($od, __FILE__, __CLASS__."/".__METHOD__,__LINE__, "DEBUG");
         }
             
         $data=array();

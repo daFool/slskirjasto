@@ -1,3 +1,22 @@
+ <?php
+	/**
+    * @package SLS-Kirjasto
+	* @subpackage Kori
+	* @license http://opensource.org/licenses/GPL-2.0
+	* @author Mauri "mos" Sahlberg
+	*
+	* Valitun korin pelit haetaan käyttäen json/json_korinpelit.php:tä, joka otta parametrinaan käytettävän 
+	* korin tunnisteen.
+	*
+	* Vapaan pelin voi lainata korista, mikäli käyttäjällä on oikeus lainata. Lainaus kutsuu forms/lainaus.php:tä
+	* Lainatun pelin voi palauttaa korista, mikäli käyttäjällä on oikeus palauttaa. Palautus kutsuu palauta.php:tä
+	* Korista poistaminen tapahtuu json/json_poistaKorista.php
+	* Pelin muokkaaminen tapahtuu view/forms/game.php
+	* Tarratulostus tarratulostus.php
+	* Pelin tilalomake view/pelinTila.php
+	* 
+	* */
+?>
         <title><?php echo _("Lautapelikirjasto: korin hallinta");?></title>
         <script type="text/javascript">
             var koriTunniste="<?php if(isset($_SESSION["kori"])) echo $_SESSION["kori"];?>";
@@ -6,8 +25,9 @@
             var peli="";
             var tila="";
             var kokoelma="";
+			var obase="<?php echo _("Kori:");?>";
 			
-            $(document).ready(function() {
+			$(document).ready(function() {
                 /**
                  * Korin pelit */
                 var korinpelit;
@@ -33,7 +53,10 @@
                                     "ajax": "<?php echo "$baseurl/json/";?>json_korinpelit.php?kori="+koriTunniste,
                                     <?php include("$basepath/datatables_language.js");?>
 				} );
-				
+			
+				otsikko=obase+"<?php echo $kori;?>";
+				$("#otsikko").html(otsikko);
+            	
 			    $('#pelikori tbody').on( 'click', 'tr', function () {
 					var tunniste=$(this).children("td:first").html();
 					if ( $(this).hasClass('selected') ) {
@@ -166,15 +189,75 @@
 						});
 						korinpelit.ajax.reload();
 					}
-				});                   
+				});
+				
+				$("#korihaku").autocomplete({
+					source : "<?php echo $baseurl; ?>/json/json_korinimi.php",
+					minLength : 4,
+					delay : 500 
+				});
+				
+				$("#vaihdaKoriin").on("click", function () {
+					$.get("<?php echo $baseurl;?>/json/json_tarkistakorinnimi.php?nimi="+$("#korihaku").val(), function(data) {
+						if(data["tulos"]=="OK") {
+							console.log("Ok");
+							koriTunniste=data["koritunniste"];
+							korinpelit.ajax.url("<?php echo "$baseurl/json/";?>json_korinpelit.php?kori="+koriTunniste).load();
+							otsikko=obase+$("#korihaku").val();
+							$("#otsikko").html(otsikko);
+						} else {
+							console.log("Failed:"+$("#korihaku").val());
+						}
+					});
+				});
+				
+				<?php
+				if(isset($_SESSION["user"])) {?>
+				$("#korit").on("click", function() {
+					url="<?php echo $baseurl;?>/vendor/php-reports/report/html/?report=pgsql/korit.sql";
+				window.open(url, "Report");
+				});
+				<?php
+				}
+				?>
+				$("#Kaikki").on("click", function() {
+					url="<?php echo $baseurl;?>/vendor/php-reports/report/html/?report=pgsql/korinpelit.sql&macros%5BkoriID%5D="+koriTunniste;
+					window.open(url, "Report");
+				})
 			});            
         </script>
         	</head>
 	<body>
 		<?php include_once("$basepath/view/navbar.html");?>
 		<div class="container">
+			<div class="row">
+				<div class="col-xs-12 col-sm-6 col-md-8">
+					<form name="korinVaihto" method="get">
+						<div class="form-group">
+							<div class="col-sm-2">
+								<label for="korihaku" ckass="control-label"><?php echo _("Vaihda koriin:");?></label>
+							</div>
+							<div class="col-sm-5">
+								<div class="input-group">
+									<input type="text" class="form-control" name="korihaku" id="korihaku" size="40" maxlength="255"/>
+									<span class="input-group-addon btn" id="vaihdaKoriin"><?php echo _("Vaihda");?></span>
+								</div>
+							</div>
+							<?php
+								if(isset($_SESSION["user"])) {
+									?>
+								
+							<div class="col-sm-2">
+								<button type="button" class="btn btn-default" id="korit"><?php echo _("Näytä korit");?></button>
+							</div>
+							<?php } ?>
+						</div>
+					</form>
+				</div>
+			</div>
 			<section class='col-xs-12 col-sm-6 col-md-8'>
-				<h2><?php printf( _("Korin %s pelit"), htmlentities($kori, ENT_COMPAT|ENT_HTML5, 'UTF-8'));?></h2>
+<!--				<h2><?php printf( _("Korin %s pelit"), htmlentities($kori, ENT_COMPAT|ENT_HTML5, 'UTF-8'));?></h2> -->
+				<h2 id="otsikko"></h2>
 				<table id="pelikori" class="display" cellspacing="0" width="100%">
 					<thead>
 					  <tr>
@@ -202,6 +285,7 @@
 			
 				<button type="button" class="btn btn-lg btn-default" id="Tyhjenna"><?php echo _("Tyhjennä");?></button>
 				<button type="button" class="btn btn-lg btn-default" id="Tarrat"><?php echo _("Tarrat");?></button>
+				<button type="button" class="btn btn-lg btn-default" id="Kaikki"><?php echo _("Kaikki");?></button>
 			</section>
 			<div class="alert alert-warning collapse" role="alert" id="varoitus">
 				<button type="button" class="close" id="vbutton" aria-label="Close"><span aria-hidden="true">&times;</span></button>
