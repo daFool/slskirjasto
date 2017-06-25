@@ -46,13 +46,13 @@
  *  Kokoelmien ylläpito: view/collectionyp.php
  *  
  **/
-class SLSCOLLECTIONS extends Model {
+class SLSCOLLECTIONS extends mosBase\malli {
 
     /**
      * Konstruktori
      * @param object $db Tietokantaolio
      **/
-    public function __construct($db) {
+    public function __construct(&$db, &$log) {
         $hakukentat=array();
         $hakukentat[0]["nimi"]="nimi";
         $hakukentat[0]["tyyppi"]="string";
@@ -61,7 +61,7 @@ class SLSCOLLECTIONS extends Model {
         $hakukentat[2]["nimi"]="tapahtuma";
         $hakukentat[2]["tyyppi"]="string";
         
-        parent::__construct($db, "kokoelma", array("nimi"), array("id"), $hakukentat);
+        parent::__construct($db, $log, "kokoelma", array("primary"=>array("nimi"), "id"=>array("id")), "kokoelma", $hakukentat);
     }
     /**
      * Kokoelmatunnisteen kelvollisuuden tarkistus
@@ -70,14 +70,9 @@ class SLSCOLLECTIONS extends Model {
      * @uses Model::exists() Model::exists() Onko tunniste käytössä.
      * */
     public function checkId($id) {
-        try {
-            if(!preg_match(BARCODE, $id))
+        if(!preg_match(BARCODE, $id))
                 return false;
-            return !parent::exists(array("id"=>$id), array("id"));
-        }
-        catch(PDOException $e) {
-            die(sprintf(_("Ohjelmointivirhe: %s"),$e->getMessage()));
-        }
+        return !parent::exists(array("id"=>$id));
     }
     /**
      * Add collection with/without event
@@ -166,8 +161,9 @@ class SLSCOLLECTIONS extends Model {
      * */
     public function tableFetch($start, $length, $order, $search, $kuka="", $taso="") {
         try {
+            
             $w = $this->buildWhere($kuka, $taso, "nimi");
-            return parent::tableFetch($start, $length, $order, $search, $w);
+            return parent::tableFetch($start, $length, $order, $search, $w["w"]);
         }
         catch(PDOException $e) {
             die("Programming error: {$e->getMessage()}");
@@ -199,11 +195,11 @@ class SLSCOLLECTIONS extends Model {
                     $w1="hasRoleS('kokoelma','user',$mihin,'kuka')";
                     $w2="hasRoleS('kokoelma','admin',$mihin,'kuka')";
                 }
-                $w = " where (omistaja='$kuka' or $w1 or $w2 or julkisuus='avoin')";
+                $w = " (omistaja='$kuka' or $w1 or $w2 or julkisuus='avoin')";
                 $gb = " group by $mihin";
            }
         } else {
-            $w=" where julkisuus='avoin'";
+            $w=" julkisuus='avoin'";
         }
         $tulos = array("w"=>$w, "gb"=>$gb);
         return $tulos;

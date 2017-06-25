@@ -2,9 +2,9 @@
 class vLogin extends vPage {
     protected $myvars;
     
-    public function __construct($twig) {
+    public function __construct($twig, &$t, &$conf) {
         global $url, $db, $basepath, $baseurl;
-        parent::__construct($twig);
+        parent::__construct($twig, $t, $conf);
         $myvars = array("Kirjaudu"=>_("Kirjaudu"),
                         "kayttajatunnus"=>_("Käyttäjätunnus"),
                         "salasana"=>_("Salasana"),

@@ -1,0 +1,11 @@
+SetEnv MOSBASE /home/mos/projektit/slskirjasto2/mosBase
+SetEnv SLSCONFIG /home/mos/projektit/slskirjasto2/slskirjasto.ini
+SetEnv BASEPATH /home/mos/projektit/slskirjasto2/web
+SetEnv ROOTPATH /home/mos/projektit/slskirjasto2
+
+RewriteEngine On
+RewriteBase /slskirjasto2/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-l
+RewriteRule .* index.php [L,QSA]

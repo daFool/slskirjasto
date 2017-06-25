@@ -10,18 +10,18 @@
                 <div class="container-fluid">
                     <div class="navbar-header">
                         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                            <span class="sr-only">{{ T["ShowNav"] }}</span>
+                            <span class="sr-only">{{ ShowNav }}</span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" href="#">{{ T["Lautapelikirjasto"] }}</a>
+                        <a class="navbar-brand" href="#">{{ Lautapelikirjasto }}</a>
                     </div>
                     <div id="navbar" class="navbar-collapse collapse">
                         <ul class="nav navbar-nav">
-                            <li><a href="{{ baseurl }}/index.php">{{ T["Etusivu"] }}</a></li>
+                            <li><a href="{{ baseurl }}/index.php">{{ Etusivu }}</a></li>
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ T["Pelitoiminnot"] }}<span class="caret"></span></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ Pelitoiminnot }}<span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     {% for pelitoiminto in pelitoiminnot %}
                                         <li><a href="{{ pelitoiminto.url }}">{{ pelitoiminto.teksti }}</a></li>
@@ -30,7 +30,7 @@
                             </li>
                             {% if not kirjautunut %}
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ T["Kirjaudu"] }}<span class="caret"></span></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ Kirjaudu }}<span class="caret"></span></a>
                                 <ul class="dropdown-menu">                                
                                     {% for k in kirjautumiset %}
                                     <li><a href="{{ k.url }}">{{ k.teksti }}</a></li>
@@ -39,7 +39,7 @@
                             </li>
                             {% else %}
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ T["Kokoelmat"] }}<span class="caret"></span></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ Kokoelmat }}<span class="caret"></span></a>
                                 <ul class="dropdown-menu"> 
                                     {% for k in kokoelmat %}
                                     <li><a href="{{ k.url }}">{{ k.teksti }}</a></li>
@@ -48,7 +48,7 @@
                             </li>
                                 
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ T["Ylläpito"]}}<span class="caret"></span></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ Yllpaito }}<span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     {% if rooli=='superadmin' %}
                                     {% for s in superit %}
@@ -60,9 +60,9 @@
                                     {% endfor %}                                                
                                 </ul>
                             </li>   
-                            <li><a href="{{ baseurl }}/index.php?logout=true">{{ T["Logout"] }}</a></li>
+                            <li><a href="{{ baseurl }}/index.php?logout=true">{{ Logout }}</a></li>
                             {% endif %}
-                            <li><a href="{{ baseurl }}/korimain.php">{{ T["Kori"] }}</a></li>
+                            <li><a href="{{ baseurl }}/korimain.php">{{ Kori }}</a></li>
                         </ul>
                     </div>
                 </div>

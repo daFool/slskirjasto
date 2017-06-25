@@ -82,16 +82,14 @@ catch (Exception $e) {
  * */
 function SLSMail($to, $subject, $message, $headers) {
     require_once "Mail.php";
-    global $email_user;
-    global $email_password;
-    global $email_from;
-    global $email_host;
-    global $email_auth;
     
-    $from = $email_from;
-    $host = $email_host;
-    $username = $email_user;
-    $password = $email_password;
+    $e = $this->conf->get("Mail");
+    $from = $e["from"];
+    $host = $e["host"];
+    $username = $e["user"];
+    $password = $e["password"];
+    $email_auth = (boolean)$e["auth"];
+    
     $headers = array ('From' => $from,   'To' => $to,   'Subject' => $subject);
     if($email_auth) 
         $smtp = Mail::factory('smtp',   array ('host' => $host,     'auth' => true,     'username' => $username,     'password' => $password));

@@ -18,13 +18,13 @@
   *
   * Pelien tallettaminen, etsiminen, muuttaminen ja poistaminen.
   * */
-class SLSGAMES extends Model {
+class SLSGAMES extends mosBase\malli {
     private $games;
     /**
      * Constructor
      * @param object $db Database-handle
      * */
-    public function __construct($db) {
+    public function __construct(&$db, &$log) {
         $hakukentat=array();
         
         $hakukentat[0]["tyyppi"]="string";
@@ -42,7 +42,7 @@ class SLSGAMES extends Model {
         $hakukentat[6]["tyyppi"]="string";
         $hakukentat[6]["nimi"]="tunniste";
         
-        parent::__construct($db, "peli", array("tunniste"), false, $hakukentat);        
+        parent::__construct($db, $log, "peli", array("primary"=>"tunniste"), "", $hakukentat);        
     }
     
     /**
@@ -73,64 +73,6 @@ class SLSGAMES extends Model {
         }
     }
     
-    /**
-     * Paginate games with gusto
-     * */
-    public function tableFetch($start, $length, $order, $search) {
-        try {
-            $ds = false;
-            $tulos = array("lkm"=>0, "pelit"=>array(), "riveja"=>0, "filtered"=>0);
-            $so="";
-            $v="";
-            if(isset($search["value"])) {
-                $v = $search["value"];
-                $so = "where (nimi ~* :v or julkaisija ~* :v or suunnittelija ~* :v or bgglinkki ~* :v)";
-                $ds = true;
-            }
-            if($order !== false) {
-                $s = "select nimi, bggrank, bgglinkki, kesto, pelaajia, vuosi from peli $so order by $order limit :length offset :start;";
-                $d = array("length"=>$length, "start"=>$start);
-            } else {
-                $s = "select nimi, bggrank, bgglinkki, kesto, pelaajia, vuosi from peli $so limit :length offset :start;";
-                $d = array("length"=>$length, "start"=>$start);
-            }
-            if($ds) 
-                $d["v"]=$v;
-            
-            $m = "$s ($v)";
-            $this->dbc->log($m, __FILE__, __CLASS__,__LINE__,"DEBUG");
-            $st = $this->db->prepare($s);
-            $res = $st->execute($d);
-            if(!$res || $st->rowCount()==0) {
-                return $tulos;
-            }
-            $pelit = $st->fetchAll();
-            $s = "select count(*) as lkm from peli;";
-            $st = $this->db->prepare($s);
-            $res = $st->execute();
-            if(!$res || $st->rowCount()==0) {
-                return $tulos;
-            }
-            $row = $st->fetch();
-            $tulos["lkm"]=$row["lkm"];
-            $tulos["rivit"]=$pelit;
-            $tulos["riveja"]=count($pelit);
-            $tulos["filtered"]=$row["lkm"];
-            if($ds) {
-                $s = "select count(*) as lkm from peli $so;";
-                $st = $this->db->prepare($s);
-                $res = $st->execute(array("v"=>$v));
-                if($res && $st->rowCount()>0) {
-		    $a=$st->fetch();
-                    $tulos["filtered"]=$a["lkm"];
-                }
-            }
-            return $tulos;
-        }
-        catch(PDOException $e) {
-            die("Programming error: {$e->getMessage()}");
-        }
-    }
     /**
      * Add game
      * @param array of game data

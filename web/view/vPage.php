@@ -3,64 +3,58 @@ class vPage {
     
     private $twig;
     protected $variables;
+    protected $baseurl;
+    protected $basepath;
     
     /**
      * Sivupohja
      *
      * @param object $twig Twig-objekti
+     * @param &array $t Tekstit
+     * @param object $conf Konfiguraatio
      * */
-    public function __construct($twig) {
-        global $url, $db, $basepath, $baseurl;
-        
+    public function __construct($twig, &$t, $conf) {       
         $this->twig = $twig;
         $v = array();
-        $v["baseurl"]=$baseurl;
-        $t= array("ShowNav"=>_("Näytä navigaatio"),
-                  "Lautapelikirjasto"=>_("Lautapelikirjasto"),
-                  "Pelitoiminnot"=>_("Pelitoiminnot"),
-                  "Etusivu"=>_("Etusivu"),
-                  "Kirjaudu"=>_("Kirjaudu"),
-                  "Ylläpito"=>_("Ylläpito"),
-                  "Logout"=>_("Kirjaudu ulos"),
-                  "Kori"=>_("Kori"),
-                  "Kokoelmat"=>_("Kokoelmat")
-                 );
+        $this->baseurl = $conf->get("General")["baseurl"];
+        $this->basepath = $conf->get("General")["basepath"];
+        
         /**
          * Pelivalikko
          * @var array $p
          * */
-        $p = array("0"=>array("url"=>"$baseurl/view/forms/gamesearch.php", "teksti"=>_("Pelihaku")),
-                   "1"=>array("url"=>"#", "teksti"=>_("Tagit")),
-                   "2"=>array("url"=>"#", "teksti"=>_("Arviot")),
-                   "3"=>array("url"=>"#", "teksti"=>_("Peliraportit")));
+        $p = array("0"=>array("url"=>"$baseurl/controller/games/search", "teksti"=>$t["Pelihaku"]),
+                   "1"=>array("url"=>"$baseurl/controller/tags", "teksti"=>$t["Tagit"]),
+                   "2"=>array("url"=>"$baseurl/controller/reviews", "teksti"=>$t["Arviot"]),
+                   "3"=>array("url"=>"$baseurl/congroller/games/reports", "teksti"=>$t["Peliraportit"]));
+        
         $kirjautunut = isset($_SESSION["loggedin"]) ? $_SESSION["loggedin"] : false;
         
         /**
          * Kirjautumisvalikko
          * @var array $k
          * */
-        $k = array("0"=>array("url"=>"$baseurl/login/localLogin.php", "teksti"=>_("Paikallinen kirjautuminen")),
-                   "1"=>array("url"=>$url, "teksti"=>_("Google kirjautuminen")));
+        $k = array("0"=>array("url"=>$this->baseurl."/login?method=local", "teksti"=>$t["LoginPaikallinen"]),
+                   "1"=>array("url"=>$this->baseurl."/login?method=google", "teksti"=>$t["LoginGoogle"]));
         
         /**
          * Kokoelmavalikko
          * @var array $ko
          * */
-        $ko = array("0"=>array("url"=>"$baseurl/view/forms/collection.php?method=add", "teksti"=>_("Lisää kokoelma")),
-                    "1"=>array("url"=>"$baseurl/view/collectionyp.php", "teksti"=>_("Ylläpidä kokoelmia")),
-                    "2"=>array("url"=>"#", "teksti"=>_("Kokoelmaraportit")));
+        $ko = array("0"=>array("url"=>"$baseurl/controller/collections/add", "teksti"=>$t["LisaaKokoelma"]),
+                    "1"=>array("url"=>"$baseurl/controller/collections", "teksti"=>$t["YllapidaKokoelmia"]),
+                    "2"=>array("url"=>"$baseurl/controller/collections/reports", "teksti"=>$t["Kokoelmaraportit"]));
         
         /**
          * Käyttäjäien ylläpito
          * @var array $s
          * */
-        $s = array("0"=>array("url"=>"$baseurl/view/forms/kayttajat.php", "teksti"=>_("Käyttäjät")),
-                   "1"=>array("url"=>"$baseurl/view/forms/lainaajat.php", "teksti"=>_("Tuo SLS-lainaajat")));
+        $s = array("0"=>array("url"=>"$baseurl/controller/users", "teksti"=>$t["Kayttajat"]),
+                   "1"=>array("url"=>"$baseurl/controller/customers/import", "teksti"=>$t["SLSLainaajat"]));
         
-        $y = array("0"=>array("url"=>"$baseurl/view/forms/salasana.php", "teksti"=>_("Vaihda salasana")));
-        $rooli = isset($_SESSION['user']['tila']) ? $_SESSION["user"]["tila"] : "jästi";
-        $kp = new Kori($db);
-        $kp->Koripallo();
+        $y = array("0"=>array("url"=>"$baseurl/controller/users/password", "teksti"=>$t["VaihdaSalasana"]));
+        
+        $rooli = $_SESSION['user']['tila']??"muggle";
  
         $tiedot="";
         $ladattu="";
@@ -69,11 +63,10 @@ class vPage {
             $nyt = new DateTime();
             $kuolee = new DateTime();
             $kuolee->setTimestamp(SESSION_TIMEOUT+time());
-            $ladattu = sprintf(_("Ladattu %s, istunto päättyy %s"), $nyt->format('Y-m-d H:i:s'), $kuolee->format('Y-m-d H:i:s'));
+            $ladattu = sprintf($t["istuntotila"], $nyt->format('Y-m-d H:i:s'), $kuolee->format('Y-m-d H:i:s'));
         }
         
-        $this->variables = array("baseurl"=>$baseurl,
-                                 "T"=>$t,
+        $tl= array("baseurl"=>$this->baseurl,
                                  "pelitoiminnot"=>$p,
                                  "kirjautunut"=>$kirjautunut,
                                  "kirjautumiset"=>$k,
@@ -81,28 +74,11 @@ class vPage {
                                  "rooli"=>$rooli,
                                  "superit"=>$s,
                                  "yllapito"=>$y,
-                                 "kirjautumistiedot"=>_("Olet kirjautunut nimellä:"),
-                                 "nimi"=>isset($nimi) ? $nimi : "",
-                                 "tasoteksti"=>_(" ja käyttäjätasosi on:"),
-                                 "taso"=>$rooli,
+                                 "kirjautumistiedot"=>sprintf($t["kirjautumistiedot"], $nimi??"",$t["rooli"]),
                                  "ladattu"=>$ladattu,
-                                 "basepath"=>$basepath,
-                                 "tLengthMenu"=>_("Näytä _MENU_ riviä sivulla"),
-                                 "tZeroRecords"=>_("Ei rivejä"),
-                                 "tInfo"=>_("Sivu _PAGE_ / _PAGES_"),
-                                 "tInfoEmpty"=>_("Ei rivejä"),
-                                 "tInfoFiltered" => _("suodatettu, suodattamattomista _MAX_"),
-                                 "tInfoPostFix" => _(""),
-                                 "tloadingRecords" => _("Ladtaan..."),
-                                 "tProcessing" => _("Käsitellään..."),
-                                 "tSearch" => _("Hae:"),
-                                 "tFirst" => _("Ensimmäinen"),
-                                 "tLast" => _("Viimeinen"),
-                                 "tNext" => _("Seuraava"),
-                                 "tPrevious" => _("Edellinen"),
-                                 "tSortAscending" => _(": aktivoi järjestääksesi nousevasti"),
-                                 "tSortDescending" => _(": aktivoi järjestääksesi laskevasti")
+                                 "basepath"=>$this->basepath,
                                  );
+        $this->variables=array_merge($tl, $t);
     }
     
     public function nayta($sivu) {
