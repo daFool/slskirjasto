@@ -9,13 +9,14 @@ class controller {
     public function __construct(&$conf, &$db, &$log) {
         $this->conf=&$conf;
         $this->db=&$db;
-        $this->session=&$this->conf->get("Session");
+        $this->session=$this->conf->get("Session");
         $this->log=&$log;
         $this->a = array();
     }
     
-    public function session() {
+    public function session() {                
         session_name($this->session["SESSION_NAME"]);
+        session_start();
         session_set_cookie_params($this->session["SESSION_TIMEOUT"], $this->session["SESSION_COOKIEPATH"]);
         if(isset($_SESSION["kori"])) {
             setcookie($this->session["KORIPIPARI"], $_SESSION["kori"], time()+$this->session["KORI_TIMEOUT"],$this->session["SESSION_COOKIEPATH"]);
@@ -35,9 +36,8 @@ class controller {
 
         if (isset($_REQUEST['logout']) || $logout===true) {
             if(isset($_SESSION['user'])) {
-                $this->log("Käyttäjä {$_SESSION['user']['tunniste']} kirjautui ulos.", __FILE__,__FUNCTION__,__LINE__, "AUDIT");
+                $this->log->log("system","Käyttäjä {$_SESSION['user']['tunniste']} kirjautui ulos.", __FILE__,__FUNCTION__,__LINE__, "AUDIT");
             }
-    
             // Unset all of the session variables.
             $_SESSION = array();
     
@@ -116,7 +116,11 @@ class controller {
             }
         }
         if($user) {
-            $rivit = $c->tableFetch($start, $length, $od, $search, $user["tunniste"], $user["tila"]);
+            $w = $c->permissionWhere($user["tunniste"], $user["tila"]);
+            if($w!==False)
+                $rivit = $c->tableFetch($start, $length, $od, $search, $w);
+            else
+                $rivit = $c->tableFetch($start, $length, $od, $search);
         }
         else
         {

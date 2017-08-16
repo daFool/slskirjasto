@@ -61,7 +61,8 @@ $t = array(
     /**
      * Käyttäjän istunto
      * */
-    "istuntotila"=>_("Olet kirjautunut nimellä: %s ja käyttäjätasosi on: %s"),
+    "kirjautumistiedot"=>_("Olet kirjautunut nimellä: %s ja käyttäjätasosi on: %s"),
+    "istuntotila"=>_("Istunto on ladattu: %s ja päättyy: %s"),
     
     /**
      * Taulukkojen navigaatiot (DataTables)
@@ -97,8 +98,88 @@ $t = array(
         "tOmistaja"=> _("Omistaja"),
         "tTapahtuma"=>_("Tapahtuma"),
         "tLisatty"=>_("Lisätty"),
-        "tPelit"=>_("Pelit")
-  
+        "tPelit"=>_("Pelit"),
+        
+    /**
+     * Virheilmoituksia, login
+     * */
+        "ktunnustaisalasanapuuttuu"=>_("Käyttäjätunnus tai salasana puuttui."),
+        "ktunnustaisalasanavaarin"=>_("Käyttäjätunnus tai salasana oli väärin."),
+        "kayttajatiedotpuuttuvat" => _("Käyttäjä %s kirjautui, muttei käyttäjätietoja"),
+        "kayttajakirjautui" => _("Käyttäjä %s kirjautui paikallisesti."),
+        "vahvistuslinkki" => _("Vahvistuslinkki: %s"),
+        "vahvistajasenyys" => _("Vahvista pelikirjastojäsenyytesi"),
+   /**
+    * Salasanan vaihtaminen
+    * */
+   "vaihdasalasanakaytto"=>_("vaihdaSalasana <käyttäjätunnus> <salasana> (%d)\n"),
+   "salasanavaihdettucmd"=>_("Salasanan vaihtaminen onnistui %s %s\n"),
+   
+   /**
+    * Pelikokoelman pelit
+    * */
+   "poistettueilainata" => _("Poistettua peliä ei voi palauttaa tai lainata."),
+   "lainattuaeivoideaktivoida" => _("Lainassa olevaa peliä ei voi deaktivoida. Palauta peli ensin."),
+   "deaktivoitupeli" => _("Poistettua peliä ei voi poistaa uudestaan."),
+   "lisataankoriin" => _("Lisätään koriin, hetkinen..."),
+   "lisattiinkoriin" => _("Lisätty onnistuneesti."),
+   "eilisattykoriin" => _("Lisäys epäonnistui."),
+   "lainattuaeivoimuokata" => _("Lainassa olevaa peliä ei voi muokata. Palauta peli ensin."),
+   "kokoelmanpelitt"=> _("Kokoelman %s pelit"),
+   "pelitunniste" => _("Kokoelmatunniste"),
+   "pelinimi" => _("Nimi"),
+   "hylly" => _("Hylly"),
+   "paikka" => _("Paikka"),
+   "omistaja" => _("Omistaja"),
+   "pelintila" => _("Tila"),
+   "lisaa" => _("Lisää"),
+   "tarrat" => _("Tarrat"),
+   "tPalauta" => _("Palauta"),
+   "tLainaa" => _("Lainaa"),
+   "tPelinTiedot" => _("Pelin tiedot"),
+   "tLainattu" => _("Lainattu"),
+   "tLainaaja" => _("Lainaaja"),
+   "tPalautumishetki" => _("Palautumisarvio"),
+   "tLokaatio" => _("Sijainti"),
+   "tPeli" => _("Peli"),
+   "tJulkaisija" => _("Julkaisija"),
+   "tVuosi" => _("Vuosi"),
+   "tSuunnittelija" => _("Suunnittelija"),
+   "tKesto" => _("Kesto"),
+   "tPelaajia" => _("Pelaajia"),
+   "tBGG" => _("BGG"),
+   "tBGGRank" => _("BGG Rank"),
+   "tBGGScore" => _("BGG Score"),
+   "tAge" => _("BGG Age"),
+   "tPoistaKorista" => _("Poista korista"),
+   "tPoista" => _("Poista"),
+   "tMuokkaa" => _("Muokkaa"),
+   "tKoriin" => _("Koriin"),
+   "tSulje" => _("Sulje"),
+   "EiPeliId" => _("Peliä annetulla id:llä ei löytynyt."),
+   
+   /**
+    * Lainaus
+    * */
+   "Kokoelma" => _("Kokoelma"),
+   "Lainaaja"=> _("Lainaaja"),
+   "LainaajanNimi" => _("Lainaajan nimi"),
+   "kayttajatunnus" => _("Käyttäjätunnus"),
+   "Jasennumeroviivakoodi" => _("Lautapeliseuran jäsennumero - viivakoodista!"),
+   "KayttajaTunniste" => _("Järjestelmän käyttäjätunnus."),
+   "Pantti" => _("Lainapantti"),
+   "Ajokortti" => _("Ajokortti"),
+   "LainanPantti" => _("Lainan pantti. Jokin, jolla on arvoa enemmän kuin pelillä, ajokortti tms."),
+   "Lisaa" => _("Lisää"),
+   "UusiLainaaja" => _("UusiLainaaja"),
+   "Jasennumero" => _("Jäsennumero"),
+   "Haetaan" => _("Haetaan, hetkinen..."),
+   "LainausOnnistui"=> _("Lainaus onnistui."),
+   "LainausFeilasi"=> _("Lainaus epäonnistui."),
+   "Palaa" => _("Palaa"),
+   "Sulje" => _("Sulje"),
+   
+   
 );
                    
 ?>

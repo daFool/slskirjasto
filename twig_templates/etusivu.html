@@ -36,7 +36,7 @@
         // Kokoelmat taulun bodyn click-handleri
         $('#kokoelmat tbody').on( 'click', 'tr', function () {
           var kokoelma=$(this).children("td:first").html();
-          var target="{{ collectionMain }}";
+          var target="{{ collectionGamesMain }}";
             window.location=target+"?collection="+encodeURIComponent(kokoelma);
         } );
       } );

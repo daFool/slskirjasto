@@ -14,24 +14,43 @@
  *
  * Kokoelmapelien käsittely
  * */
-class SLSCOLLECTIONGAMES {
-    /** @var handle Database handle **/
-    private $db;
-    /** @var object SLS Database **/
-    private $dbc;
-    /** @var array Kokoelman pelit **/
-    private $games;
+class SLSCOLLECTIONGAMES extends mosBase\malli {
+   /** @var array Kokoelman pelit **/
+   private $games;
     
-    /**
-     * Constructor
-     * @param object $db Database-handle
-     * */
-    public function __construct($db) {
-        $this->db = $db->getHandle();
-        $this->dbc = $db;
+   /**
+   * @var string $kokoelma Oletuskokoelma
+   * */
+   private $kokoelma;
+    
+   /**
+   * Constructor
+   * @param object $db Database-handle
+   * */
+   public function __construct(&$db, &$log) {
+      $hakukentat=array();
+      $hakukentat[0]["nimi"]="nimi";
+      $hakukentat[0]["tyyppi"]="string";
+      $hakukentat[1]["nimi"]="omistaja";
+      $hakukentat[1]["tyyppi"]="string";
+      $hakukentat[2]["nimi"]="tunniste";
+      $hakukentat[2]["tyyppi"]="string";
         
-    }
+      parent::__construct($db, $log, "kokoelmapeli", array("primary"=>array("tunniste")), "vKokoelma", $hakukentat);
+      $this->kokoelma=False;
+   }
     
+   public function setKokoelma($kokoelma) {
+      $this->kokoelma=$kokoelma;
+   }
+  
+   public function pelinTila($tunniste) {
+      $s = "select * from vPelinTila where pt_tunniste=:tunniste;";
+      $st = $this->pdoPrepare($s, $this->db);
+      $this->pdoExecute($st, array("tunniste"=>$tunniste));
+      $rivi = $st->fetch(PDO::FETCH_ASSOC);
+      return $rivi;
+   }
     /**
      * Lahjoittajatiedot
      * @param string $lahjoittaja Lahjoittajan nimike
@@ -130,72 +149,6 @@ class SLSCOLLECTIONGAMES {
         }
     }
     
-    /**
-     * List games in collection with state
-     * @param string $Kokoelma Kokoelma, jota listataan
-     * @param int $start Aloitusrivi
-     * @param int $length Montako peliä sivulle
-     * @param string $order Järjestysehto
-     * @param string $search Filtteri
-     * @return mixed|booelan False if not found and array containing collection game data
-     * */
-    public function collectionTableFetch($Kokoelma, $start, $length, $order, $search) {
-        try {
-            $ds = false;
-            $tulos = array("lkm"=>0, "pelit"=>array(), "riveja"=>0, "filtered"=>0);
-            $so="";
-            $v="";
-            if(isset($search["value"]) and $search["value"]!="") {
-                $v = $search["value"];
-                $so = "and (nimi ~* :v or tila ~*:v or gtin ~* :v or tunniste ~* :v or alkuperainentunniste ~* :v)";
-                $ds = true;
-            }
-            if($order !== false) {
-                $s = "select tunniste, nimi, hylly, paikka, omistaja, tila from vKokoelma where kokoelma=:k $so order by $order limit :length offset :start;";
-                $d = array("length"=>$length, "start"=>$start, "k"=>$Kokoelma);
-            } else {
-                $s = "select tunniste, nimi, hylly, paikka, omistaja, tila from vKokoelma where kokoelma=:k $so limit :length offset :start;";
-                $d = array("length"=>$length, "start"=>$start, "k"=>$Kokoelma);
-            }
-            if($ds)
-                $d["v"]=$v;
-            $m = "$s (v=$v, k=$Kokoelma, start=$start, length=$length)";
-            $this->dbc->log($m, __FILE__, __CLASS__,__LINE__,"DEBUG");
-            $st = $this->db->prepare($s);
-            $res = $st->execute($d);
-            if(!$res || $st->rowCount()==0) {
-                return $tulos;
-            }
-            //die("Found {$st->rowCount()} games");
-            $pelit = $st->fetchAll();
-            $s = "select count(*) as lkm from vKokoelma where kokoelma=:k;";
-            $st = $this->db->prepare($s);
-            $d=array("k"=>$Kokoelma);
-            $res = $st->execute($d);
-            if(!$res || $st->rowCount()==0) {
-                return $tulos;
-            }
-            $row = $st->fetch();
-            $tulos["lkm"]=$row["lkm"];
-            $tulos["pelit"]=$pelit;
-            $tulos["riveja"]=count($pelit);
-            $tulos["filtered"]=$row["lkm"];
-            if($ds) {
-                $s = "select count(*) as lkm from vKokoelma where kokoelma=:k $so;";
-                $st = $this->db->prepare($s);
-                $res = $st->execute(array("v"=>$v, "k"=>$Kokoelma));
-                if($res && $st->rowCount()>0) {
-                    $a=$st->fetch();
-                    $tulos["filtered"]=$a["lkm"];
-                }
-            }
-            return $tulos;
-        }
-        catch(PDOException $e) {
-            die("Programming error: {$e->getMessage()}");
-        }   
-        
-    }
     
     /**
      * Pelin tai pelien tuominen toisesta kokoelmasta
@@ -323,6 +276,14 @@ class SLSCOLLECTIONGAMES {
         catch(PDOException $e) {
             die("Ohjelmointivihre {$e->getMessage()}");
         }
+    }
+    
+    public function tableFetch($start, $length, $order, $search, $where=False) {
+      if($this->kokoelma!="") {
+         $w = "kokoelma=".$this->db->quote($this->kokoelma, PDO::PARAM_STR);
+         $where = $where===False ? $w : $where.=" and ".$w;
+      }
+      return parent::tableFetch($start, $length, $order, $search, $where);
     }
 }
 ?>

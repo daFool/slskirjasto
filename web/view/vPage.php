@@ -5,6 +5,7 @@ class vPage {
     protected $variables;
     protected $baseurl;
     protected $basepath;
+    protected $conf;
     
     /**
      * Sivupohja
@@ -18,7 +19,7 @@ class vPage {
         $v = array();
         $this->baseurl = $conf->get("General")["baseurl"];
         $this->basepath = $conf->get("General")["basepath"];
-        
+        $this->conf=$conf;    
         /**
          * Pelivalikko
          * @var array $p
@@ -62,8 +63,9 @@ class vPage {
             $nimi = $_SESSION['user']['nimi'];
             $nyt = new DateTime();
             $kuolee = new DateTime();
-            $kuolee->setTimestamp(SESSION_TIMEOUT+time());
+            $kuolee->setTimestamp($this->conf->get("Session")["SESSION_TIMEOUT"]+time());
             $ladattu = sprintf($t["istuntotila"], $nyt->format('Y-m-d H:i:s'), $kuolee->format('Y-m-d H:i:s'));
+            $kirjatumistiedot = sprintf($t["kirjautumistiedot"], $nimi, _($rooli));            
         }
         
         $tl= array("baseurl"=>$this->baseurl,
@@ -74,11 +76,12 @@ class vPage {
                                  "rooli"=>$rooli,
                                  "superit"=>$s,
                                  "yllapito"=>$y,
-                                 "kirjautumistiedot"=>sprintf($t["kirjautumistiedot"], $nimi??"",$t["rooli"]),
                                  "ladattu"=>$ladattu,
                                  "basepath"=>$this->basepath,
                                  );
         $this->variables=array_merge($tl, $t);
+        $this->variables["kirjautumistiedot"]=$kirjatumistiedot;
+        
     }
     
     public function nayta($sivu) {

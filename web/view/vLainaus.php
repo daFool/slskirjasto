@@ -2,9 +2,11 @@
 class vLainaus extends vPage {
     protected $myvars;
     
-    public function __construct($twig) {
-        global $url, $db, $basepath, $baseurl;
-        parent::__construct($twig);
+    public function __construct($twig, &$t, $conf) {
+        
+        parent::__construct($twig, $t, $conf);
+        $baseurl = $conf->get("General")["baseurl"];
+        
         $this->myvars=array();
         $tarkistettu="false";
         
@@ -21,27 +23,7 @@ class vLainaus extends vPage {
                 $this->myvars[$param]="";
         }
         $this->myvars["tarkistettu"]=$tarkistettu;
-        $this->myvars["Kokoelma"]=_("Kokoelma");
-        $this->myvars["Peli"]=_("Peli");
-        $this->myvars["Kokoelmatunniste"]=_("Kokoelmatunniste");
-        $this->myvars["Lainaaja"]=_("Lainaaja");
-        $this->myvars["LainaajanNimi"]=_("Lainaajan nimi");        
-        $this->myvars["Tunniste"]=_("Käyttäjätunnus");
-        $this->myvars["Jasennumeroviivakoodi"]=_("Lautapeliseuran jäsennumero - viivakoodissa!");
-        $this->myvars["KayttajaTunniste"]=_("Järjestelmän käyttäjätunnus.");
-        $this->myvars["Pantti"]=_("Lainapantti");
-        $this->myvars["Ajokortti"]=_("Ajokortti");
-        $this->myvars["LainanPantti"]=_("Lainan pantti. Jokin jolla on arvoa enemmän kuin pelillä, ajokortti tms.");
-        $this->myvars["Lisaa"]=_("Lisää");
-        $this->myvars["uusi"]=_("uusi");
-        $this->myvars["lainaaja"]=_("lainaaja");
-        $this->myvars["Lainaa"]=_("Lainaa");
-        $this->myvars["jasennumero"]=_("Jäsennumero");
-        $this->myvars["Haetaan"]=_("Haetaan, hetki.");
-        $this->myvars["LainausOnnistui"]=_("Lainaus onnistui.");
-        $this->myvars["LainausFeilasi"]=_("Lainaus epäonnistui.");
-        $this->myvars["Palaa"]=_("Palaa");
-        $this->myvars["tSulje"]=_("Sulje");
+
         $this->variables=array_merge($this->variables, $this->myvars);        
     }
 }

@@ -6,7 +6,7 @@ class vEtusivu extends vPage {
         parent::__construct($twig, $t, $conf);
         $m = array("gamesJSON"=>$this->baseurl."/games?mode=tablefetch",
                    "kokoelmatJSON"=>$this->baseurl."/collections?mode=tablefetch",
-                   "collectionMain"=>$this->baseurl."/collection",
+                   "collectionGamesMain"=>$this->baseurl."/collectiongames",
         );
         $this->myvars = array_merge($this->variables, $m);
         $this->variables = $this->myvars;

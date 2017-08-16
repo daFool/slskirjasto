@@ -360,5 +360,9 @@ class SLSGAMES extends mosBase\malli {
             die("Programming error: {$e->getMessage()}");
         }
     }
+    
+    public function permissionWhere($tunnus, $tila) {
+        return False;
+    }
 }
 ?>

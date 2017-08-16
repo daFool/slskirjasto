@@ -324,6 +324,12 @@ class SLSCOLLECTIONS extends mosBase\malli {
             die(_("Ohjelmointivirhe {$e->getMessage()}"));
         }
     }
+    
+    public function permissionWhere($kuka, $taso) {
+        if($taso=='superadmin')
+            return False;
+        return $w="julkisuus='avoin' or omistaja='$kuka'";
+    }
 }
 
 ?>

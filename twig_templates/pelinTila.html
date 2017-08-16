@@ -1,6 +1,8 @@
 <script type="text/javascript">    
     function lataaPelinTila(id) {
-		url = "{{ jsonPelinTila }}";
+		console.log("Peli: "+id)
+		url = "{{ pelintiedot|raw }}";
+		console.log("url: "+url);
 		$.get(url, {id : id }, function(data) {
 			if (data["Virhe"]=="OK") {
 				var lainassa=false;
