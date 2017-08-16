@@ -1,0 +1,201 @@
+{% extends "page.html" %}
+{% block head %}
+    {{ parent() }}
+    <title>{{ KokoelmanPelit }}</title>
+    <script type="text/javascript">
+		var kokoelmaTunniste="";
+		var peli="";
+        var tila="";
+        var valittu=false;
+		
+        $(document).ready(function() {
+				
+            /**
+            * Kokoelmataulun täyttäminen
+            * */
+            var kokoelmapelit=$('#kokoelmapelit').DataTable( {
+                "processing": true,
+                "serverSide": true,
+                "responsive": true,
+                "orderMulti": true,
+                "lengthMenu" : [ 10, 21, 24, 25, 50, 75, 100],
+                "pageLength" : 21,
+                "search": {
+                "regex": true,
+                "caseInsensitive": true,
+                "smart" : true},
+                "ajax": "{{ collectiongamesJSON|raw }}",
+                {{ include('datatables_language.js') }}
+            } );
+        
+            
+            $('#kokoelmapelit tbody').on( 'click', 'tr td:not(td:nth-child(4), td:nth-child(3))', function () {
+                var tunniste=$(this).parent().children("td:first").html();
+                if ( $(this).hasClass('selected') ) {
+                    $(this).removeClass('selected');
+                    valittu=false;
+                    kokoelmaTunniste="";
+                    peli="";
+                    tila="";						
+                }
+                else {
+                    rivi = $(this).parent();
+                    kokoelmapelit.$('tr.selected').removeClass('selected');
+                    rivi.addClass('selected');
+                    peli = rivi.children("td:nth-child(2)").html();
+                    tila=rivi.children("td:nth-child(6)").html();
+                    valittu=true;
+                    kokoelmaTunniste=tunniste;
+                    lataaPelinTila(tunniste);
+                    $("#pelinTila").modal('show');
+                }
+            } );
+            
+            $('#kokoelmapelit tbody').on( 'click', 'tr td:nth-child(4), tr td:nth-child(3)', function () {
+                   console.log("Hylly tahi Paikka");
+            });
+            
+            $("#Lainaa").on('click', function () {
+                if (!valittu) {
+                    return;
+                }
+                switch(tila) {
+                    case "Vapaa":
+                        kohde="{{ lainaapeli|raw }}";
+                        kohde+=encodeURIComponent(kokoelmaTunniste);
+                        window.location=kohde;
+                        break;
+                    case "Lainassa":
+                        kohde="{{ palautapeli|raw }}";
+                        kohde+=encodeURIComponent(kokoelmaTunniste);
+                        window.location=kohde;
+                        break;
+                    case "Poistettu":
+                        $("#warning").html("{{ poistettuaeilainata }}");
+                        $("#varoitus").show();
+                        break;
+                }
+            } );
+                    
+            $("#vbutton").on('click', function () {
+                $("#varoitus").hide();
+            })
+            
+            $("#Lisää").on('click', function () {
+                window.location="{{ lisaapeli }}";
+            })
+            
+            $("#Poista").on('click', function () {
+                if (!valittu) {
+                    return;
+                }
+                switch(tila) {
+                    case "Vapaa":
+                        kohde="{{ poistapeli }}";
+                        kohde+=encodeURIComponent(peli);
+                        window.location=kohde;
+                        break;
+                    case "Lainassa":
+                        $("#warning").html("{{ lainattuaeivoideaktivoida }}");
+                        $("#varoitus").show();
+                        break;
+                    case "Poistettu":
+                        $("#warning").html("{{ deaktivoitupeli }}");
+                        $("#varoitus").show();
+                        break;
+                }
+                        
+            })
+                    
+            $("#Koriin").on("click", function() {
+                if (!valittu) {
+                    return;
+                }
+                $("#tilatiedot").before('<div class="alert alert-warning" role="alert" id="chatty">{{ lisataankoriin }}</div>');
+                url = "{{ lisaakoriin }}";
+                $.get(url, {id : kokoelmaTunniste}, function(data) {
+                    $("#chatty").removeClass("alert-warning");
+                    if (data["Virhe"]=="OK") {
+                        $("#chatty").html("{{ lisattiinkoriin }}");
+                        $("#chatty").addClass("alert-success");
+                    }
+                    else {
+                        $("#chatty").html("{{ eilisattykoriin }}");
+                        $("#chatty").addClass("alert-danger");
+                    }
+                    $("#chatty").prepend('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
+                    $("#chatty").addClass("alert-dismissable");
+                });
+            });
+                    
+            $("#Muokkaa").on('click', function () {
+                if (!valittu) {
+                    return;
+                }
+                switch(tila) {
+                    case "Vapaa":
+                    case "Poistettu":
+                        kohde="{{ muokkaapeli }}";
+                        kohde+=encodeURIComponent(peli);
+                        window.location=kohde;
+                        break;
+                    case "Lainassa":
+                        $("#warning").html("{{ lainattuaeivoimuokata }}");
+                        $("#varoitus").show();
+                        break;
+                }
+                        
+            })
+            $("#Tarrat").on('click', function () {
+                var tarrat="";
+                
+                $("#kokoelma tbody").children("tr").each(function() {
+                    tarrat=tarrat+$(this).children("td:first").html()+";";
+                })
+                koko=$("#kokoelma").DataTable().page.len()
+                kohde="{{ tarratulostus }}"+koko;
+                kohde+="&codes="+encodeURIComponent(tarrat);
+                window.open(kohde);
+            } );
+            $('div.dataTables_filter input').focus();
+        });
+	</script>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <h2>{{ kokoelmanpelit }}</h2>
+            <table id="kokoelmapelit" class="display" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>{{ pelitunniste }}</th>
+                        <th>{{ pelinimi }}</th>
+                        <th>{{ hylly }}</th>
+                        <th>{{ paikka }}</th>
+                        <th>{{ omistaja }}</th>
+                        <th>{{ pelintila }}</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>{{ pelitunniste }}</th>
+                        <th>{{ nimi }}</th>
+                        <th>{{ hylly }}</th>
+						<th>{{ paikka }}</th>
+                        <th>{{ omistaja }}</th>
+                        <th>{{ pelintila }}</th>
+                    </tr>					  
+                </tfoot>
+            </table>
+			
+            <button type="button" class="btn btn-lg btn-default" id="Lisää">{{ lisaa }}</button>
+            <button type="button" class="btn btn-lg btn-default" id="Tarrat">{{ tarrat }}</button>
+        </div>
+		<div class="alert alert-warning collapse" role="alert" id="varoitus">
+			<button type="button" class="close" id="vbutton" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <span id="warning"></span>
+        </div>
+    </div>
+    {{ include ("pelinTila.html") }}
+{% endblock %}
+        
