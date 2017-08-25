@@ -48,6 +48,16 @@ class SLSGEEK {
         }
         return $v;
     }
+    
+    function taulukkona($dom, $tagi) {
+        $e = $dom->getElementsByTagName($tagi);
+        $v=array();
+        $i=0;
+        foreach($e as $py) {
+            $v[$i++]=$py->nodeValue;
+        }
+        return $v;
+    }
 
     function rank($dom) {
         $ranks = $dom->getElementsByTagName("rank");    
@@ -76,18 +86,20 @@ class SLSGEEK {
             $min = $this->persilja($dom, "minplayers");
             $max = $this->persilja($dom, "maxplayers");
             $aika = $this->persilja($dom, "playingtime");
-            $julkaisija = $this->persilja($dom, 'boardgamepublisher');
+            $julkaisijat = $this->taulukkona($dom, 'boardgamepublisher');
             $suunnittelija = $this->persilja($dom, 'boardgamedesigner');
             $nimi = $this->persilja($dom, 'name', 'primary');
+            $nimet = $this->taulukkona($dom, 'name');
             $ika = $this->persilja($dom, 'age');
             $score = $this->persilja($dom, 'average');
             
             $this->d["vuosi"]=trim($year);
             $this->d["pelaajia"]=trim("$min -$max");
-            $this->d["julkaisija"] = trim($julkaisija);
+            $this->d["julkaisijat"] = $julkaisijat;
             $this->d["suunnittelija"] = trim($suunnittelija);
             $this->d["virhe"]=false;
             $this->d["nimi"]=trim($nimi);
+            $this->d["nimet"]=$nimet;
             $this->d["aika"]=trim($aika);
             $this->d["bggrank"]=$this->rank($dom);
             $this->d["age"]=trim($ika);

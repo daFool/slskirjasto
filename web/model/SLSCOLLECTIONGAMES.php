@@ -26,6 +26,7 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
    /**
    * Constructor
    * @param object $db Database-handle
+   * @param object $log Login-handle
    * */
    public function __construct(&$db, &$log) {
       $hakukentat=array();
@@ -40,6 +41,10 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
       $this->kokoelma=False;
    }
     
+   /**
+    * Asettaa käytettävän kokoelman
+    * @param string $kokoelma Käytettävä kokoelma
+    * */
    public function setKokoelma($kokoelma) {
       $this->kokoelma=$kokoelma;
    }
@@ -208,6 +213,20 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
         }
     }
     
+    public function kokoelmaPeli($tunniste) {
+         $s = "select kp.*, p.nimet, p.julkaisijat, p.nimi, p.julkaisija, l.verkkoosoite from 
+                        (select * from kokoelmapeli where tunniste=:tunniste) as kp
+                join
+                        (select nimet, julkaisijat, tunniste, nimi, julkaisija from peli) as p 
+                on (kp.peli=p.tunniste)
+                left outer join
+                        lahjoittaja as l
+                on (kp.lahjoittaja=l.nimi);";
+         $st = $this->pdoPrepare($s, $this->db);
+         $this->pdoExecute($st, array("tunniste"=>$tunniste));
+         return $st->fetch(\PDO::FETCH_ASSOC);
+    }
+    
     /**
      * Pelin nouto muokkausta varten
      * @param string $tunniste Pelin kokoelmatunniste
@@ -284,6 +303,19 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
          $where = $where===False ? $w : $where.=" and ".$w;
       }
       return parent::tableFetch($start, $length, $order, $search, $where);
+    }
+    
+    public function permissionWhere($kuka, $tila) {
+         if($tila=="superadmin")
+            return False;
+         if($this->kokoelma=="")
+            return False;
+         // hasRoleS('kokoelma','user',$mihin,'kuka')";
+         $w=sprintf("komistaja=%s or julkisuus='avoin' or hasRoleS('kokoelma','user',%s, 'kuka') or hasRoleS('kokoelma','admin', %s, 'kuka')",
+                    $this->db->quote($kuka, PDO::PARAM_STR),
+                    $this->db->quote($this->kokoelma, PDO::PARAM_STR),
+                    $this->db->quote($this->kokoelma, PDO::PARAM_STR));
+         return $w;
     }
 }
 ?>

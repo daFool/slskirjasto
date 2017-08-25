@@ -1,0 +1,278 @@
+{% extends "page.html" %}
+{% block head %}
+    {{ parent() }}
+    <title>{{ Pelintiedot }}</title>
+	<script type="text/javascript" src="{{ baseurl }}/js/kontrolli.js"></script>
+    <script type="text/javascript">
+		var peli=-1;
+		var ktunniste=false;
+        var nimet=null;
+		var julkaisijat=null;
+		var nimiid=null;
+		var julkaisijaid=null;
+		
+        $(document).ready(function () {
+			lataaKokoelmatiedot('{{ ktunniste }}');
+			
+			/* BGG-haku */
+            $("#bggnappula").on('click', function () {                
+                if ($("#bgglinkki").get(0).checkValidity()==true) {
+					$("#bggstatus").html("{{ Haetaan }}");   
+                    $.get("{{baseurl}}/games", { mode : "geek", url : $("#bgglinkki").val() }, function (data) {
+                        if (data.tulos=="OK") {
+							$("#bggstatus").html("");
+							paivitapeli(data);
+                        }
+                        else {
+							$("#bggstatus").html("{{ NotFound }}");                            
+						}
+                   });
+                }
+                else {
+					$("#bggstatus").html("{{ HuonoLinkki }}");
+                }
+            })
+			
+		});
+		
+		function lataaKokoelmatiedot(tunniste) {
+            $.get("{{ baseurl }}/collectiongames", { id : tunniste, mode : "kokoelmapeli" }, function (data) {
+				if (data.Virhe!="OK") {
+                    alert("Hubba bubba!");
+                }
+				var lisatty="";
+				var muokattu="";
+				var nimi="";
+				var julkaisija="";
+				
+				$.each(data.data, function (index, value) {
+					switch (index) {
+						case "omistaja":
+						case "lahjoittaja":
+						case "hylly":
+						case "paikka":
+						case "varasto":
+						case "laatikko":
+						case "kunto":
+						case "huomautus":
+						case "varasto":
+							$("#"+index).val(value);
+							break;
+                        case "tunniste":
+							$("#kokoelmatunniste").html(value);
+							ktunniste = value;
+							break;
+						case "peli":
+							peli = value;
+							break;
+						case "lisatty":
+						case "lisaaja":
+							if (lisatty=="") {
+                                lisatty = value;
+                            } else {
+								lisatty += " "+value;
+							}
+							break;
+						case "muokattu":
+						case "muokkaaja":
+							if (muokattu=="") {
+                                muokattu = value;
+                            } else {
+								muokattu += " "+value;
+							}
+							break;
+						case "nimiid":
+							if (value==null) {
+                                nimiiid=0;
+                            }
+							nimiid=value;
+							break;
+						case "julkaisijaid":
+							if (value==null) {
+								julkaisijaid=0;
+                            }
+							julkaisijaid=value;
+							break;
+						case "nimet":
+							if (value==null) {
+								console.log(index+" not set");
+							}
+							else {								
+								nimet=value;
+							}
+							
+							break;
+						case "julkaisijat":
+							if (value==null) {
+								console.log(index+" not set");
+							}
+							else {								
+								julkaisijat=value;
+							}
+						case "nimi":
+							nimi = value;
+							break;
+						case "julkaisija":
+							julkaisija = value;
+							break;						
+						case "verkkoosoite":
+							$("#lahjoittajawww").val(value);
+							break;
+							
+                    }
+				});
+				if (julkaisijat===null || typeof julkaisijat !== "object") {
+                    julkaisijat = [ julkaisija ];				    
+                }
+				if (julkaisijaid >= julkaisijat.length) {
+                    julkaisijaid=0;                    
+				}
+				if (nimet===null || typeof nimet !== "object") {
+                    nimet=[ nimi ];
+                }
+				if (nimiid >= nimet.length) {
+                    nimiid=0;
+                }
+				$("#lisatty").html(lisatty);
+				$("#muokattu").html(muokattu);
+				lataapeli(peli);
+			});
+        }
+		
+		function paivitapeli(data) {
+			var nimi="";
+			var julkaisija="";
+			$.each(data.data, function (index, value) {
+				switch (index) {
+					case "suunnittelija":
+					case "bgglinkki":
+					case "kesto":
+					case "gtin":
+					case "vuosi":
+					case "age":
+						$("#"+index).val(value);
+						break;
+					case "tunniste":
+					case "score":
+					case "bggrank":
+						$("#"+index).html(value);
+						ktunniste = value;
+						break;
+					case "peli":
+						peli = value;
+						break;
+					case "pelaajia":
+						r = value.split(" ");
+						if (r[0] === undefined) {
+							break;
+						}
+						$("#pelaajamin").val(r[0]);
+						if (r[2] === undefined) {
+							break;
+						}
+						$("#pelaajamax").val(r[2]);
+						break;
+					case "nimet":
+						if (value==null) {
+							console.log(index+" not set");
+						}
+						else {								
+							nimet=value;
+						}
+							
+						break;
+					case "julkaisijat":
+						if (value==null) {
+							console.log(index+" not set");
+						}
+						else {								
+							julkaisijat=value;
+							$("#julkaisija").val(julkaisijat[0]);
+						}
+							
+						break;
+					case "nimi":
+						nimi = value;
+						break;
+					case "julkaisija":
+						julkaisija = value;
+						break;
+                    }
+				});
+				if (nimet===null) {
+                    nimet=[ nimi ];
+                }
+				if (julkaisijat===null) {
+                    julkaisijat= [ julkaisija ];
+                }
+				paivitanimet();
+				paivitajulkaisijat();
+        }
+		
+		function paivitanimet() {
+            if (nimet===null) {
+                return
+            }
+			$("#kokoelmanimi").empty();
+			$("#nimet").empty();			
+			$.each(nimet, function (index, value) {
+				  $('#kokoelmanimi').append($('<option>', { 
+						value: index,
+						text : value
+					}));
+					$("#nimet").append($('<option>', { 
+						value: index,
+						text : value
+					}));
+			});			
+        }
+		
+		function paivitajulkaisijat() {
+            if (julkaisijat===null) {
+                return
+            }
+			$("#kokoelmajulkaisija").empty();
+			$("#julkaisijat").empty();			
+			$.each(julkaisijat, function (index, value) {
+				  $('#kokoelmajulkaisija').append($('<option>', { 
+						value: index,
+						text : value
+					}));
+					$("#julkaisijat").append($('<option>', { 
+						value: index,
+						text : value
+					}));
+			});			
+        }
+		
+		function lataapeli(tunniste) {
+			$.get("{{ baseurl }}/games", { id : tunniste, mode : "game" }, function (data) {
+				if (data.tulos!="OK") {
+                    alert("Hubba bubba!");
+                }
+				paivitapeli(data);
+			});
+		}
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="active" role="presentation">
+                <a class="active" role="tab" id="kokoelma-tab" data-toggle="tab" href="#kokoelma" role="tab" aria-controls="kokoelma">{{ Kokoelma }}</a>
+            </li>
+            <li role="presentation">
+                <a role="tab" id="peli-tab" data-toggle="tab" href="#peli" aria-controls="peli">{{ tPeli }}</a>
+            </li>
+  
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade in active" id="kokoelma" role="tabpanel" aria-labelledby="kokoelma">
+				{{ include ("pelinkokoelmatiedot.html") }}
+            </div>
+            <div class="tab-pane fade" id="peli" role="tabpanel" aria-labelledby="peli">
+				{{ include ("pelitiedot.html") }}
+			</div>  
+        </div>
+    </div>
+{% endblock %}

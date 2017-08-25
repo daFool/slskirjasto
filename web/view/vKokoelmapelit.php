@@ -14,6 +14,7 @@ class vKokoelmapelit extends vPage {
                    "muokkaapeli"=>$baseurl."/collectiongames?mode=muokkaa&peli=",
                    "pelintiedot"=>$baseurl."/collectiongames?mode=pelitiedot&collection=".$collection,
                    "tarratulostus"=>$baseurl."/tarratulostus.php?koko=",
+                   "ktunniste"=>$_REQUEST["peli"]??False,
                    "kokoelmanpelit"=> sprintf($this->variables["kokoelmanpelitt"], $collection) //htmlentities($collection, ENT_COMPAT|ENT_HTML5, 'UTF-8'))
                   );
         $this->myvars = array_merge($this->variables, $m);

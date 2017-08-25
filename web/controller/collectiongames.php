@@ -15,12 +15,13 @@ class collectiongames extends controller {
     
      public function get($f3) {
           $kokoelma = $_REQUEST["collection"]??False;
-          if($kokoelma===False) {
-               $f3->reroute($this->conf->get("General")["baseurl"]);
-               die;
-          }
           $g = new SLSCOLLECTIONGAMES($this->db, $this->log);
           $moodi = $_REQUEST["mode"]??"Page";
+          if(($moodi=="Page" || $moodi=="tablefetch") && $kokoelma===False) {
+               $f3->reroute($this->conf->get("General")["baseurl"]);
+               die;
+          }         
+      
           switch($moodi) {
                case "Page":
                     $this->sivu($f3, $kokoelma);
@@ -41,6 +42,22 @@ class collectiongames extends controller {
                     header("Content-type: application/json");
                     echo json_encode($result);
                     break;
+               case "muokkaa":
+                    $this->muokkaaPeli($f3, $_REQUEST["peli"]);
+                    break;
+               case "kokoelmapeli":
+                    $rivi = $g->kokoelmaPeli($_REQUEST["id"]);
+                    if($rivi===False) {
+                         $result = array("Virhe"=>$this->t["EiPeliId"]);
+                    } else {
+                         $result = array("Virhe"=>"OK", "data"=>$rivi);
+                    }                   
+                    header("Content-type: application/json");
+                    echo json_encode($result);
+                    break;
+               default:
+                
+                    die("Kilroy");
           }
      }
      
@@ -53,6 +70,17 @@ class collectiongames extends controller {
           $basepath = $conf->get("General")["basepath"];          
           $sivu = new vKokoelmapelit($twig, $this->t, $conf, $kokoealma);
           $sivu->nayta("kokoelmapelit.html");    
+     }
+     
+     protected function muokkaaPeli(&$f3, $kokoelmapeli) {
+          $conf = $f3->get("conf");
+          $db=$f3->get("db");
+          $log=$f3->get("log");
+          $loader = new Twig_Loader_Filesystem($conf->get("Twig")["twigTemplates"]);
+          $twig = new Twig_Environment($loader);
+          $basepath = $conf->get("General")["basepath"];          
+          $sivu = new vKokoelmapelit($twig, $this->t, $conf, $kokoealma);
+          $sivu->nayta("game.html");    
      }
     
 }

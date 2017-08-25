@@ -135,8 +135,8 @@
                 switch(tila) {
                     case "Vapaa":
                     case "Poistettu":
-                        kohde="{{ muokkaapeli }}";
-                        kohde+=encodeURIComponent(peli);
+                        kohde="{{ muokkaapeli|raw }}";
+                        kohde+=encodeURIComponent(kokoelmaTunniste);
                         window.location=kohde;
                         break;
                     case "Lainassa":

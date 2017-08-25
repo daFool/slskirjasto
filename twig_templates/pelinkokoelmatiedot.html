@@ -1,0 +1,124 @@
+                <h2>{{ Kokoelmatiedot }}</h2>
+                <form name="kokoelmatiedot" id="kokoelmatiedot" method="POST">
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <label for="kokoelmanimi" class="control-label">{{ pelinimi }}</label>
+                            <select name="kokoelmanimi" id="kokoelmanimi" class="form-control" required></select>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <p class="help-block">{{ Kokoelmanimihelp }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="kokoelmajulkaisija" class="control-label">{{ tJulkaisija }}</label>
+                            <select name="kokoelmajulkaisija" id="kokoelmajulkaisija" class="form-control" required></select>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <p class="help-block">{{ Kokoelmajulkaisijahelp }}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <label for="lahjoittaja" class="control-label">{{ Lahjoittaja }}</label>
+                            <input type="text" class="form-control" name="lahjoittaja" id="lahjoittaja" size="20"
+																					  maxlength="255" />
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <p class="help-block">{{ Lahjoittajahelp }}</p>                            
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="lahjoittajawww" class="control-label">{{ LahjoittajanUrl }}</label>
+                            <input type="url" name="lahjoittajawww" id="lahjoittajawww" size="80" maxlenght="255" class="form-control"/>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <p class="help-block">{{ LahjoittajanUrlHelp }}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-3">
+                            <label for="varasto" class="control-label">{{ Varasto }}</label>
+                            <div class="input-group">
+                                <select name="varasto" id="varasto" disabled="true" class="form-control"></select>
+                                <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                <div class="input-group-addon btn" id="uusivarasto">{{ uusi }}</div>
+                            </div>
+                            <p class="help-block">{{ VarastoHelp }}</p>
+                        </div>
+                    
+                        <div class="col-sm-3">
+                            <label for="hylly" class="control-label">{{ hylly }}</label>
+                            <input type="text" name="hylly" id="hylly" size="5" maxlength="255" class="form-control"/>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <p class="help-block">{{ HyllyHelp }}</p>						
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="paikka" class="control-label">{{ paikka }}</label>
+                            <input type="text" name="paikka" id="paikka" size="5" maxlength="255" class="form-control"/>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <p class="help-block">{{ PaikkaHelp }}</p>
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="laatikko" class="control-label">{{ Laatikko }}</label>
+                            <input type="text" name="laatikko" id="laatikko" size="5" maxlength="255" class="form-control"/>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <p class="help-block">{{ LaatikkoHelp }}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-3">
+                            <label for="huomautus" class="control-label">{{ huomautus }}</label>
+                            <input tpye="text" name="huomautus" id="huomautus" class="form-control" placeholder="{{ huomautusidea }}"/>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <p class="help-block">{{ huomautushelp }}</p>
+                        </div>
+                        <div class="col-sm-3">
+							<label for="kunto" class="control-label">{{ kunto }}</label>
+							<input tpye="text" name="kunto" id="kunto" class="form-control" placeholder="{{ kunto }}"/>
+						   <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+						   <p class="help-block">{{ kuntohelp }}</p>
+						</div>
+                        <div class="col-sm-3">
+                            <label for="tila" class="control-label">{{ tila }}</label>
+                            <select name="tila" id="tila" class="form-control">
+                                <option value="OK">{{ kaytossa }}</option>
+                                <option value="DEL">{{ poistossa }}</option>
+                                <option value="LOAN">{{ lainassa }}</option>
+                                <option value="MISS">{{ kateissa }}</option>                                
+                            </select>
+                             <p class="help-block">{{ tilahelp }}</p>
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="omistaja" class="control-label">{{ omistaja }}</label>
+                            <input type="text" class="form-control" required name="omistaja" id="omistaja" size="40" maxlength="255"/>
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <p class="help-block">{{ Omistajahelp }}</p>
+                        </div>                                      
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-2">
+                            <label for="kokoelmatunniste" class="control-label">{{ pelitunniste }}</label>
+                            <p class=form-control-static" id="kokoelmatunniste"></p>
+                            <p class="help-block">{{ Tunnistehelp }}</p>
+                        </div>
+                        <div class="col-sm-2">
+                            <label for="kokoelmasta" class="control-label">{{ kokoelmasta }}</label>
+                            <p class=form-control-static" id="kokoelmasta"></p>
+                            <p class="help-block">{{ Kokoelmastahelp }}</p>
+                        </div>
+                        <div class="col-sm-2">
+                            <label for="alkuperainen" class="control-label">{{ alkuperainen }}</label>
+                            <p class=form-control-static" id="alkuperainen"></p>
+                            <p class="help-block">{{ alkuperainenhelp }}</p>
+                        </div>
+                        <div class="col-sm-2">
+                            <label for="lisatty" class="control-label">{{ Lisatty }}</label>
+                            <p class="form-control-static" id="lisatty"></p>
+                            <p class="help-block">{{ LisattyHelp }}</p>
+                        </div>
+                        <div class="col-sm-2">
+                            <label for="lisatty" class="control-label">{{ Muokattu }}</label>
+                            <p class="form-control-static" id="muokattu"></p>
+                            <p class="help-block">{{ MuokattuHelp }}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-lg btn-warning" id="peruuta">{{ Peruuta }}</button>
+                        <button type="button" class="btn btn-lg btn-default" id="tallenna" disabled="true">{{ Talleta }}</button>
+                    </div>
+                </form>
+            

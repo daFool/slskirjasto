@@ -42,7 +42,7 @@ class SLSGAMES extends mosBase\malli {
         $hakukentat[6]["tyyppi"]="string";
         $hakukentat[6]["nimi"]="tunniste";
         
-        parent::__construct($db, $log, "peli", array("primary"=>"tunniste"), "", $hakukentat);        
+        parent::__construct($db, $log, "peli", array("primary"=>array("tunniste")), "", $hakukentat);        
     }
     
     /**
