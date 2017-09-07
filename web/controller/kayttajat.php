@@ -13,34 +13,27 @@ class kayttajat extends controller {
           $this->t = $t;
     }
     
-      public function get($f3) {
-          $kokoelma = $_REQUEST["collection"]??False;
-          if($kokoelma===False) {
-               $f3->reroute($this->conf->get("General")["baseurl"]);
-               die;
-          }
-          $g = new SLSCOLLECTIONGAMES($this->db, $this->log);
-          $moodi = $_REQUEST["mode"]??"Page";
-          switch($moodi) {
-               case "Page":
-                    $this->sivu($f3, $kokoelma);
-                    break;
-               case "tablefetch":                    
-                    $g->setKokoelma($kokoelma);
-                    $rivit = $this->tableFetch($g);
+    public function get($f3) {
+        $u = new SLSUSERS($this->db, $this->log);
+        $moodi = $_REQUEST["mode"]??"Page";
+        switch($moodi) {
+           case "search":
+                $term = $_REQUEST["term"]??False;
+                $result=array();
+                if($term!==False) {
+                    $r = $u->searchWithNamePart($term);
+                    foreach($r as $rl) {
+                        array_push($result, $rl["nimi"]." / ".$rl["tunniste"]);
+                    }
+                }
+                header("Content-type: application/json");
+                echo json_encode($result);
+                break;
+            case "tablefetch":                    
+                    $rivit = $this->tableFetch($c);
                     header("Content-type: application/json");
                     echo json_encode($rivit);
-                    break;
-               case "pelitiedot":
-                    $rivi = $g->pelinTila($_REQUEST["id"]);
-                    if($rivi===False) {
-                         $result = array("Virhe"=>$this->t["EiPeliId"]);
-                    } else {
-                         $result = array("Virhe"=>"OK", "data"=>$rivi);
-                    }                   
-                    header("Content-type: application/json");
-                    echo json_encode($result);
-                    break;
+                    break;               
           }
      }
 }

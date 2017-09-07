@@ -10,10 +10,33 @@
 		var julkaisijat=null;
 		var nimiid=null;
 		var julkaisijaid=null;
+		var kokoelma="{{ kokoelma }}";
 		
         $(document).ready(function () {
 			lataaKokoelmatiedot('{{ ktunniste }}');
-			
+			 $(window).keydown(function(event){
+				if( (event.keyCode == 13)) {
+					event.preventDefault();
+					lomake=$(event.target).closest("form").attr("id");
+					switch (lomake) {
+                        case "nimenlisays":
+							nimisubmit();
+							break;
+						case "julkaisijanlisays":
+							julkkusubmit();
+							break;
+						case "pelitiedot":
+							pelisubmit();
+							break;
+						case "kokoelmatiedot":
+							kokoelmasubmit();
+							break;
+                    }
+					return false;
+				}
+				
+			});
+	
 			/* BGG-haku */
             $("#bggnappula").on('click', function () {                
                 if ($("#bgglinkki").get(0).checkValidity()==true) {
@@ -21,6 +44,8 @@
                     $.get("{{baseurl}}/games", { mode : "geek", url : $("#bgglinkki").val() }, function (data) {
                         if (data.tulos=="OK") {
 							$("#bggstatus").html("");
+							bggdate = new Date().toISOString();
+							$("#bggdate").html(bggdate);
 							paivitapeli(data);
                         }
                         else {
@@ -31,10 +56,174 @@
                 else {
 					$("#bggstatus").html("{{ HuonoLinkki }}");
                 }
-            })
+            });
 			
+			$("#einimea").on("click", function () {
+				$("#lisaaPelinimi").modal('hide');
+			})
+			
+			$("#joonimi").on("click", function () {
+				nimisubmit();
+			});
+			
+			$("#nimipoista").on("click", function() {
+				indeksi = $("#nimet").val();
+				if (indeksi < 0 || indeksi >= nimet.length) {
+                    return;
+                }
+				nimet.splice(indeksi,1);
+				paivitanimet();
+			})
+		
+			$("#einimea").on("click", function () {
+				$("#lisaaPelinimi").modal('hide');
+			})
+			
+			$("#eijulkaisijaa").on("click", function () {
+				$("#lisaaJulkaisijanimi").modal('hide');
+			})
+			
+			$("#joojulkaisija").on("click", function () {
+				julkkusubmit();
+			});
+			
+			$("#julkaisijapoista").on("click", function() {
+				indeksi = $("#julkaisijat").val();
+				if (indeksi < 0 || indeksi >= julkaisijat.length) {
+                    return;
+                }
+				julkaisijat.splice(indeksi,1);
+				paivitajulkaisijat();
+			})
+			
+			$("#ptallenna").on("submit", function() {
+				pelisubmit();
+				return false;
+			});
+			
+			$("#omistaja").autocomplete({
+				source : "{{kayttajahaku}}",
+				minLength : 2
+			});
+			
+			$("#tallenna").on("click", function() {
+				kokoelmasubmit();
+				return false;
+			});
 		});
 		
+		function julkkusubmit(args) {
+			uusio=$("#uusijulkaisija").val();
+			if (uusio=="" || julkaisijat.indexOf(uusio)!=-1) {
+				return;
+			}
+			julkaisijat.push(uusio);
+			paivitajulkaisijat();
+			$("#julkaisijat").val(julkaisijat.indexOf(uusio));
+			$("#lisaaJulkaisijanimi").modal('hide');		
+        }
+		
+		function nimisubmit(args) {
+            uusio=$("#uusinimi").val();
+			if (uusio=="" || nimet.indexOf(uusio)!=-1) {
+                return false;
+            }
+			nimet.push(uusio);
+			paivitanimet();
+			$("#nimet").val(nimet.indexOf(uusio));
+			$("#lisaaPelinimi").modal('hide');
+        }
+		
+		function checkEm(formi) {
+			if ($(formi).get(0).checkValidity()==true) {
+				return true;
+			}
+			$(formi).find("input, textarea, select").each(function () {
+				check(this);										
+			});
+			return false;
+		}
+		
+		function pelisubmit(args) {
+            if(checkEm($("#pelitiedot"))) {
+				var data = {};
+				var pelaajia = "";
+				$("#pelitiedot").find("input, textarea, select, p.form-control-static").each(function () {
+					switch ($(this).attr("id")) {
+                        case "nimet":
+							data.nimi = nimet[$("#nimet").val()];
+							data.nimet = nimet;
+							break;
+						case "julkaisijat":
+							data.julkaisija = julkaisijat[$("#julkaisijat").val()];
+							data.julkaisijat = julkaisijat;
+							break;
+						case "pelaajamin":
+							pelaajia=$("#pelaajamin").val();
+							break;
+						case "pelaajamax":
+							pelaajia+="-"+$("#pelaajamax").val();
+							break;
+						case "tunniste":
+						case "bggrank":
+						case "score":
+						case "bggdate":
+							indeksi = $(this).attr("id");
+							arvo = $(this).html();
+							data[indeksi]=arvo;
+						case "plisatty":
+						case "pmuokattu":
+							break;
+						default:
+							indeksi = $(this).attr("id");
+							arvo = $(this).val();
+							data[indeksi] =  arvo;
+							break;
+                    }
+				});
+			    $.post("{{baseurl}}/games", data, function(data) {
+					console.log(data);
+			   });
+            }
+			return false;
+        }
+		
+		function kokoelmasubmit() {
+             if(checkEm($("#kokoelmatiedot"))) {
+				var data = {};
+				data.kokoelma = kokoelma;
+				$("#kokoelmatiedot").find("input, textarea, select, p.form-control-static").each(function () {
+					switch ($(this).attr("id")) {
+                        case "kokoelmanimi":
+							data.nimiid = $("#kokoelmanimi").val();							
+							break;
+						case "kokoelmajulkaisija":
+							data.julkaisijaid = $("#kokoelmajulkaisija").val();							
+							break;
+						case "omistaja":
+							break;
+						case "kokoelmatunniste":
+						case "tuotukokoelmasta":
+						case "alkuperainentunniste":
+							indeksi = $(this).attr("id");
+							arvo = $(this).html();
+							data[indeksi]=arvo;
+						case "lisatty":
+						case "muokattu":
+							break;
+						default:
+							indeksi = $(this).attr("id");
+							arvo = $(this).val();
+							data[indeksi] =  arvo;
+							break;
+                    }
+				});
+			    $.post("{{baseurl}}/collectiongames", data, function(data) {
+					console.log(data);
+			   });
+            }
+			return false;
+        }
 		function lataaKokoelmatiedot(tunniste) {
             $.get("{{ baseurl }}/collectiongames", { id : tunniste, mode : "kokoelmapeli" }, function (data) {
 				if (data.Virhe!="OK") {
@@ -55,7 +244,7 @@
 						case "laatikko":
 						case "kunto":
 						case "huomautus":
-						case "varasto":
+						case "varasto":						
 							$("#"+index).val(value);
 							break;
                         case "tunniste":
@@ -95,7 +284,7 @@
 							break;
 						case "nimet":
 							if (value==null) {
-								console.log(index+" not set");
+								// console.log(index+" not set");
 							}
 							else {								
 								nimet=value;
@@ -104,7 +293,7 @@
 							break;
 						case "julkaisijat":
 							if (value==null) {
-								console.log(index+" not set");
+								// console.log(index+" not set");
 							}
 							else {								
 								julkaisijat=value;
@@ -117,6 +306,10 @@
 							break;						
 						case "verkkoosoite":
 							$("#lahjoittajawww").val(value);
+							break;
+						case "tuotukokoelmasta":
+						case "alkuperainentunniste":
+							$("#"+index).html(value);
 							break;
 							
                     }
@@ -155,6 +348,7 @@
 					case "tunniste":
 					case "score":
 					case "bggrank":
+					case "bggdate":
 						$("#"+index).html(value);
 						ktunniste = value;
 						break;
@@ -174,7 +368,7 @@
 						break;
 					case "nimet":
 						if (value==null) {
-							console.log(index+" not set");
+							// console.log(index+" not set");
 						}
 						else {								
 							nimet=value;
@@ -183,7 +377,7 @@
 						break;
 					case "julkaisijat":
 						if (value==null) {
-							console.log(index+" not set");
+							// console.log(index+" not set");
 						}
 						else {								
 							julkaisijat=value;
@@ -196,6 +390,12 @@
 						break;
 					case "julkaisija":
 						julkaisija = value;
+						break;
+					case "lisatty":
+						$("#plisatty").html(value);
+						break;
+					case "muokattu":
+						$("#pmuokattu").html(value);
 						break;
                     }
 				});

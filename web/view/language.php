@@ -243,7 +243,15 @@ $t = array(
    "HuonoLinkki" => _("HuonoLinkki"),
    "Poista" => _("Poista"),
    "Muokattu" => _("Muokattu"),
-   "MuokattuHelp" => _("Koska peliä on viimeksi muokattu.")
+   "MuokattuHelp" => _("Koska peliä on viimeksi muokattu."),
+   "VuosiHelp" => _("Pelin julkaisuvuosi."),
+   "LisaaNimi" => _("Pelinimen lisääminen"),
+   "LisattavaNimi" => _("Uusi pelinimi"),
+   "LisattavaNimiHelp" => _("Anna pelille uusi nimi ja talleta, tai jätä lisäämättä ja peruuta."),
+   "LisaaJulkaisija" => _("Uusi pelijulkaisija"),
+   "LisattavaJulkaisijaHelp" => _("Anna pelille uusi julkaisija ja talleta, tai jätä lisäämättä ja peruuta."),
+   "BGGDate" => _("Päivitetty BGG:stä"),
+   "BGGDateHelp" => ("Koska tiedot on viimeksi tuotu BGG:stä")
 );
                    
 ?>

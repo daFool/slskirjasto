@@ -43,6 +43,7 @@ $f3->map("/games", games);
 $f3->map("/login", login);
 $f3->map("/collection", collection);
 $f3->map("/collectiongames", collectiongames);
+$f3->map("/kayttajat", kayttajat);
 $f3->run();
 
 ?>

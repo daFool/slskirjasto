@@ -6,7 +6,7 @@
                             <div class="input-group">
                                 <select class="form-control" id="nimet" name="nimet" required="True"></select>
                                 <div class="input-group-addon btn" id="nimipoista">{{ Poista }}</div>
-                                <div class="input-group-addon btn" id="nimiuusi">{{ NimiUusi }}</div>
+                                <div class="input-group-addon btn" id="nimiuusi" data-toggle="modal" data-target="#lisaaPelinimi">{{ NimiUusi }}</div>
                                 <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                             </div>
                             <p class="help-block">{{ NimiHelp }}</p>						
@@ -16,20 +16,26 @@
                             <div class="input-group">
                                 <select class="form-control" id="julkaisijat" name="julkaisijat" required="True"></select>
                                 <div class="input-group-addon btn" id="julkaisijapoista">{{ Poista }}</div>
-                                <div class="input-group-addon btn" id="julkaisijauusi">{{ JulkaisijaUusi }}</div>
+                                <div class="input-group-addon btn" id="julkaisijauusi" data-toggle="modal" data-target="#lisaaJulkaisijanimi">{{ JulkaisijaUusi }}</div>
                                 <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                             </div>
                             <p class="help-block">{{ JulkaisijaHelp }}</p>						
                         </div>                        
 				    </div>
                     <div class="form-group">
-                        <div class="col-sm-6">
+                        <div class="col-sm-2">
+							<label for="vuosi" class="control-label">{{ tVuosi }}</label>
+							<input type="number" min="-3500" max="2100" id="vuosi" name="vuosi" required="true" class="form-control"/>
+							<span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+							<p class="help-block">{{ VuosiHelp }}</p>						
+						</div>
+						<div class="col-sm-5">
                             <label for="suunnittelija" class="control-label">{{ tSuunnittelija }}</label>
                             <input type="text" class="form-control" id="suunnittelija" name="suunnittelija" required maxlength="255" size="20"/>
                             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                             <p class="help-block">{{ SuunnittelijaHelp }}</p>						
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-5">
                             <label for="bgglinkki" class="control-label">{{ BGGLinkki }}</label>
                         	<div class="input-group">
                         		<input type="url" class="form-control" name="bgglinkki" id="bgglinkki" size="40" maxlength="255"
@@ -86,11 +92,72 @@
                             <label for="score" class="control-label">{{ tBGGScore }}</label>                                                        
                             <p class="form-control-static" id="score"></p>
                             <p class="help-block">{{ BGGScoreHelp }}</p>
-                        </div>                      
-                    </div>
-                    <div class="form-group">
-                        <button type="button" class="btn btn-lg btn-warning" id="peruuta">{{ Peruuta }}</button>
-                        <button type="button" class="btn btn-lg btn-default" id="tallenna" disabled="true">{{ Talleta }}</button>
-                    </div>
-            
+                        </div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-3">
+							<label for="lisatty" class="control-label">{{ Lisatty }}</label>
+							<p class="form-control-static" id="plisatty"></p>
+                            <p class="help-block">{{ LisattyHelp }}</p>
+						</div>
+						<div class="col-sm-3">
+							<label for="lisatty" class="control-label">{{ Muokattu }}</label>
+							<p class="form-control-static" id="pmuokattu"></p>
+                            <p class="help-block">{{ MuokattuHelp }}</p>
+						</div>
+						
+						<div class="col-sm-3">
+							<label for="bggdate" class="control-label">{{ BGGDate }}</label>
+							<p class="form-control-static" id="bggdate"></p>
+							<p class="help-block">{{ BGGDateHelp }}</p>
+						</div>
+                        <button type="button" class="btn btn-lg btn-warning" id="pperuuta">{{ Peruuta }}</button>
+                        <button type="button" class="btn btn-lg btn-default" id="ptallenna">{{ Talleta }}</button>
+                    </div>            
                 </form>
+				
+				<div class="modal fade" id="lisaaPelinimi">
+					<div class="modal-dialog modal-lg">
+						<div class="modal-content">
+							<div class="modal-header">
+								 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h4 class="modal-title">{{ LisaaNimi }}</h4>
+							</div>
+	
+							<div class="modal-body">
+									<form name="nimenlisays" id="nimenlisays" method="post">
+										<div class="form-group">
+												<label for="uusinimi" class="control-label">{{ LisattavaNimi }}</label>
+												<input type="text" id="uusinimi" name="uusnimi" size="40" maxlength="255" required="true"/>
+												<p class="help-block">{{ LisattavaNimiHelp}}</p>
+												<button type="button" class="btn btn-lg btn-warning" id="einimea">{{ Peruuta }}</button>
+												<button type="button" class="btn btn-lg btn-default" id="joonimi">{{ Talleta }}</button>										
+										</div>									
+									</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="modal fade" id="lisaaJulkaisijanimi">
+					<div class="modal-dialog modal-lg">
+						<div class="modal-content">
+							<div class="modal-header">
+								 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h4 class="modal-title">{{ LisaaJulkaisija }}</h4>
+							</div>
+	
+							<div class="modal-body">
+									<form name="julkaisijanlisays" id="julkaisijanlisays" method="post">
+										<div class="form-group">
+												<label for="uusinimi" class="control-label">{{ LisaaJulkaisija }}</label>
+												<input type="text" id="uusijulkaisija" name="uusijulkaisija" size="40" maxlength="255" required="true"/>
+												<p class="help-block">{{ LisattavaJulkaisijaHelp}}</p>
+												<button type="button" class="btn btn-lg btn-warning" id="eijulkaisijaa">{{ Peruuta }}</button>
+												<button type="button" class="btn btn-lg btn-default" id="joojulkaisija">{{ Talleta }}</button>										
+										</div>									
+									</form>
+							</div>
+						</div>
+					</div>
+				</div>
