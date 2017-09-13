@@ -1,4 +1,9 @@
+drop table if exists laina;
+drop table if exists kokoelmapeli;
 drop table if exists kokoelma;
+drop table if exists varasto;
+drop table if exists tapahtuma;
+drop table if exists kayttajarooli;
 drop table if exists KayttajaTunnistus;
 drop table if exists Kayttaja;
 create table Kayttaja (

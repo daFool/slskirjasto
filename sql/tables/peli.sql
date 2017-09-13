@@ -1,6 +1,6 @@
+drop table if exists Peli;
 drop sequence if exists Peliavaimet;
 create sequence Peliavaimet start 1;
-drop table if exists Peli;
 create table Peli (
     Nimi           varchar(255)   not null,
     Suunnittelija  varchar(255)   not null,
