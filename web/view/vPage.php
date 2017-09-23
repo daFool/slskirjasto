@@ -47,13 +47,13 @@ class vPage {
                     "2"=>array("url"=>"$baseurl/controller/collections/reports", "teksti"=>$t["Kokoelmaraportit"]));
         
         /**
-         * Käyttäjäien ylläpito
+         * Käyttäjien ylläpito
          * @var array $s
          * */
-        $s = array("0"=>array("url"=>"$baseurl/controller/users", "teksti"=>$t["Kayttajat"]),
-                   "1"=>array("url"=>"$baseurl/controller/customers/import", "teksti"=>$t["SLSLainaajat"]));
+        $s = array("0"=>array("url"=>"$this->baseurl/kayttajat?mode=page", "teksti"=>$t["Kayttajat"]),
+                   "1"=>array("url"=>"$this->baseurl/kayttajat?mode=import", "teksti"=>$t["SLSLainaajat"]));
         
-        $y = array("0"=>array("url"=>"$baseurl/controller/users/password", "teksti"=>$t["VaihdaSalasana"]));
+        $y = array("0"=>array("url"=>"$this->baseurl/kayttajat?mode=password", "teksti"=>$t["VaihdaSalasana"]));
         
         $rooli = $_SESSION['user']['tila']??"muggle";
  

@@ -38,9 +38,9 @@ $t = array(
     "Kokoelmaraportit"=>_("Kokoelmaraportit"),
     
     /**
-    * Käyttäjäien ylläpito
+    * Käyttäjien ylläpito
     * */
-    "KayttajaToiminnot"=>_("Käyttäjätoiminnot"),
+    "Kayttajat"=>_("Käyttäjien ylläpito"),
     "SLSLainaajat"=>("Tuo SLS-lainaajat"),
     "VaihdaSalasana"=>("Vaihda salasana"),
         
@@ -251,7 +251,21 @@ $t = array(
    "LisaaJulkaisija" => _("Uusi pelijulkaisija"),
    "LisattavaJulkaisijaHelp" => _("Anna pelille uusi julkaisija ja talleta, tai jätä lisäämättä ja peruuta."),
    "BGGDate" => _("Päivitetty BGG:stä"),
-   "BGGDateHelp" => ("Koska tiedot on viimeksi tuotu BGG:stä")
+   "BGGDateHelp" => ("Koska tiedot on viimeksi tuotu BGG:stä"),
+   
+   /** Ylläpito
+    * */
+   "LainaajaTuonti" => _("Jäsentietojen tuonti"),
+   "TuontiKuvaus1" => _("Tuonti poistaa kaikki vanhat jäsentiedot kannasta. Tuotavassa csv-tiedostossa oletetaan olevan otsikkorivi ja sarakkeet:"),
+   "TuontiKuvaus2" => _("Etunimi;Sukunimi;Sähköpostiosoite;Jäsennumero;Matkapuhelinnumero;Syntymävuosi"),
+   "TuontiKuvaus3" => _("Merkkijonot lainausmerkkien sisällä. Kenttäerottimena puolipiste."),
+   "Tiedosto" => _("Jäsentiedoston nimi"),
+   "Lataa" => _("Lataa"),
+   "TiedostoHelp" => _("Tuo jäsentiedot csv-tiedostosta, tuonti poistaa vanhat tiedot ensin kannasta. Tuo vain jäsenmaksun kuluvalle vuodelle maksaneita."),
+   "Kasittelen" => _("Käsittelen, odota hetki..."),
+   "TuotiinOnnistuneesti" => _("Tuotiin onnistuneesti:"),
+   "TuontiFeilasi" => _("Tuonti epäonnistui:"),
+   "LainaajatTuotu" => _("Jäsenlainaajien tuonti valmis")   
 );
                    
 ?>

@@ -21,6 +21,8 @@ create table Kayttaja (
     like Pohjat INCLUDING ALL,    
     CHECK(Tila IN ('lainaaja', 'prospekti', 'käyttäjä', 'superadmin', 'admin'))    
 );
+create index kayttaja_jasennumero on kayttaja(slsjasennumero);
+create index kayttaja_nimi on kayttaja (nimi);
 
 comment on table Kayttaja is 'Kaikki järjestelmän käyttäjät';
 comment on column Kayttaja.Nimi is 'Käyttäjän nimi';

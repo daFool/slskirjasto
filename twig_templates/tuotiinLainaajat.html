@@ -1,0 +1,11 @@
+{% extends "page.html" %}
+{% block head %}
+    {{ parent() }}
+    <title>{{ LainaajatTuotu }}</title>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <h2>{{ LainaajatTuotu }}</h2>
+        <p>{{ TuotiinOnnistuneesti }} <b>{{ tulos.OK }}</b> {{ TuontiFeilasi }} <b>{{ tulos.Virhe }}</b></p>
+    </div>   
+{% endblock %}

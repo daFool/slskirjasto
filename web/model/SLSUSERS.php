@@ -13,30 +13,39 @@
  *
  * _kayttaja_
  * <pre>
- * +--------------------+-----------+--------------------------+
- * | Sarake             | Tyyppi    | Selitys                  |
- * +--------------------+-----------+--------------------------+
- * | nimi               | varchar   | Käyttäjän nimi           |
- * | slsjasennumero     | int       | SLS-jäsennumero          |
- * | puhelin            | varchar   | Puhelinnumero            |
- * | sahkoposti         | varchar   | Sähköpostiosoite         |
- * | syntymavuosi       | int       | Käyttäjän syntymävuosi   |
- * | sukupuoli          | varchar   | Käyttäjän sukupuoli      |
- * | tunniste           | varchar   | Käyttäjätunnus           |
- * | vahvistus          | varchar   | Vahvistuskoodi           |
- * | vahvistuslahetetty | timestamp | Vahvistuskoodi lähetetty |
- * | tila               | varchar   | Käyttäjän "taso"         |
- * | lisatty            | timestamp | Käyttäjän lisätty        |
+ * +--------------------+-------------+--------------------------+
+ * | Sarake             | Tyyppi      | Selitys                  |
+ * +--------------------+-------------+--------------------------+
+ * | nimi               | varchar     | Käyttäjän nimi           |
+ * | slsjasennumero     | int         | SLS-jäsennumero          |
+ * | puhelin            | varchar     | Puhelinnumero            |
+ * | sahkoposti         | varchar     | Sähköpostiosoite         |
+ * | syntymavuosi       | int         | Käyttäjän syntymävuosi   |
+ * | sukupuoli          | varchar     | Käyttäjän sukupuoli      |
+ * | tunniste           | varchar     | Käyttäjätunnus           |
+ * | vahvistus          | varchar     | Vahvistuskoodi           |
+ * | vahvistuslahetetty | timestamp   | Vahvistuskoodi lähetetty |
+ * | tila               | varchar     | Käyttäjän "taso"         |
+ * | muokattu           | timestamp tz| Rivin muokkaushetki      |
+ * | muokkaaja          | varchar     | Riviä muokannut tunnus   |
+ * | luotu              | timestamp tz| Rivin luontihetki        |
+ * | luoja              | varchar     | Rivin luonut tunnus      |
  * </pre>
+ *  Tila voi olla: "lainaaja, prospekti, käyttäjä, superadmin tai admin".
  * _kayttajatunnistus_
  * <pre>
- * +--------------------+-----------+----------------------------------+
- * | Sarake             | Tyyppi    | Selitys                          |
- * +--------------------+-----------+----------------------------------+
- * | kayttaja           | varchar   | Viiteavain käyttäjätauluun       |
- * | tyyppi             | varchar   | Tunnistustyyppi                  |
- * | salaisuusavain     | varchar   | Salasanan hash tai google id     |
- * | salaisuus          | varchar   | Salasana tai Setec Astronomy     |
+ * +--------------------+-------------+----------------------------------+
+ * | Sarake             | Tyyppi      | Selitys                          |
+ * +--------------------+-------------+----------------------------------+
+ * | kayttaja           | varchar     | Viiteavain käyttäjätauluun       |
+ * | tyyppi             | varchar     | Tunnistustyyppi                  |
+ * | salaisuusavain     | varchar     | Salasanan hash tai google id     |
+ * | salaisuus          | varchar     | Salasana tai Setec Astronomy     |
+ * | muokattu           | timestamp tz| Rivin muokkaushetki              |
+ * | muokkaaja          | varchar     | Riviä muokannut tunnus           |
+ * | luotu              | timestamp tz| Rivin luontihetki                |
+ * | luoja              | varchar     | Rivin luonut tunnus              |
+ 
  * </pre>
  * @package SLS-Kirjasto
  * @license http://opensource.org/licenses/GPL-2.0
@@ -56,8 +65,9 @@ class SLSUSERS extends mosBase\malli {
      * */
     public function __construct(&$db, &$log) {
         $hakukentat=array();
-        parent::__construct($db, $log, "kayttaja", array("primary"=>array("kayttajatunnistus"), array("jasennumero"=>array("slsjasennumero"))));
+        parent::__construct($db, $log, "kayttaja", array("primary"=>array("tunniste")));
     }
+    
     /**
      * @param int $id Google identifier
      * @return boolean|array False if id was not found otherwise user data as array.
@@ -96,7 +106,7 @@ class SLSUSERS extends mosBase\malli {
      * @return mixed existense of membership number in boolean or in json
      * **/
     public function checkMember($jasennumero) {    
-        $s = "select Tunniste from Kayttaja where SLSjasenNumero=:jasennumero and tila<>'lainaaja';";
+        $s = "select Tunniste from Kayttaja where SLSjasenNumero=:jasennumero;";
         $st = $this->pdoPrepare($s, $this->db);
         $this->pdoExecute($st, array("jasennumero"=>$jasennumero));
         if($$st->rowCount()==0) {
@@ -112,12 +122,17 @@ class SLSUSERS extends mosBase\malli {
      * @param array $ident User identity information
      * @return boolean
      * */
-    public function insertTunniste($ident) {
-        $s = "insert into KayttajaTunnistus (Kayttaja, Tyyppi, Salaisuusavain, Salaisuus)
-        values (:Kayttaja, :Tyyppi, :Salaisuusavain, :Salaisuus);";
+    public function insertTunniste($ident, $kuka=False) {
+        if($kuka==False) {
+            $ident["luoja"]="system";
+        } else {
+            $ident["luoja"]=$kuka;
+        }
+        $s = "insert into KayttajaTunnistus (Kayttaja, Tyyppi, Salaisuusavain, Salaisuus, luoja)
+        values (:Kayttaja, :Tyyppi, :Salaisuusavain, :Salaisuus, :luoja);";
         $st = $this->pdoPrepare($s, $this->db);
         $res = $this->pdoExecute($st, $ident);
-        $this->log($_SESSION["user"]["kayttajatunniste"],"Added ident {$ident["tunniste"]}/{$ident["tyyppi"]}",__FILE__,
+        $this->log($ident["luoja"],"Added ident {$ident["tunniste"]}/{$ident["tyyppi"]}",__FILE__,
                     __CLASS__, __LINE__, "AUDIT");
             
         return $res;
@@ -137,12 +152,21 @@ class SLSUSERS extends mosBase\malli {
     
     /**
      * Register a new user
+     *
+     * Kutsutaan, kun uusi käyttäjä rekisteröityy järjestelmään
      * @param array $user User details
      * @param array $ident Identification details
      * @return mixed false jos epäonnistui ja string vahviste jos onnistui
      * @uses insertUser insertTunniste salakala SLSMail
      * */
-    public function addMember($user, $ident) {
+    public function addMember($user, $ident, $kuka=False) {
+        if($kuka===False) {
+            $user["luoja"]="system";
+            $ident["luoja"]="system";
+        } else {
+            $user["luoja"]=$kuka;
+            $ident["luoja"]=$kuka;
+        }
         if($ident['method']=="local") {
             $d = $this->salakala($ident["salasana"]);
             $d["Kayttaja"]=$user['ktunnus'];
@@ -167,18 +191,7 @@ class SLSUSERS extends mosBase\malli {
         $st = $this->pdoPrepare($s, $this->db);
         $this->pdoExecute($st, array("vahvistus"=>$vahvistus, "tunniste"=>$user['ktunnus']));
         
-        return $vahvistus;
-        /**
-         * EI KUULU TÄNNE!
-        $baseurl = $this->conf->get("General")["baseurl"];
-        $message=sprintf(_($t["vahvistuslinkki"]), "$baseurl/vahvistus.php?vahviste=$vahvistus");
-        $to = $user['sahkoposti'];
-        $subject = sprintf(_($t["vahvistajasenyys"]));
-        $from = $this->conf->get("Email")["from"];
-        $replyto = $this->conf->get("Email")["replyto"];
-        $headers = sprintf("From: %s\r\nReply-To: %s", $from, $replyto);
-        return SLSMail($to, $subject, $message, $headers);            
-        **/
+        return $vahvistus;        
     }
     
     /**
@@ -186,10 +199,15 @@ class SLSUSERS extends mosBase\malli {
      * @param string $kayttajatunnus Käyttäjätunnus, jonka salasanaa vaihdetaan
      * @param string $salasana, Salasana, johon vaihdetaan
      * */
-    public function vaihdaSalasana($kayttajatunnus, $salasana) {
-        $s = "update KayttajaTunnistus set salaisuusavain=:Salaisuusavain, salaisuus=:Salaisuus where kayttaja=:kayttajatunnus and tyyppi='local';";
+    public function vaihdaSalasana($kayttajatunnus, $salasana, $kuka=False) {
+        if($kuka===False) {
+            $kuka="system";
+        }
+        $s = "update KayttajaTunnistus
+            set salaisuusavain=:Salaisuusavain, salaisuus=:Salaisuus, muokattu=now(), muokkaaja=:kuka where kayttaja=:kayttajatunnus and tyyppi='local';";
         $d = $this->salakala($salasana);
         $d["kayttajatunnus"]=$kayttajatunnus;
+        $d["kuka"]=$kuka;
         $st = $this->pdoPrepare($s, $this->db);
         $this->pdoExecute($st, $d);
     }
@@ -260,7 +278,7 @@ class SLSUSERS extends mosBase\malli {
      * @return mixed False if nothing was found or an array of matched rows
      * */
     public function findWithRex($Rex, $Field) {
-        $fields = array("Nimi", "SLSjasenNumero", "Puhelin", "Sahkoposti", "syntymavuosi", "sukupuoli", "Tunniste", "Tila", "lisatty");
+        $fields = array("Nimi", "SLSjasenNumero", "Puhelin", "Sahkoposti","Tunniste", "luotu", "muokattu");
         $match=false;
         foreach($fields as $f) {
             if($f==$Field)
@@ -269,7 +287,7 @@ class SLSUSERS extends mosBase\malli {
         if($match===false) {
             return false;
         }
-        if($Field=="syntymavuosi")
+        if($Field=="SLSJasenNumero" || $Field=="luotu" || $Field=="muokattu")
             $op = "=";
         else
             $op = "~*";
@@ -322,21 +340,6 @@ class SLSUSERS extends mosBase\malli {
     }
     
     /**
-     * Search users with partial membership number
-     * @param string $part Part of membership number to look for
-     * @return mixed False if none was found or an array of matches max 10 matches
-     * */
-    public function searchWithJasennumeroPart($part) {
-        $part.='%';
-        $s = "select slsjasennumero from kayttaja where slsjasennumero ilike :part limit 10;";
-        $st = $this->pdoPrepare($s, $this->db);
-        $this->pdoExecute($st, array("part"=>$part));
-        $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-        if(!is_array($rows))
-            $rows = array($row);
-        return $rows;
-    }    
-    /**
      * Lainausnäytön käyttäjähaku
      * @param string $kentta Millä kentällä haetaan
      * @param string $arvo Mitä arvoa haetaan
@@ -365,6 +368,12 @@ class SLSUSERS extends mosBase\malli {
         if(!is_array($rows))
             $rows = array($row);
         return $rows;
-    }     
+    }
+    
+    public function poistaJasenet()  {
+        $s = "delete from kayttaja where slsjasennumero > 90000000 and tila='lainaaja';";
+        $st = $this->pdoPrepare($s, $this->db);
+        $this->pdoExecute($st, array());
+    }
 }
 ?>

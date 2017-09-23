@@ -2,7 +2,15 @@
 class kayttajat extends controller {
     protected $t;
     
-     public function __construct($f3) {
+    protected function import(&$f3) {
+        $conf = $f3->get("conf");
+        $loader = new Twig_Loader_Filesystem($conf->get("Twig")["twigTemplates"]);
+        $twig = new Twig_Environment($loader);
+        $sivu = new vTuonti($twig, $this->t, $conf);
+        $sivu->nayta("tuoLainaajat.html"); 
+    }
+    
+    public function __construct($f3) {
           $pdo = $f3->get("db");
           $conf = $f3->get("conf");
           $log = $f3->get("log");
@@ -33,8 +41,59 @@ class kayttajat extends controller {
                     $rivit = $this->tableFetch($c);
                     header("Content-type: application/json");
                     echo json_encode($rivit);
-                    break;               
+                    break;
+            case "import":                
+                $this->import($f3);
+                break;
           }
+     }
+     
+     public function post($f3) {
+        $method = $_REQUEST["method"]??False;
+        switch($method) {
+            case "import":
+                $this->doImport($f3);
+                break;
+        }
+     }
+     
+     protected function doImport(&$f3) {
+        if(isset($_FILES["tiedosto"]) && $_FILES["tiedosto"]["error"]==UPLOAD_ERR_OK) {
+            $tdsto = file($_FILES['tiedosto']['tmp_name']);
+            // Etunimi;Sukunimi;Sähköpostiosoite;Jäsennumero;Matkapuhelinnumero;Syntymävuosi
+            $a = array();
+            $k = new SLSUSERS($this->db, $this->log);
+            $k->poistaJasenet();            
+            $tulos = array("OK"=>0, "Virhe"=>0);
+            foreach($tdsto as $rvnro=>$rivi) {                
+                if($rvnro==0)
+                    continue;
+                list($etunimi, $sukunimi, $sposti, $jasen, $puhelin, $vuosi)=explode(";",$rivi);
+                $d=array("nimi"=>sprintf("%s %s", $etunimi, $sukunimi),
+                                   "slsjasennumero"=>$jasen,
+                                   "sahkoposti"=>$sposti,
+                                   "puhelin"=>$puhelin,
+                                   "tunniste"=>$jasen,
+                                   "tila"=>"lainaaja");
+                if(preg_match("/^[12][0123456789]{3}$/", $vuosi)) {
+                    $d["syntymavuosi"]=$vuosi;
+                }
+                try {
+                    if($k->upsert($d)===True)
+                        $tulos["OK"]++;
+                    else
+                        $tulos["Virhe"]++;
+                } catch(Exception $e) {
+                    $tulos["Virhe"]++;
+                    continue;
+                }
+            }
+            $conf = $f3->get("conf");   
+            $loader = new Twig_Loader_Filesystem($conf->get("Twig")["twigTemplates"]);
+            $twig = new Twig_Environment($loader);
+            $sivu = new vTuotiin($twig, $this->t, $conf, $tulos);
+            $sivu->nayta("tuotiinLainaajat.html");             
+        }
      }
 }
 ?>

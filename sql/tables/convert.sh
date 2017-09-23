@@ -15,7 +15,8 @@ echo "Luodaan lähtökanta"
 createdb $src
 me=`whoami`
 echo "Tuodaan data lähtökantaan"
-sed "s/adminzjhumse/$me/g" $srcscript | $PSQL $src
+#sed "s/adminzjhumse/$me/g" $srcscript | $PSQL $src
+pg_restore -d $src $srcscript
 if [ $? -ne 0 ]; then
     echo "Kannan sisällön luonti epäonnistui";
     exit -1;
@@ -42,8 +43,12 @@ $PSQL $dst <<here
     truncate table varasto cascade;
     truncate table kokoelma cascade;
     truncate table peli cascade;
+    grant all on all tables in schema public to sls;
+    grant all on all sequences in schema public to sls;
 here
 pg_dump --table kayttaja --data $src|$PSQL $dst
+echo "Tuodaan käyttäjätunnistus"
+pg_dump --table kayttajatunnistus --data $src|$PSQL $dst
 echo "Tuodaan kohdekantaan käyttäjäroolit"
 pg_dump --table kayttajarooli --data $src|$PSQL $dst
 echo "Tuodaan kohdekantaan tapahtumat"
@@ -67,3 +72,10 @@ echo "Tuodaan kokoelmapelit"
 ./kokoelmapelit.php $src $dst
 echo "Tuodaan lainat"
 pg_dump --table laina --data $src|$PSQL $dst
+echo "Fiksataan lainat"
+$PSQL $dst <<here
+with foo as
+    ( select p.nimi, p.tunniste, kp.tunniste as kp from kokoelmapeli as kp join peli as p on (kp.peli=p.tunniste))
+update laina set peli=foo.nimi, peliid=foo.tunniste from laina as l join foo on (l.kokoelmapeli=foo.kp)
+where laina.kokoelmapeli=foo.kp;
+here

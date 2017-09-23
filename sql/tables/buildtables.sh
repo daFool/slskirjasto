@@ -25,4 +25,5 @@ taulu peli.sql "Peli"
 taulu lahjoittaja.sql "Lahjoittaja"
 taulu kokoelmapeli.sql "Kokoelmapeli"
 taulu laina.sql "Laina"
+taulu kortti.sql "Kortti"
 
