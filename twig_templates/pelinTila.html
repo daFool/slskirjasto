@@ -8,13 +8,7 @@
 				var lainassa=false;
                 $.each(data.data, function(indeksi, arvo) {
 					switch (indeksi) {
-                        case "pt_lainattu":
-							if (arvo != "1970-01-01 01:02:03") {
-                                lainassa=true;
-								$("poista").attr("disabled", "true");
-								$("#pt_lainattu").html(arvo);
-                            }
-							break;
+                        case "pt_lainattu":						
 						case "pt_lainaaja":
 						case "pt_koti":
 						case "pt_nimi":
@@ -30,6 +24,15 @@
 							break;
 						case "pt_bgg":
 							$("#"+indeksi).attr("href", arvo);
+							break;
+						case "pt_tila":
+							if(arvo=="MISS" || arvo=="OK") {
+								$("#pt_lainattu").html("");
+							}
+							else {
+								lainassa=true;
+								$("poista").attr("disabled", "true");
+							}
 							break;
                     }
 				});

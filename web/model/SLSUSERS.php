@@ -203,13 +203,25 @@ class SLSUSERS extends mosBase\malli {
         if($kuka===False) {
             $kuka="system";
         }
-        $s = "update KayttajaTunnistus
-            set salaisuusavain=:Salaisuusavain, salaisuus=:Salaisuus, muokattu=now(), muokkaaja=:kuka where kayttaja=:kayttajatunnus and tyyppi='local';";
-        $d = $this->salakala($salasana);
+        $s = "select count(*) as lkm from kayttajatunnistus where kayttaja=:kayttajatunnus and tyyppi='local';";
+        $st = $this->pdoPrepare($s, $this->db);
+        $d = array();
         $d["kayttajatunnus"]=$kayttajatunnus;
+        $this->pdoExecute($st, $d);
+        $rivi = $st->fetch(\PDO::FETCH_ASSOC);
+        if($rivi["lkm"]==0) {
+            $s = "insert into kayttajatunnistus (salaisuusavain, salaisuus, luotu, luoja, tyyppi, kayttaja)
+                    values (:Salaisuusavain, :Salaisuus, now(), :kuka, 'local', :kayttajatunnus);";
+        } else {
+            $s = "update KayttajaTunnistus
+                set salaisuusavain=:Salaisuusavain, salaisuus=:Salaisuus, muokattu=now(), muokkaaja=:kuka where kayttaja=:kayttajatunnus and tyyppi='local';";
+        }
+        $d = $this->salakala($salasana);
+        $d["kayttajatunnus"]=$kayttajatunnus;        
         $d["kuka"]=$kuka;
         $st = $this->pdoPrepare($s, $this->db);
-        $this->pdoExecute($st, $d);
+        $res = $this->pdoExecute($st, $d);
+        return $res;
     }
     
     /**
@@ -370,10 +382,54 @@ class SLSUSERS extends mosBase\malli {
         return $rows;
     }
     
+    /**
+     * Poista vanhat jäsentiedot
+     *
+     * Siivoaa vanhat alta, jotta uudet tiedot voi tuoda tiedostosta.
+     * */
     public function poistaJasenet()  {
         $s = "delete from kayttaja where slsjasennumero > 90000000 and tila='lainaaja';";
         $st = $this->pdoPrepare($s, $this->db);
         $this->pdoExecute($st, array());
+    }
+    
+    /**
+     * Käyttäjätilat
+     * */
+    public function kayttajaTilat() {
+        $s = "select tila from kayttaja group by tila;";
+        $st = $this->pdoPrepare($s, $this->db);
+        $this->pdoExecute($st, array());
+        $tilat = $st->fetchAll(\PDO::FETCH_ASSOC);
+        return $tilat;
+    }
+    
+    /** Tauluhaku
+     * @param string $w where-ehto
+     * @param array $d where-ehdon parametrit
+     * @param int $sivu sivu, jota halutaan katsella
+     *
+     * Palauttaa 25 käyttäjää siltä sivulta, joka pyydettiin
+     * */
+    public function tauluHaku($w, $d, $sivu) {
+        $s = "select count(*) as lkm from kayttaja $w";
+        $st = $this->pdoPrepare($s, $this->db);
+        $this->pdoExecute($st, $d);
+        $rivi= $st->fetch();
+        $lkm = $rivi["lkm"];
+        $sivuja = round($lkm / 25,0);
+        if($sivu > $sivuja)
+            $sivu = $sivuja;
+        if($sivu < 0)
+            $sivu = 0;
+        $sivu = $sivu*25;
+        $s = "select tunniste, nimi, slsjasennumero, puhelin, sahkoposti, syntymavuosi, tila from kayttaja $w order by nimi asc limit 25 offset :sivu;";
+        $st = $this->pdoPrepare($s, $this->db);
+        $d["sivu"]=$sivu;
+        $this->pdoExecute($st, $d);
+        $rivit = $st->fetchAll(\PDO::FETCH_ASSOC);
+        $tulos = array("sivuja"=>$sivuja, "rivit"=>$rivit);        
+        return $tulos;
     }
 }
 ?>

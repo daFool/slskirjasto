@@ -38,6 +38,8 @@ $f3->route("GET /", function($f3) {
     $sivu = new vEtusivu($twig, $t, $conf);
     $sivu->nayta("etusivu.html");    
 });
+
+$f3->redirect('GET /index.php', '/');
 $f3->map("/collections", collections);
 $f3->map("/games", games);
 $f3->map("/login", login);

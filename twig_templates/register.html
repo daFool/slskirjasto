@@ -6,17 +6,17 @@
     <script type="text/javascript">        
         $(document).ready(function() {
             $("#ktunnus").on("change", function (foo) {
-				url="{{ baseurl }}/api/kayttaja/taydenna/ktunnus";
+				url="{{ baseurl }}/kayttajat";
 				term=encodeURIComponent($("#ktunnus").val());
 				
-                $.get(url, {term : term }, function ( data ) {
-                    match=false;
+                $.get(url, {mode: "searchKtunnus", term : term }, function ( data ) {
+                    var match=false;
                     $.each(data, function (key, value) {
                         if (value==$("#ktunnus").val()) {
                             match=true;
                         }
-                    })
-                    if (match==true) {
+                    });
+                    if (match===true) {
                         $("#kaytossa").html("{{ kaytossa }}");
                         checkEm();
                     }
@@ -38,7 +38,7 @@
 				check(this);										
 			});
             
-            if ($("#uusikayttaja").get(0).checkValidity()==true) {
+            if ($("#uusikayttaja").get(0).checkValidity()===true) {
                 ok=true;
             }
 			else {
@@ -51,7 +51,7 @@
                 lisaaVirhe(parent, spani);
             }
             
-            {% if kayttaja %}
+            {% if moodi!="newCustomer" %}
                 if ($("#salasana").val()=="" || $("#salasana").val()!=$("#salasana2").val()) {
                     parent=$("#salasana").parent("div");
                     spani=$("#salasana").next();
@@ -79,28 +79,29 @@
 			
 			$("#nollaa").on("click", function() {
 				$("#uusikayttaja")[0].reset();				
-			})
+			});
 			
 			$("#talleta").on("click", function() {
-				url="{{ baseurl }}/api/kayttaja";
-				{% if kayttaja %}
-					url+="/newUser/";
-				{% else %}
-					url+="/newCustomer/";
-				{% endif %}
-				url+=encodeURIComponent($("#ktunnus").val());
-				$.post(url, $("#uusikayttaja").serialize(), function(d) {
+				url="{{ baseurl }}/kayttajat";
+				data = $("#uusikayttaja").serialize();
+				$.post(url, data, function(d) {
 					if (d.tulos!="OK") {
-                        virhe(d.tulos);
+						if(d.tulos=="ERROR") {
+							virhe("{{ TalletusFeilasi}}");
+						} else {
+							virhe("{{ SalasanaFeilasi }}");	
+						}
                     } else {
-						{% if kayttaja %}
+						{% if moodi=="register" %}
 							$("#valmis").modal('show');							
-						{% else %}
+						{% elseif moodi=="newCustomer" %}
 							nimi = d.nimi + " / "+d.ktunnus;
 							paluu="{{ baseurl }}/lainaa/lainaus.php?collection="+encodeURIComponent("{{ collection|raw }}")+"&tunniste="+
 							encodeURIComponent("{{ gameid }}")+"&peli="+encodeURIComponent("{{ game }}")+"&ktunnus="+encodeURIComponent(d.ktunnus)+
 							"&vlainaaja="+encodeURIComponent(nimi)+"&slsjasennumero="+encodeURIComponent(d.slsjasennumero);
-							window.location=paluu;    //code                            
+							window.location=paluu;    //code
+						{% else %}
+							window.location="{{ baseurl }}/kayttajat?mode=page";
 						{% endif %}
                     }
 				});
@@ -108,7 +109,7 @@
         
 			$("#valmisbutton").on("click", function() {
 				$("#valmis").modal("hide");
-				window.location="{{baseurl}}/index.php";
+				window.location="{{baseurl}}";
 			})
 		});
 		
@@ -129,7 +130,7 @@
 			<span id="virhes">{{ errormsg }}</span>
 		</div>
         <form method="post" id="uusikayttaja" name="uusikayttaja" action="{{ kohde }}" class="form">
-
+			<input type="hidden" name="method" value="{{moodi}}"/>
             <div class="form-group" id="nimig">
                 <div class="col-lg-1 col-md-1 col-sm-2 col-xs-4">					
                     <label for="nimi" class="control-label">{{ Nimi }}</label>    
@@ -177,7 +178,7 @@
                 </div>        
                 <div class="col-lg-10 col-mdg-10 col-sm-9 col-xs-6">
                     <input type="email" name="email" id="email" size="40" placeholder="john.doe@anonymous.org" maxlength="255"
-                        {{ email }} class="form-control" {% if kayttaja %} required="true" {% endif %}/>
+                        {{ email }} class="form-control" {% if moodi!="newCustomer" %} required="true" {% endif %}/>
                     </label>
                     <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                     <p class="help-block">{{ sahkoposti_ohje }}</p>
@@ -201,9 +202,10 @@
                 </div>        
                 <div class="col-lg-11 col-mdg-11 col-sm-10 col-xs-8">
                     <select class="form-control" id="sukupuoli" name="sukupuoli">
-                        {% for i in sukupuolet %}
-                            <option value={{i.arvo}} {% if sukupuoli==i.arvo %}"selected"{% endif %}>{{i.teksti}}</option>
-                        {% endfor %}
+						<option value="E">{{ EiTiedossa }}</option>
+						<option value="O">{{ OmaValinta }}</option>
+						<option value="M">{{ Mies }}</option>
+						<option value="N">{{ Nainen }}</option>	                    
                     </select>
                     <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                     <p class="help-block">{{ sukupuoli_ohje }}</p>
@@ -221,7 +223,7 @@
                 </div>
             </div>
 
-            {% if kayttaja %}
+            {% if moodi!="newCustomer" %}
             <div class="form-group" id="salasanag">
                 <div class="col-lg-1 col-md-1 col-sm-2 col-xs-4">					
                     <label for="salasana" class="control-label">{{ Salasana }}</label>    
@@ -245,7 +247,7 @@
             </div>
             {% endif %}
             <div class="form-group">
-                <button type="button" class="btn btn-default" id="talleta" disabled="true">{{ talleta }}</button>
+                <button type="button" class="btn btn-default" id="talleta" disabled="true">{{ Talleta }}</button>
                 <button type="button" class="btn btn-default" id="nollaa">{{ nollaa }}</button>
             </div>
         </form>

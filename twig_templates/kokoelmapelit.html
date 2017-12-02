@@ -60,6 +60,7 @@
                     return;
                 }
                 switch(tila) {
+					case "OK":
                     case "Vapaa":
                         kohde="{{ lainaapeli|raw }}";
                         kohde+=encodeURIComponent(kokoelmaTunniste);
@@ -133,6 +134,7 @@
                     return;
                 }
                 switch(tila) {
+					case "OK":
                     case "Vapaa":
                     case "Poistettu":
                         kohde="{{ muokkaapeli|raw }}";

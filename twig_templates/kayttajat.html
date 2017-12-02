@@ -1,0 +1,299 @@
+{% extends "page.html" %}
+{% block head %}
+    {{ parent() }}
+    <title>{{ Kayttajat }}</title>
+    <script type="text/javascript">
+        var sivu=0;
+        var sivuja=0;
+        var filtteri="kaikki";
+        var ehto="";
+        var riviid="";
+        
+        function paivitaTaulu() {
+            $("#chatbox").html("{{ Kasittelen }}");
+            $("#chatbox").show();
+            $.get("{{baseurl}}/kayttajat", { mode : "tableFetch", ehto: ehto, filtteri: filtteri, sivu: sivu }, function (data) {
+                sivuja = data.sivuja;
+                $("#kayttajat").find("tbody").empty();
+                $.each(data.rivit, function (index, value ) {
+                    lid = value.tunniste+"_td";
+                    sid = value.tunniste+"_s";
+                    $("#kayttajat").append('<tr id="'+value.tunniste+'">\n'+
+                                           '<td contenteditable="true">'+value.tunniste+'</td>\n'+
+                                           '<td contenteditable="true">'+value.nimi+'</td>\n'+
+                                           '<td contenteditable="true">'+value.slsjasennumero+'</td>\n'+
+                                           '<td contenteditable="true">'+value.puhelin+'</td>\n'+
+                                           '<td contenteditable="true">'+value.sahkoposti+'</td>\n'+
+                                           '<td contenteditable="true">'+value.syntymavuosi+'</td>\n'+
+                                           '<td id="'+lid+'"></td>\n'+
+                                           '<td>'+
+                                             '<button class="btn btn-small" onclick="save(\''+value.tunniste+'\');" data-toggle="tooltip" title="{{ SaveTool}}"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span></button>'+
+                                             '<button class="btn btn-small" onclick="poista(\''+value.tunniste+'\');" data-toggle="tooltip" title="{{ DeleteTool}}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'+
+                                             '<button class="btn btn-small" onclick="salasana(\''+value.tunniste+'\');" data-toggle="tooltip" title="{{ PasswordTool}}"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></button>'+
+                                             '<button class="btn btn-small" onclick="kortti(\''+value.tunniste+'\');" data-toggle="tooltip" title="{{ BookTool }}"><span class="glyphicon glyphicon-book" aria-hidden="true"></span></button></td></tr>');                                           
+                    f='<select id="'+sid+'">'+$("#laji").html()+'</select>';
+                    $("#"+lid).html(f);                    
+                    b="#"+sid+" option[value='"+value.tila+"']";
+                    $(b).prop("selected",true); 
+                });
+                $("#topStat").html((sivu+1)+" / "+(sivuja+1));
+                $("#bottomStat").html((sivu+1)+" / "+(sivuja+1));
+                $("#chatbox").hide();
+            });
+        }
+        
+        function poista(rivi) {
+            riviid=rivi;
+            $("#yesno").modal("show");           
+        }
+        
+        function salasana(rivi) {
+            riviid=rivi;
+            tila = $("#"+rivi+" td:nth-child(7)").children("select").val();
+            if(tila=="lainaaja" || tila=="prospekti") {
+                $("#chatbox").html("{{ EiVaihdettavissa }}");
+                $("#chatbox").show();
+                $("#chatbox").hide(3000);
+                return;
+            }
+            $("#schatbox").hide();
+            $("#password").modal("show");
+            $("#vaihdaB").click(function() {
+                if($("#SalasanaE").val().length==0 || $("#SalasanaU").val()!=$("#SalasanaE").val()) {
+                    $("#schatbox").html("{{SalasanatEri}}");
+                    $("#schatbox").show();
+                    $("#schatbox").hide(3000);
+                    return;
+                }
+                $("#password").modal("hide");
+                $("#chatbox").html("{{ Kasittelen }}");
+                $("#chatbox").show();
+                $.post("{{ baseurl }}/kayttajat", { method: "password", tunniste: riviid, salasana: $("#SalasanaU").val()}, function (result) {
+                    if(result=="OK") {
+                        $("#chatbox").html("{{ SalasananVaihtoOnnistui }}");
+                    } else {
+                        $("#chatbox").html("{{ SalasananVaihtoFeilasi }}");
+                    }
+                    $("#chatbox").hide(4000);
+                })
+            })
+        }
+        
+        function poistaRivi() {
+            if(riviid=="")
+                return;
+            $("#chatbox").show();
+            $("#chatbox").html("{{ Kasittelen }}");
+            
+            $.ajax({
+                url : "{{ baseurl }}/kayttajat",
+                type : "DELETE",
+                data : riviid,
+                success: function(result) {
+                    if(result == "OK") {
+                        $("#chatbox").html("{{ PoistoOnnistui}}");
+                        $("#chatbox").hide(3000);
+                        paivitaTaulu();
+                    } else {
+                        $("#chatbox").html("{{ PoistoFeilasi}}");
+                        $("#chatbox").hide(3000);
+                    }
+                }
+            });
+        }
+        
+        function save(rivi) {
+            var data={};
+            var virhe=false;
+            
+            data.tunniste=rivi;
+            $("#chatbox").html("{{ Kasittelen }}");
+            $("#chatbox").show();
+            $("#"+rivi).children("td").each(function (index) {
+                if(virhe)
+                    return;
+                switch(index) {
+                    case 0:
+                        data.uusitunniste = $(this).html();
+                        break;
+                    case 1:
+                        data.nimi = $(this).html();
+                        break;
+                    case 2:
+                        rjasen = /[123456789][0-9]+/;                        
+                        data.slsjasennumero = $(this).html();
+                        if(!data.slsjasennumero.match(rjasen)) {
+                            $("#chatbox").html("{{ HuonoJasennumero }}");
+                            $("#chatbox").hide(5000);
+                            virhe=true;
+                            return;
+                        }
+                        break;
+                    case 3:
+                        data.puhelin = $(this).html();
+                        break;
+                    case 4:
+                        data.sahkoposti = $(this).html();
+                        break;
+                    case 5:
+                        rvuosi=/(null)|19[0-9]{2}|2[0-9]{3}/;
+                        data.syntymavuosi = $(this).html();
+                        if(!data.syntymavuosi.match(rvuosi)) {
+                            virhe=true;
+                            $("#chatbox").html("{{ HuonoSyntymävuosi }}");
+                            $("#chatbox").hide(5000);
+                            return;
+                        }
+                        break;
+                    case 6:
+                        data.tila = $(this).children("select").val();
+                        break;
+                }
+            });
+            if(virhe)
+                return;
+            $.post("{{ baseurl}}/kayttajat", data, function(data) {
+                if(data.status=="OK") {
+                    $("#chatbox").html("{{ TalletusOnnistui }}");
+                    $("#chatbox").hide(2000);
+                } else {
+                    $("#chatbox").html("{{ TalletusFeilasi }}");
+                    $("#chatbox").hide(2000);
+                }
+            });
+            
+        }
+        
+        function fastBackward() {
+            sivu = 0;
+            paivitaTaulu();
+        }
+        
+        function fastForward() {
+            sivu = sivuja;
+            paivitaTaulu();
+        }
+        
+        function Forward() {
+            if(sivu >= sivuja)
+                return;
+            sivu++;
+            paivitaTaulu();
+        }
+        
+        function Back() {
+            if(sivu <=0)
+                return;
+            sivu--;
+            paivitaTaulu();
+        }
+        
+        function uusi() {
+            window.location="{{baseurl}}/kayttajat?mode=newUser";
+        }
+        $(document).ready(function() {
+            $.get("{{baseurl}}/kayttajat?mode=tilat", function(data) {
+                $.each(data, function(index, value) {                    
+                    $("#laji").append($('<option>', { value : value.tila, text: value.text }));
+                });
+                $("#laji option[value='kaikki']").prop("selected",true);
+                
+            });
+            $("#chatbox").hide();
+            paivitaTaulu();
+            $('[data-toggle="tooltip"]').tooltip();
+            $("#filtteri").submit(function (event) {
+                event.preventDefault();
+            });
+            $("#laji").change(function () {
+                filtteri=$("#laji").val();
+                paivitaTaulu();
+            });
+            $("#haku").blur(function () {
+                ehto=$("#haku").val();
+                paivitaTaulu();
+            });
+            $("#yesB").click(function () {
+                $("#yesno").modal("hide");
+                poistaRivi();
+            })
+        });
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ Kayttajat }}</h2>
+            <div class="alert alert-info" id="chatbox"></div>
+            <form name="filtteri" id="filtteri" action="#" method="POST">
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <label for="laji" class="control-label">{{ KayttajaTyyppi }}</label>
+                        <select name="laji" id="laji" class="form-control"></select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="haku" class="control-label">{{ Hae }}</label>
+                        <input type="text" id="haku" name="haku" class="form-control" maxlength="255"/>                                            
+                    </div>
+                </div>
+            </form>
+        </div>        
+    </div>
+    <div class="row">
+        <table class="col-lg-12 table table-striped" id="kayttajat">
+            <thead>
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="fastBackward();" data-toggle="tooltip" title="{{ Alkuun}}"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span></button>
+                        <button type="button" class="btn btn-sm"  onclick="Back();" data-toggle="tooltip" title="{{ Taakse }}"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
+                    </td>
+                    <td colspan="6" id="topStat"></td>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="Forward();" data-toggle="tooltip" title="{{ Eteen }}"><span class="glyphicon-step-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn"  onclick="fastForward();" data-toggle="tooltip" title="{{ Loppuun }}"><span class="glyphicon-fast-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn" onclick="uusi();" data-toggle="tooltip" title="{{ UusiKayttaja }}"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span></button>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{{ kayttajatunnus }}</th>
+                    <th>{{ nimi }}</th>
+                    <th>{{ Jasennumero }}</th>
+                    <th>{{ puhelin }}</th>
+                    <th>{{ sahkoposti }}</th>
+                    <th>{{ syntymavuosi }}</th>
+                    <th>{{ tila }}</th>
+                    <th>{{ nakkulat }}</th>
+                </tr>
+            </thead>
+            <tbody>                
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>{{ kayttajatunnus }}</th>
+                    <th>{{ nimi }}</th>
+                    <th>{{ Jasennumero }}</th>
+                    <th>{{ puhelin }}</th>
+                    <th>{{ sahkoposti }}</th>
+                    <th>{{ syntymavuosi }}</th>
+                    <th>{{ tila }}</th>
+                    <th>{{ nakkulat }}</th>
+                </tr>
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="fastBackward();" data-toggle="tooltip" title="{{ Alkuun}}"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span></button>
+                        <button type="button" class="btn btn-sm"  onclick="Back();" data-toggle="tooltip" title="{{ Taakse }}"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
+                    </td>
+                    <td colspan="6" id="bottomStat"></td>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="Forward();" data-toggle="tooltip" title="{{ Eteen }}"><span class="glyphicon-step-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn"  onclick="fastForward();" data-toggle="tooltip" title="{{ Loppuun }}"><span class="glyphicon-fast-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn" onclick="uusi();" data-toggle="tooltip" title="{{ UusiKayttaja }}"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span></button>
+                    </td>
+                </tr>
+                
+            </tfoot>
+        </table>
+    </div>
+    {{ include("confirmDelete.html") }}
+    {{ include("password.html") }}
+{% endblock %}

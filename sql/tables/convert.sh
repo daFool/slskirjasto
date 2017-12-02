@@ -47,6 +47,9 @@ $PSQL $dst <<here
     grant all on all sequences in schema public to sls;
 here
 pg_dump --table kayttaja --data $src|$PSQL $dst
+$PSQL $dst <<here
+    update kayttaja set tila='superadmin' where tunniste='historia';
+here
 echo "Tuodaan käyttäjätunnistus"
 pg_dump --table kayttajatunnistus --data $src|$PSQL $dst
 echo "Tuodaan kohdekantaan käyttäjäroolit"

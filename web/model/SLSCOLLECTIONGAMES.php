@@ -36,6 +36,8 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
       $hakukentat[1]["tyyppi"]="string";
       $hakukentat[2]["nimi"]="tunniste";
       $hakukentat[2]["tyyppi"]="string";
+      $hakukentat[3]["nimi"]="nimet";
+      $hakukentat[3]["tyyppi"]="stringA";
         
       parent::__construct($db, $log, "kokoelmapeli", array("primary"=>array("tunniste")), "vKokoelma", $hakukentat);
       $this->kokoelma=False;
@@ -299,7 +301,7 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
     
     public function tableFetch($start, $length, $order, $search, $where=False) {
       if($this->kokoelma!="") {
-         $w = "kokoelma=".$this->db->quote($this->kokoelma, PDO::PARAM_STR);
+         $w = "kid=".$this->db->quote($this->kokoelma, PDO::PARAM_STR);
          $where = $where===False ? $w : $where.=" and ".$w;
       }
       return parent::tableFetch($start, $length, $order, $search, $where);

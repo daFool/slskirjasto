@@ -77,7 +77,7 @@ class vPage {
                                  "superit"=>$s,
                                  "yllapito"=>$y,
                                  "ladattu"=>$ladattu,
-                                 "basepath"=>$this->basepath,
+                                 "basepath"=>$this->basepath,                                 
                                  );
         $this->variables=array_merge($tl, $t);
         $this->variables["kirjautumistiedot"]=$kirjatumistiedot;

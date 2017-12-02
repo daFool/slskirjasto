@@ -7,7 +7,7 @@ class collections extends controller {
         $conf = $f3->get("conf");
         $log = $f3->get("log");
         parent::__construct($conf, $pdo, $log);
-        $this->a = array("nimi", "laji", "omistaja", "tapahtuma", "lisatty");
+        $this->a = array("id", "nimi", "omistaja", "tapahtuma", "lisatty");
         
     }
 
