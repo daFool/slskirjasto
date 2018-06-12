@@ -4,10 +4,9 @@
  *
  * Lainaus, lisäys, poisto jnpsp
  *
- * @package SLS-Kirjasto
- * @license http://opensource.org/licenses/GPL-2.0
- * @author Mauri "mos" Sahlberg
- *
+ * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+ * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+ * @copyright Copyright Mauri Sahlberg 2017, Helsinki
  * */
 /**
  * Pelikokoelman pelit
@@ -25,10 +24,10 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
     
    /**
    * Constructor
-   * @param object $db Database-handle
-   * @param object $log Login-handle
+   * @param mosBase\database $db Database-handle
+   * @param mosBase\log $log Login-handle
    * */
-   public function __construct(&$db, &$log) {
+   public function __construct(mosBase\database $db, mosBase\log $log) {
       $hakukentat=array();
       $hakukentat[0]["nimi"]="nimi";
       $hakukentat[0]["tyyppi"]="string";
@@ -47,11 +46,11 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
     * Asettaa käytettävän kokoelman
     * @param string $kokoelma Käytettävä kokoelma
     * */
-   public function setKokoelma($kokoelma) {
+   public function setKokoelma(string $kokoelma) {
       $this->kokoelma=$kokoelma;
    }
   
-   public function pelinTila($tunniste) {
+   public function pelinTila(string $tunniste) {
       $s = "select * from vPelinTila where pt_tunniste=:tunniste;";
       $st = $this->pdoPrepare($s, $this->db);
       $this->pdoExecute($st, array("tunniste"=>$tunniste));
@@ -299,7 +298,7 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
         }
     }
     
-    public function tableFetch($start, $length, $order, $search, $where=False) {
+    public function tableFetch(int $start, int $length, string $order, array $search, $where=False) {
       if($this->kokoelma!="") {
          $w = "kid=".$this->db->quote($this->kokoelma, PDO::PARAM_STR);
          $where = $where===False ? $w : $where.=" and ".$w;

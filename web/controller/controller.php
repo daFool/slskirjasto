@@ -1,19 +1,58 @@
 <?php
+/**
+ * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+ * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+ * @copyright Copyright Mauri Sahlberg 2017, Helsinki
+ * */
+
+/**
+ * Controllerien base
+ *
+ * Kaikille controllereille yhteiset toiminnot.
+ * - Istuntojen hallinta,
+ * - Käyttöliittymässä käytetyn Datatables-javascript-toteutuksen vaatiman tietorakenteen populointi.
+ * */
 class controller {
+    /**
+     * @var mosBase\conf $conf Konfiguraatio-objekti
+     * */
     protected $conf;
+    /**
+     * @var mosBase\database $db Tietokantaolio
+     * */
     protected $db;
-    protected $session;
-    protected $log;
-    protected $a;
     
-    public function __construct(&$conf, &$db, &$log) {
-        $this->conf=&$conf;
-        $this->db=&$db;
+    /*
+     * @var mosBase\log $log Logi
+     * */
+    protected $log;
+    
+    /*
+     * @var array $session Istunnon konfiguraatio ini-tiedostosta
+     * */
+    protected $session;
+    
+    /*
+     * @var array $a Table-fetchiä varten esitettävän rivin sarakenimet alla olevan mallin taulussa
+     * */
+    
+    /**
+     * Konstruktori
+     * @param mosBase\conf $conf Käytettävä konfiguraatio
+     * @param mosBase\database $db Käytettävä tietokantayhteys
+     * @param mosBase\log $log Käytettävä logi
+     * */
+    public function __construct(\mosBase\config $conf, \mosBase\database $db, \mosBase\log $log) {
+        $this->conf=$conf;
+        $this->db=$db;
         $this->session=$this->conf->get("Session");
-        $this->log=&$log;
+        $this->log=$log;
         $this->a = array();
     }
     
+    /**
+     * Istunnon ylläpito
+     * */
     public function session() {                
         session_name($this->session["SESSION_NAME"]);
         session_start();
@@ -36,7 +75,7 @@ class controller {
 
         if (isset($_REQUEST['logout']) || $logout===true) {
             if(isset($_SESSION['user'])) {
-                $this->log->log("system","Käyttäjä {$_SESSION['user']['tunniste']} kirjautui ulos.", __FILE__,__FUNCTION__,__LINE__, "AUDIT");
+                $this->log->log($_SESSION["user"]["tunniste"],"Käyttäjä {$_SESSION['user']['tunniste']} kirjautui ulos.", __FILE__,__FUNCTION__,__LINE__, "AUDIT");
             }
             // Unset all of the session variables.
             $_SESSION = array();
@@ -67,7 +106,20 @@ class controller {
         }
     }
     
-    function SLSMail($to, $subject, $message, $headers) {
+    /**
+     * Sähköpostin lähettäminen
+     *
+     * Käytetään lähettämään sähköpostia rekisteröityneelle käyttäjälle. Käyttää pear-mail-laajennosta sähköpostin
+     * lähettämiseen.
+     *
+     * @todo Vaikuttaa erittäin epäilyttävältä! Fiksumpi tapa lienee vaihtaa toiseen lähettävään kalikkaan, phpMaileriin!
+     * 
+     * @param string $to Osoite, jonne postia lähetetään
+     * @param string $otsikko Sähköpostin otsikko
+     * @param string $message muotoilematon sähköposti
+     * @return true
+     * */
+    function SLSMail(string $to, string $subject, string $message) {
         require_once "Mail.php";
         
         $e = $this->conf->get("Mail");
@@ -87,6 +139,10 @@ class controller {
         return true;
     }
     
+    /**
+     * Sivun aloitus
+     * @param F3 $f3 Fat Free Core objekti
+     * */
     function page($f3) {
                /* $kp = new Kori($db);
         $kp->Koripallo(); */
@@ -94,7 +150,12 @@ class controller {
  
     }
     
-    function tableFetch(&$c) {
+    /**
+     * Datatables haku
+     *
+     * @param object $c Model-objekti, jonka tietoja käsitellään
+     * */
+    function tableFetch($c) {
         $draw = $_REQUEST["draw"]??false;
         $start = $_REQUEST["start"]??0;
         $length = $_REQUEST["length"]??10;

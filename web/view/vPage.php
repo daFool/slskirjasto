@@ -1,20 +1,48 @@
 <?php
+/**
+ * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+ * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+ * @copyright Copyright Mauri Sahlberg 2017, Helsinki
+ * */
+
+/**
+ * Sivun esittäminen
+ *
+ * Kaikkille sivuille yhteiset käyttöliittymäkomponentit
+ * */
 class vPage {
     
+    /**
+     * @var Twig_Environment $twig Twig-template engine
+     * */
     private $twig;
+    /**
+     * @var array $variables Templaten muuttujat
+     * */
     protected $variables;
+    /**
+     * @var string $baseurl Sivuosoitteen alkuosa
+     * */
     protected $baseurl;
+    
+    /**
+     * @var string $basepath Tiedostojärjestelmän polku
+     * */
     protected $basepath;
+    
+    /**
+     * @var mosBase\config Konfiguraatio
+     * */
     protected $conf;
     
     /**
      * Sivupohja
      *
-     * @param object $twig Twig-objekti
+     * @param Twig_Environment $twig Twig-objekti
      * @param &array $t Tekstit
-     * @param object $conf Konfiguraatio
+     * @param \mosBase\config $conf Konfiguraatio
      * */
-    public function __construct($twig, &$t, $conf) {       
+    public function __construct(Twig_Environment $twig, array &$t, \mosBase\Config $conf) {       
         $this->twig = $twig;
         $v = array();
         $this->baseurl = $conf->get("General")["baseurl"];
@@ -84,12 +112,21 @@ class vPage {
         
     }
     
+    /**
+     * Sivun näyttäminen twigillä
+     * @param string $sivu Sivutemplate-tiedoston nimi
+     * */
     public function nayta($sivu) {
         $this->twig->loadTemplate($sivu);
         echo $this->twig->render($sivu, $this->variables);
     }
     
-    public function pelinTila($koritila) {
+    /**
+     * Pelin tilatiedot korista
+     * @param boolean $koritila ovatko tiedot korista
+     * @todo Onko tämä metodi tarpeen ja kuuluukohan se ylipäätänsä tänne?
+     * */
+    public function pelinTila(boolean $koritila) {
         $this->variables["jsonPelinTila"]="$baseurl/json/json_pelinTila.php";
         $this->variables["tPelinTiedot"]=_("Pelin tiedot");
         $this->variables["tLainattu"]=_("Lainattu");

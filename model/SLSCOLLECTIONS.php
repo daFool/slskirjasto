@@ -1,13 +1,12 @@
 <?php
 /**
- * Pelikokoelmat
+ * Pelikokoelma
  *
- * @package SLS-Kirjasto
- * @subpackage Pelikokoelma
- * @license http://opensource.org/licenses/GPL-2.0
- * @author Mauri "mos" Sahlberg
+ * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+ * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+ * @copyright Copyright Mauri Sahlberg 2017, Helsinki
  *
- *
+ * 
  * */
 /**
  * Pelikokoelma
@@ -27,10 +26,12 @@
  * | laji      | int2          | Onko kokoelma tapahtuma=0 vai varasto=1                   |
  * | omistaja  | varchar(255)  | Kokoelman omistajan tunniste, viiteavain kayttaja-tauluun |
  * | tapahtuma | varchar(255)  | Tapahtuman nimi, viiteavain tapahtuma-tauluun             |
- * | lisatty   | timestamp nz  | Koska kokoelmarivi on lisätty kantaan                     |
  * | julkisuus | varchar(255)  | Onko kokoelma yksityinen vai avoin                        |
  * | muokattu  | timestamp wz  | Koska kokoelmariviä on viimeksi muokattu                  |
- * | id        | varchar       | Kokoelmatunniste, käytetään tarroissa ja pelitunnisteissa |
+ * | id        | varchar(6)    | Kokoelmatunniste, käytetään tarroissa ja pelitunnisteissa |
+ * | muokkaaja | varchar(255)  | Kuka riviä on muokannut                                   |
+ * | luotu     | timestamp wz  | Koska kokoelmarivi on luotu                               |
+ * | luoja     | varchar(255)  | Kuka / mikä kokoelmarivin on luonut                       |
  *
  * Käyttöoikeudet:
  * - Yksityisen kokoelman saa nähdä vain omistaja
@@ -41,18 +42,18 @@
  *   - Admin, saa muokata kokoelmaa ja antaa pelejä lainaan
  *   - User, saa katsella kokoelman pelejä ja tietoja
  *
- *   @uses Model
+ *   @uses mosBase\malli
  *
- *  Kokoelmien ylläpito: view/collectionyp.php
  *  
  **/
 class SLSCOLLECTIONS extends mosBase\malli {
 
     /**
      * Konstruktori
-     * @param object $db Tietokantaolio
+     * @param mosBase\database $db Tietokantaolio
+     * @param \mosBase\log $log Logi
      **/
-    public function __construct(&$db, &$log) {
+    public function __construct(\mosBase\database $db, \mosBase\log $log) {
         $hakukentat=array();
         $hakukentat[0]["nimi"]="nimi";
         $hakukentat[0]["tyyppi"]="string";
@@ -82,8 +83,10 @@ class SLSCOLLECTIONS extends mosBase\malli {
      * @uses SLSDATABASE::log() SLSDATABASE::log() Logaus
      * @uses Model::upsert() Model::upsert() Rivin lisääminen
      * @uses Tapahtuma::delete() Tapahtuma::delete() Tapahtuman poistaminen kannasta
+     * @todo Hajoitettava tapahtuman ja kokoelman luominen erikseen!
+     * @todo WARNING! Todennäköisimmin ei toimi mihinkään suuntaan!
      * */
-    public function addCOllection($collection) {
+    public function addCOllection(array $collection) {
         try {
             $tapahtuma=false;
             $c = array("nimi"=>$collection['nimi'], "laji"=>$collection['laji'],
@@ -122,10 +125,10 @@ class SLSCOLLECTIONS extends mosBase\malli {
      * Check existenz of a colleciton
      * @param string $nimi Name of the collection
      * @return mixed False if not exists array of collection data if it does
-     * @uses Model::exists() Model::exists() Onko tällä nimellä kokoelma
-     * @uses SLSCOLLECTIONS::give() SLSCOLLECTIONS::give() Löytyneen rivin palauttaminen
+     * @uses \mosBase\malli::exists() Onko tällä nimellä kokoelma
+     * @uses SLSCOLLECTIONS::give() Löytyneen rivin palauttaminen
      * */
-    public function checkCollection($nimi) {
+    public function checkCollection(string $nimi) {
         if(parent::exists(array("nimi"=>$nimi)))
            return $this->give();
         return false;
@@ -137,6 +140,8 @@ class SLSCOLLECTIONS extends mosBase\malli {
      * @return mixed False if not exists, array of event data if it does
      * @uses Tapahtuma::exists() Tapahtuma::exists() Onko tapahtuma olemassa
      * @uses Tapahtuma::give() Tapahtuma::give() Tapahtuman tiedot
+     * @todo Ei kuulu tänne vaan tapahtumaan
+     * @todo WARNING! Tuskin edes toimii
      * */
     public function checkEvent($nimi) {
         $t = new Tapahtuma($this->dbc);
@@ -145,40 +150,17 @@ class SLSCOLLECTIONS extends mosBase\malli {
         return false;
     }
         
-    /**
-     * Paginate collections
-     *
-     * Ero perusversioon on, että näytetään vain "sallitut" kokoelmat
-     * @param int $start Miltä riviltä aloitetaan
-     * @param int $length Montako kokoelmaa listataan
-     * @param string $order Aakkostusjärjestys
-     * @param string $search Hakuehto
-     * @param string $kuka Käyttäjän tunniste
-     * @param string $taso Käyttäjän taso
-     * @return mixed False jos mitään ei löytynyt
-     * @uses SLSCOLLECTIONS::buildWhere() SLSCOLLECTIONS::buildWhere() Hakuehdon rakentaminen
-     * @uses Model::tableFetch() Model::tableFetch() Varsinainen tietojen hakeminen
-     * */
-    public function tableFetch($start, $length, $order, $search, $kuka="", $taso="") {
-        try {
-            
-            $w = $this->buildWhere($kuka, $taso, "nimi");
-            return parent::tableFetch($start, $length, $order, $search, $w["w"]);
-        }
-        catch(PDOException $e) {
-            die("Programming error: {$e->getMessage()}");
-        }  
-    }
-    
+
     /**
      * Rakentaa where-ehdon pohjat
      * @param string $kuka Käyttäjän tunniste
      * @param string $taso Käyttäjän taso
      * @param string $mihin Mihin etsitään oikeuksia?
      * @param boolean $quote Parametri, joka ei tee mitään!?
-     * @return array ("w"=>string where-ehdon pohjat ja "gb"=> group by ehdon pohjat. 
+     * @return array ("w"=>string where-ehdon pohjat ja "gb"=> group by ehdon pohjat.
+     * @todo Lisää huttua! Uusiksi
      * */
-    private function buildWhere($kuka, $taso, $mihin, $quote=false) {
+    private function buildWhere(string $kuka, string $taso, string $mihin, $quote=false) {
         $w="";
         $gb="";
         if($kuka!="") {
@@ -213,7 +195,7 @@ class SLSCOLLECTIONS extends mosBase\malli {
      * @param string $filter Kokoelma, jota ei "lasketa"
      * @return array json_tauluna kokoelmat
      * @uses SLSCOLLECTIONS::buildWhere() SLSCOLLECTIONS::buildWhere() Hakuehto
-     * 
+     * @todo Puhdasta tuubaa, uusiksi
      * */
     public function getCollectionNames_json($kuka="", $taso="", $filter="") {
         try {
@@ -251,6 +233,7 @@ class SLSCOLLECTIONS extends mosBase\malli {
      * @param string $game Pelin nimi
      * @return mixed False, jos ei löytynyt ja kasan kokoelma rivejä, jos löytyi
      * @uses SLSCOLLECTIONS::buildWhere() SLSCOLLECTIONS::buildWhere() Hakuehdon rakentaminen
+     * @todo Tuskin toimii, uusiksi
      * */
     public function getGameCollectionsForGame_json($game, $kuka, $taso) {
         try {
@@ -278,6 +261,7 @@ class SLSCOLLECTIONS extends mosBase\malli {
      *
      * @param string $kokoelma Kokoelman nimi
      * @return mixed False, jos ei löytynyt ja tunnisteen jos löytyi
+     * @todo Siivottava, ehkä muutakin
      * */
     public function getBarcode($kokoelma) {
         try {
@@ -298,6 +282,7 @@ class SLSCOLLECTIONS extends mosBase\malli {
      * Hakee jsonina annetun kokoelman tiedot
      * @param string $kokoelma Mitä kokoelmaa haetaan
      * @uses SLSCOLLECTIONS::buildWhere() SLSCOLLECTIONS::buildWhere() Hakuehdon rakentaminen
+     * @todo Huttua!
      * */
     public function get($kokoelma, $kuka, $tila) {
         try {            

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+ * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+ * @copyright Copyright Mauri Sahlberg 2017, Helsinki
+ *
+ * Kirjasto-sovelluksen lähtösivu
+ * */
 $mosBase = getenv("MOSBASE");
 if(!$mosBase) { die("Environment not properly set! (MOSBASE)"); }
 
@@ -18,10 +25,11 @@ catch(PDOException $e) {
 require($conf->get("General")["vendor"]);
 
 $log = new mosBase\log("DEBUG", $pdo);
-$c = new controller($conf, $db, $log);
+$c = new controller($conf, $pdo, $log);
 $c->session();
 
 $f3=require($conf->get("General")["f3"]);
+
 $f3->set("conf", $conf);
 $f3->set("db", $pdo);
 

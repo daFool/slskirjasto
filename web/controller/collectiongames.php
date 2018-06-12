@@ -1,8 +1,24 @@
 <?php
+/**
+ * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+ * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+ * @copyright Copyright Mauri Sahlberg 2017, Helsinki
+ * */
+
+/**
+ * Kokoelmien pelit
+ * */
 class collectiongames extends controller {
+     /**
+      * @var array $t Tekstit
+      * */
      protected $t;
      
-     public function __construct($f3) {
+     /**
+      * Konstruktori
+      * @param Base Fat Free Coren base
+      * */
+     public function __construct(Base $f3) {
           $pdo = $f3->get("db");
           $conf = $f3->get("conf");
           $log = $f3->get("log");
@@ -13,7 +29,18 @@ class collectiongames extends controller {
           $this->t = $t;
     }
     
-     public function get($f3) {
+     /**
+      * Get-request
+      *
+      * @param Base $f3 Fat Free Core base
+      * Jos requestin "mode" on:
+      * - Page, niin ollaaan kokoelman lainaus-sivulla ja esitetään valittuna olevan kokoelman pelit Datatables-taulussa
+      * - tablefetch, niin täydennellään kokoelman pelit Datatables-tauluun Ajax-kutsun pää
+      * - pelitiedot, niin palautetaan annetun pelin tilatiedot, ajax-kutsun pää
+      * - muokkaa, halutaan muokata kokoelman pelin tietoja, kutsutaan muokaa-metodia
+      * 
+      * */
+     public function get(Base $f3) {
           $kokoelma = $_REQUEST["collection"]??False;
           $g = new SLSCOLLECTIONGAMES($this->db, $this->log);
           $moodi = $_REQUEST["mode"]??"Page";
@@ -61,7 +88,13 @@ class collectiongames extends controller {
           }
      }
      
-     protected function sivu(&$f3, $kokoealma) {
+     /**
+      * Kokoelman pelilistaus
+      *
+      * @param Base $f3 Fat Free Coren Base
+      * @param string $kokoelma Käsiteltävän kokoelman tunniste
+      * */
+     protected function sivu(Base $f3, string $kokoealma) {
           $conf = $f3->get("conf");
           $db=$f3->get("db");
           $log=$f3->get("log");
