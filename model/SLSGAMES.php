@@ -56,7 +56,13 @@ class SLSGAMES extends mosBase\malli {
         $hakukentat[8]["tyyppi"]="stringA";
         $hakukentat[8]["nimi"]="julkaisijat";
         
-        parent::__construct($db, $log, "peli", array("primary"=>array("tunniste")), "", $hakukentat);        
-    }    
+        parent::__construct($db, $log, "peli", array("primary"=>array("tunniste")), "", $hakukentat);            
+    }
+    
+    public function permissionWhere($kuka, $taso) {
+        if($taso=='superadmin')
+            return False;
+        return $w="julkisuus='avoin' or omistaja='$kuka'";
+    }
 }
 ?>

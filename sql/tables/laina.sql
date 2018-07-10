@@ -9,6 +9,7 @@ create table Laina (
     Pantti        varchar(255),
     Palautettu    timestamp,
     Tapahtuma     varchar(255),
+    Kortti        int,
     like Pohjat INCLUDING ALL,
 
     foreign key(Lainaaja) references Kayttaja(Tunniste) on update CASCADE on delete set null,

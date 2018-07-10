@@ -2,7 +2,7 @@
 /**
  * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
  * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
- * @copyright Copyright Mauri Sahlberg 2017, Helsinki
+ * @copyright Copyright Mauri Sahlberg 2018 Helsinki
  *
  * Kirjasto-sovelluksen lähtösivu
  * */
@@ -54,6 +54,7 @@ $f3->map("/login", login);
 $f3->map("/collection", collection);
 $f3->map("/collectiongames", collectiongames);
 $f3->map("/kayttajat", kayttajat);
+$f3->map("/kortit", kortit);
 $f3->run();
 
 ?>

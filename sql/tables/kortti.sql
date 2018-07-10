@@ -1,17 +1,13 @@
 drop table if exists kortti;
-drop sequence if exists korttinumerot;
-create sequence korttinumerot start 123456;
 
 create table kortti (
-    numero  int primary key default nextval('korttinumerot'),
+    numero      int primary key,
     lainaaja    varchar(255),
     pantti      varchar(255),
-    annettu     timestamp with time zone default now(),
+    annettu     timestamp with time zone,
     palautettu  timestamp with time zone,
     
-    like Pohjat INCLUDING ALL,
-    
-    foreign key (lainaaja) references kayttaja(tunniste) on update cascade on delete cascade
+    like Pohjat INCLUDING ALL      
 );
 
 comment on table kortti is 'Lainauskortit';

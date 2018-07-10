@@ -2,7 +2,7 @@
 /**
  * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
  * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
- * @copyright Copyright Mauri Sahlberg 2017, Helsinki
+ * @copyright Copyright Mauri Sahlberg 2018, Helsinki
  * */
 
 /**
@@ -79,7 +79,8 @@ class vPage {
          * @var array $s
          * */
         $s = array("0"=>array("url"=>"$this->baseurl/kayttajat?mode=page", "teksti"=>$t["Kayttajat"]),
-                   "1"=>array("url"=>"$this->baseurl/kayttajat?mode=import", "teksti"=>$t["SLSLainaajat"]));
+                   "1"=>array("url"=>"$this->baseurl/kayttajat?mode=import", "teksti"=>$t["SLSLainaajat"]),
+                   "2"=>array("url"=>"$this->baseurl/kortit?mode=page", "teksti"=>$t["Kortit"]));
         
         $y = array("0"=>array("url"=>"$this->baseurl/kayttajat?mode=password", "teksti"=>$t["VaihdaSalasana"]));
         

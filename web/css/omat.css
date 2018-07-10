@@ -69,3 +69,11 @@ span.nimi {
 span.taso {
   font-weight: bold;
 }
+
+div.sslfixed {
+  position: fixed;
+}
+
+div #chatbox {
+  width : 100%;
+}

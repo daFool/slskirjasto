@@ -1,0 +1,308 @@
+{% extends "page.html" %}
+{% block head %}
+    {{ parent () }}
+    <title>{{ Kortit }}</title>
+    <script>
+        var sivu=0;
+        var sivuja=0;
+        var ehto="";
+        var riviid="";
+        var filtteri="kaikki";
+        
+        function paivitaTaulu() {
+            $("#chatbox").html(" {{ Kasittelen }}");
+            $("#chatbox").show();
+            $.get("{{baseurl}}/kortit", { mode : "tableFetch", ehto: ehto, filtteri: filtteri, sivu: sivu }, function (data) {
+                sivuja=data.sivuja;
+                $("#kortit").find("tbody").empty();
+                $.each(data.rivit, function (index, value ) {
+                    lid = value.numero+"_td";
+                    $("#kortit").append('<tr id="'+value.numero+'">\n'+
+                                        '<td>'+value.numero+'</td>\n'+
+                                        '<td contenteditable="true">'+value.lainaaja+'</td>\n'+
+                                        '<td contenteditable="true">'+value.pantti+'</td>\n'+
+                                        '<td>'+value.annettu+'</td>\n'+
+                                        '<td>'+value.palautettu+'</td>\n'+
+                                        '<td>'+
+                                            '<button class="btn btn-small" onclick="anna(\''+value.numero+'\');" data-toggle="tooltip" title="{{ AnnaTool }}"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></button>'+
+                                            '<button class="btn btn-small" onclick="palauta(\''+value.numero+'\');" data-toggle="tooltip" title="{{ PalautaTool }}"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span></button></td></tr>');
+                });
+                $("#topStat").html((sivu+1)+" / "+(sivuja+1));
+                $("#bottomStat").html((sivu+1)+" / "+(sivuja+1));
+                $("#chatbox").hide();
+            });
+        }
+        
+         $(document).ready(function() {
+            $("#chatbox").hide();
+            paivitaTaulu();
+            $('[data-toggle="tooltip"]').tooltip();
+            $("#filtteri").submit(function (event) {
+                event.preventDefault();
+            });
+            $("#haku").blur(function () {
+                ehto=$("#haku").val();
+                paivitaTaulu();
+            });
+            $("#lisaaB").click(function () {
+                alkaen=$("#eka").val();
+                loppuen=$("#vika").val();
+       
+                if(alkaen===undefined || loppuen===undefined || !$.isNumeric(alkaen) || !$.isNumeric(loppuen) || alkaen > loppuen) {
+                     $("#fback").html("{{ TarkistaKorttinumerot }}");
+                     return;
+                 }
+                 $("#lisaakorttim").modal("hide");
+                 $("#chatbox").html("{{ Lisataankortteja }}");
+                 $("#chatbox").show();
+                 $.post("{{ baseurl}}/kortit/", { alkaen : alkaen, loppuen : loppuen, mode : "uusia" }, function (data) {
+                     if(data=="ERROR") {
+                        $("#chatbox").html("{{ KorttienLisaysFail }}");
+                        $("#chatbox").hide(4000);
+                     }
+                     else {
+                        $("#chatbox").hide();
+                        paivitaTaulu();
+                     }
+                });
+            });
+            $("#filtteri").change(function() {
+                filtteri=$("#filtteri").val();
+                paivitaTaulu();
+            });
+        });
+         
+        function uusi() {
+            $("#lisaakorttim").modal("show");
+            alkaen=$("#eka").value;
+            loppuen=$("#vika").value;
+        }
+        
+         function fastBackward() {
+            sivu = 0;
+            paivitaTaulu();
+        }
+        
+        function fastForward() {
+            sivu = sivuja;
+            paivitaTaulu();
+        }
+        
+        function Forward() {
+            if(sivu >= sivuja)
+                return;
+            sivu++;
+            paivitaTaulu();
+        }
+        
+        function Back() {
+            if(sivu <=0)
+                return;
+            sivu--;
+            paivitaTaulu();
+        }
+        function palauta(numero) {
+            var data={};
+            var virhe=false;
+            
+            $("#chatbox").html("{{PalautetaanKorttia}}");
+            $("#chatbox").show();
+            
+            data.kortti=numero;
+            rivi=$("tr#"+numero);
+            rivi.children("td").each(function (index) {
+                switch(index) {
+                    case 0:
+                    case 1:
+                    case 2:
+                        break;
+                    case 3:
+                        data.annettu=$(this).html();
+                        if (data.annettu=="null") {
+                            $("#chatbox").html("{{KorttiEiOleLainassa}}");
+                            $("#chatbox").hide(3000);
+                            virhe=true;
+                            return;
+                        }
+                        break;
+                }
+            });
+            if(virhe)
+                return;
+            data.mode="Palauta";
+            $.post("{{baseurl}}/kortit", data, function(data) {
+                if(data.tulos=="OK") {
+                    $("#chatbox").html("{{PalautusOnnistui}} "+data.pantti);
+                    $("#chatbox").hide(3000);
+                } else {
+                    $("#chatbox").html("{{PalutusFeilasi}}");
+                    $("#chabox").hide(3000);
+                }
+            });
+        }
+        
+        function anna(numero) {
+            var data={};
+            var virhe=false;
+            
+            $("#chatbox").html("{{AnnetaanKorttia}}");
+            $("#chatbox").show();
+            
+            data.kortti=numero;
+            rivi=$("tr#"+numero);
+            rivi.children("td").each(function (index) {
+                switch(index) {
+                    case 0:
+                        break;
+                    case 1:
+                        data.lainaaja=$(this).html();
+                        if(data.lainaaja=="" || data.lainaaja=="null") {
+                            $("#chatbox").html("{{LainaajaUupuu}}");
+                            $("#chatbox").hide(3000);
+                            virhe=true;
+                            return;
+                        }
+                        break;
+                    case 2:
+                        data.pantti=$(this).html();
+                        if (data.pantti=="" || data.pantti=="null") {
+                            $("#chatbox").html("{{PanttiPuuttuu}}");
+                            $("#chatbox").hide(3000);
+                            virhe=true;
+                            return;
+                        }
+                        break;
+                    case 3:
+                        data.annettu=$(this).html();
+                        if (data.annettu!="null") {
+                            $("#chatbox").html("{{PalautaKorttiEnsin}}");
+                            $("#chatbox").hide(3000);
+                            virhe=true;
+                            return;
+                        }
+                        break;
+                }
+            });
+            if(virhe)
+                return;
+            data.mode="Anna";
+            $.post("{{baseurl}}/kortit", data, function(data) {
+                if(data=="OK") {
+                    $("#chatbox").html("{{AntoOnnistui}}");
+                    $("#chatbox").hide(3000);
+                } else {
+                    $("#chatbox").html("{{AntoFeilasi}}");
+                    $("#chabox").hide(3000);
+                }
+            });
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ Kortit }}</h2>
+            <div class="alert alert-info sslfixed" id="chatbox"></div>
+            <br/>
+            <form name="korttifiltteri" id="korttifiltteri" action="#" method="POST">
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <label for="haku" class="control-label">{{ Hae }}</label>
+                        <input type="text" id="haku" name="haku" class="form-control" maxlength="255"/>
+                    </div>                    
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <label for="filtteri" class="control-label">{{ tila }}</label>
+                        <select name="filtteri" id="filtteri">
+                            <option value="kaikki" selected>{{ Kaikki }}</option>
+                            <option value="kaytossa">{{ kaytossa }}</option>
+                            <option value="vapaa">{{ vapaa }}</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <table class="col-lg-12 table table-striped" id="kortit">
+            <thead>
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="fastBackward();" data-toggle="tooltip" title="{{ Alkuun}}"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span></button>
+                        <button type="button" class="btn btn-sm"  onclick="Back();" data-toggle="tooltip" title="{{ Taakse }}"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
+                    </td>
+                    <td colspan="4" id="topStat"></td>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="Forward();" data-toggle="tooltip" title="{{ Eteen }}"><span class="glyphicon-step-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn"  onclick="fastForward();" data-toggle="tooltip" title="{{ Loppuun }}"><span class="glyphicon-fast-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn" onclick="uusi();" data-toggle="tooltip" title="{{ UusiKortti }}"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span></button>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{{ numero}}</th>
+                    <th>{{ lainaaja }}</th>
+                    <th>{{ Pantti }}</th>
+                    <th>{{ Annettu }}</th>
+                    <th>{{ Palautettu }}</th>
+                    <th>{{ nakkulat }}</th>
+                </tr>
+            </thead>
+            <tbody>                
+            </tbody>
+            <tfoot>
+                <tr>                    
+                    <th>{{ numero}}</th>
+                    <th>{{ lainaaja }}</th>
+                    <th>{{ Pantti }}</th>
+                    <th>{{ Annettu }}</th>
+                    <th>{{ Palautettu }}</th>
+                    <th>{{ nakkulat }}</th>
+                </tr>                
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="fastBackward();" data-toggle="tooltip" title="{{ Alkuun}}"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span></button>
+                        <button type="button" class="btn btn-sm"  onclick="Back();" data-toggle="tooltip" title="{{ Taakse }}"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
+                    </td>
+                    <td colspan="4" id="bottomStat"></td>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="Forward();" data-toggle="tooltip" title="{{ Eteen }}"><span class="glyphicon-step-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn"  onclick="fastForward();" data-toggle="tooltip" title="{{ Loppuun }}"><span class="glyphicon-fast-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn" onclick="uusi();" data-toggle="tooltip" title="{{ UusiKortti }}"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span></button>
+                    </td>
+                </tr>                
+            </tfoot>
+        </table>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="lisaakorttim">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-tittle">{{ KorttienLisays }}</h4>                    
+                </div>
+                <div class="modal-body">
+                    <div class="fback"></div>
+                    <form name="kkortti" id="kkortti" method="post" action="#">
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <label for="eka" class="control-label">{{ Numerosta }}</label>
+                                <input type="number" id="eka" name="eka" min="1" class="form-control" value="1"/>
+                                <p class="help-block">{{ KorttinumeroAlku }}</p>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="vika" class="control-label">{{ Numeroon }}</label>
+                                <input type="number" id="vika" name="vika" min="1" class="form-control" value="1"/>
+                                <p class="help-block">{{ KorttinumeroLoppu }}</p>
+                            </div>
+                        </div>                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ Unohda }}</button>
+                    <button type="button" class="btn btn-primary" id="lisaaB">{{ Lisaa }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

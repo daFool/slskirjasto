@@ -191,6 +191,7 @@
         function uusi() {
             window.location="{{baseurl}}/kayttajat?mode=newUser";
         }
+        
         $(document).ready(function() {
             $.get("{{baseurl}}/kayttajat?mode=tilat", function(data) {
                 $.each(data, function(index, value) {                    
