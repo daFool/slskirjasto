@@ -318,5 +318,21 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
                     $this->db->quote($this->kokoelma, PDO::PARAM_STR));
          return $w;
     }
+
+   public function lainaTiedot($pelitunniste) {
+      $s="select k.nimi as kokoelma, k.id as kokoelmaid, kp.tunniste as id, case when nimiid is null then p.nimi else p.nimet[nimiid] end as peli from 
+            (select kokoelma, peli, nimiid, tunniste from kokoelmapeli where tunniste=:tunniste) as kp
+         join
+            (select nimi, id from kokoelma) as k
+         on (kp.kokoelma=k.id)
+         join
+            (select nimi, tunniste, nimet from peli) as p
+         on (kp.peli=p.tunniste);";
+      $d = array("tunniste"=>$pelitunniste);
+      $st=$this->pdoPrepare($s, $this->db);
+      $res = $this->pdoExecute($st, $d);
+      $rivi = $st->fetch(\PDO::FETCH_ASSOC);
+      return $rivi;
+   }
 }
 ?>

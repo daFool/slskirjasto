@@ -55,6 +55,7 @@ $f3->map("/collection", collection);
 $f3->map("/collectiongames", collectiongames);
 $f3->map("/kayttajat", kayttajat);
 $f3->map("/kortit", kortit);
+$f3->map("/lainat", lainat);
 $f3->run();
 
 ?>

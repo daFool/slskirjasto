@@ -1,12 +1,12 @@
-<script type="text/javascript">    
+<script>    
     function lataaPelinTila(id) {
-		console.log("Peli: "+id)
+		var lainassa=false;
+		
 		url = "{{ pelintiedot|raw }}";
-		console.log("url: "+url);
+		
 		$.get(url, {id : id }, function(data) {
 			if (data["Virhe"]=="OK") {
-				var lainassa=false;
-                $.each(data.data, function(indeksi, arvo) {
+				$.each(data.data, function(indeksi, arvo) {
 					switch (indeksi) {
                         case "pt_lainattu":						
 						case "pt_lainaaja":
@@ -21,6 +21,9 @@
 						case "pt_age":
 						case "pt_suunnittelija":
 							$("#"+indeksi).html(arvo);
+							break;
+						case "pt_id":
+							lainaid=arvo;
 							break;
 						case "pt_bgg":
 							$("#"+indeksi).attr("href", arvo);
@@ -38,14 +41,14 @@
 				});
 				if (lainassa==true) {
 					l = data.data["pt_lainattu"];
-					l = l.substr(0, l.lastIndexOf("."));
+					// l = l.substr(0, l.lastIndexOf("."));
                     lainattu = new Date(l);
 					palautuu = new Date(lainattu.getTime() + 60 * data.data["pt_kesto"]*1000);
 					$("#pt_palautuu").html(palautuu.toLocaleString());//code
                     if (lainassa) {
-                        $("#Lainaa").html="{{ tPalauta }}";
+                        $("#Lainaa").html("{{ tPalauta }}");
                     } else {
-                        $("#Lainaa").html="{{ tLainaa }}";
+                        $("#Lainaa").html("{{ tLainaa }}");
                     }
                     
                 }

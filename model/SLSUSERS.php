@@ -359,26 +359,41 @@ class SLSUSERS extends mosBase\malli {
      * */
     public function lainausCheck($kentta, $arvo) {
         $s = "select nimi, tunniste, slsjasennumero from kayttaja where ";
+        $d=array();
         switch($kentta) {
             case "nimi":
-                $s.=" nimi=:value";
+                list($arvo, $arvo2)=explode(" /", $arvo);
+                $arvo2=trim($arvo2);
+                $s.=" nimi=:value and tunniste=:value2";
+                $d["value"]=$arvo;
+                $d["value2"]=$arvo2;
                 break;
             case "slsjasennumero":
                 $s.=" slsjasennumero=:value";
+                $d["value"]=$ravo;
                 break;
             case "tunniste":
                 $s.="tunniste=:value";
+                $d["value"]=$arvo;
                 break;
             default :
                 return false;
         }
             
         $st = $this->pdoPrepare($s, $this->db);
-        $this->pdoExecute($st, array("value"=>$arvo));
+        $this->pdoExecute($st, $d);
         $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-             
         if(!is_array($rows))
             $rows = array($row);
+        if(empty($rows) && $kentta=="slsjasennumero") {
+            $s = "select lainaaja as nimi, numero as slsjasennumero, 'undefined' as tunniste, pantti from kortti where palautettu is null and annettu is not null and numero=:value;";
+            $d = array("value"=>$arvo);
+            $st = $this->pdoPrepare($s, $this->db);
+            $this->pdoExecute($st, $d);
+            $rows = $st->fetchAll(PDO::FETCH_ASSOC);
+            if(!is_array($rows))
+                $rows=array($row);
+        }
         return $rows;
     }
     

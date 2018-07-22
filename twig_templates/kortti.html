@@ -9,9 +9,11 @@
         var riviid="";
         var filtteri="kaikki";
         
-        function paivitaTaulu() {
-            $("#chatbox").html(" {{ Kasittelen }}");
-            $("#chatbox").show();
+        function paivitaTaulu(silent=false) {
+            if(!silent) {
+                $("#chatbox").html(" {{ Kasittelen }}");
+                $("#chatbox").show();
+            }
             $.get("{{baseurl}}/kortit", { mode : "tableFetch", ehto: ehto, filtteri: filtteri, sivu: sivu }, function (data) {
                 sivuja=data.sivuja;
                 $("#kortit").find("tbody").empty();
@@ -29,7 +31,9 @@
                 });
                 $("#topStat").html((sivu+1)+" / "+(sivuja+1));
                 $("#bottomStat").html((sivu+1)+" / "+(sivuja+1));
-                $("#chatbox").hide();
+                if(!silent) {                
+                    $("#chatbox").hide();
+                }
             });
         }
         
@@ -104,6 +108,8 @@
         function palauta(numero) {
             var data={};
             var virhe=false;
+            var lainaaja=null;
+            var pantti=null;
             
             $("#chatbox").html("{{PalautetaanKorttia}}");
             $("#chatbox").show();
@@ -115,6 +121,7 @@
                     case 0:
                     case 1:
                     case 2:
+                        lainaaja=$(this).html();
                         break;
                     case 3:
                         data.annettu=$(this).html();
@@ -125,6 +132,9 @@
                             return;
                         }
                         break;
+                    case 4:
+                        pantti=$(this).html();
+                        break;
                 }
             });
             if(virhe)
@@ -132,10 +142,12 @@
             data.mode="Palauta";
             $.post("{{baseurl}}/kortit", data, function(data) {
                 if(data.tulos=="OK") {
+                    paivitaTaulu(true);
+                    $("#chatbox").show();
                     $("#chatbox").html("{{PalautusOnnistui}} "+data.pantti);
                     $("#chatbox").hide(3000);
                 } else {
-                    $("#chatbox").html("{{PalutusFeilasi}}");
+                    $("#chatbox").html("{{PalautusFeilasi}}");
                     $("#chabox").hide(3000);
                 }
             });
@@ -188,12 +200,14 @@
             data.mode="Anna";
             $.post("{{baseurl}}/kortit", data, function(data) {
                 if(data=="OK") {
+                    paivitaTaulu(true);
+                    $("#chatbox").show();
                     $("#chatbox").html("{{AntoOnnistui}}");
                     $("#chatbox").hide(3000);
                 } else {
                     $("#chatbox").html("{{AntoFeilasi}}");
                     $("#chabox").hide(3000);
-                }
+                }             
             });
         }
     </script>

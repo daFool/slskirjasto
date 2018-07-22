@@ -7,10 +7,11 @@
 		var peli="";
         var tila="";
         var valittu=false;
+		var lainaid=false;
 		
         $(document).ready(function() {
-				
-            /**
+            $("#chatbox").hide();
+			/**
             * Kokoelmataulun täyttäminen
             * */
             var kokoelmapelit=$('#kokoelmapelit').DataTable( {
@@ -67,9 +68,17 @@
                         window.location=kohde;
                         break;
                     case "Lainassa":
-                        kohde="{{ palautapeli|raw }}";
-                        kohde+=encodeURIComponent(kokoelmaTunniste);
-                        window.location=kohde;
+						data = { lainaid : lainaid, mode : "palauta" };
+						kohde = "{{ baseurl }}/lainat";
+						$("#pelinTila").modal("hide");
+						$("#chatbox").html("Palautetaan");
+						$("#chatbox").show();
+						$.post(kohde, data, function (data) {
+							$("#chatbox").hide();
+							$("#pptulos").html(data.viesti);
+							$("#pelinPalautus").modal("show");
+							kokoelmapelit.ajax.reload();
+						});
                         break;
                     case "Poistettu":
                         $("#warning").html("{{ poistettuaeilainata }}");
@@ -167,6 +176,8 @@
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12">
             <h2>{{ kokoelmanpelit }}</h2>
+			<div class="alert alert-info sslfixed" id="chatbox"></div>
+            <br/>
             <table id="kokoelmapelit" class="display" cellspacing="0" width="100%">
                 <thead>
                     <tr>
@@ -199,5 +210,6 @@
         </div>
     </div>
     {{ include ("pelinTila.html") }}
+	{{ include ("palautus.html") }}
 {% endblock %}
         

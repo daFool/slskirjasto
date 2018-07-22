@@ -1,5 +1,9 @@
+drop sequence if exists lainaseq;
+create sequence lainaseq start 1;
 drop table if exists Laina;
+
 create table Laina (
+    id            bigint default nextval('lainaseq'),
     Lainaaja      varchar(255),
     Lainattu      timestamp with time zone     not null,
     Kokoelmapeli  varchar(255),
@@ -12,7 +16,7 @@ create table Laina (
     Kortti        int,
     like Pohjat INCLUDING ALL,
 
-    foreign key(Lainaaja) references Kayttaja(Tunniste) on update CASCADE on delete set null,
+    primary key(id),
     foreign key(Kokoelmapeli) references KokoelmaPeli(Tunniste) on update CASCADE on delete set null,
     foreign key(Tapahtuma) references Tapahtuma(Nimi) on update CASCADE on delete set null,
     foreign key(PeliId) references Peli(Tunniste) on update CASCADE on delete set null

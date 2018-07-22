@@ -94,13 +94,17 @@ class kortit extends controller {
                     $d["muokkaaja"]=$d["luoja"];
                     $nyt = new DateTime();
                     $d["palautettu"]=$nyt->format("Y-m-d H:i:s");
-                    $d["lainattu"]=null;
-       
+                    $d["annettu"]=null;
+                    $d["lainaaja"]=null;
                     $r = $k->upsert($d);
-                    if($r===False)
-                        $res="ERROR";
-                    else
-                        $res="OK";
+                    $res=array();
+                    if($r===False) {
+                        $res["tulos"]="ERROR";                        
+                    }
+                    else {
+                        $res["tulos"]="OK";
+                        $res["pantti"]=$k->give()["pantti"];
+                    }
                 }
                 break;
             case "Anna":
@@ -119,6 +123,7 @@ class kortit extends controller {
                     $d["muokkaaja"]=$d["luoja"];
                     $nyt = new DateTime();
                     $d["annettu"]=$nyt->format("Y-m-d H:i:s");
+                    $d["palautettu"]=null;
        
                     $r = $k->upsert($d);
                     if($r===False)

@@ -4,8 +4,9 @@
     <title>{{ lainaus }}</title>
     <script type="text/javascript" src="{{ baseurl }}/js/kontrolli.js"></script>
     <script type="text/javascript">
-        var tarkistettu= {{ tarkistettu }} ;
+        var tarkistettu={{ tarkistettu }} ;
         var lastGood = { ktunnus : "{{ ktunnus }}", jrnro: "{{ slsjasennumero }}" , nimi : "{{ vlainaaja }}"};
+		var lainaustila = false;
 		
         $(document).ready(function() {
         
@@ -13,7 +14,7 @@
                 $("#pantti").focus();
             }
 		    $("#tunniste").autocomplete({
-                source : "{{ baseurl }}/api/kayttaja/taydenna/ktunnus",
+                source : "{{ baseurl }}/kayttajat?mode=searchKtunnus",
                 minLength : 3,
                 delay : 500,
                 select : function (event, ui) {
@@ -22,20 +23,14 @@
             })
             
             $("#lainaaja").autocomplete({
-                source : "{{ baseurl }}/api/kayttaja/taydenna/nimi",
+                source : "{{ baseurl }}/kayttajat?mode=search",
                 minLength : 3,
                 delay : 500,
                 select : function (event, ui) {
                     hae("lainaaja", ui.item.value);
                 }
             })
-            
-            $("#uusi").on('click', function() {				
-                url = "{{ baseurl }}/lainaa/lainaaja.php?collection="+encodeURIComponent("{{ collection|raw }}")+"&game="+encodeURIComponent("{{ peli }}")+"&gameid="+
-					encodeURIComponent("{{ jaska }}");
-                window.location=url;
-            })
-            
+                        
             $("#lainaaja").blur(function() {
 				if ($("#lainaaja").val() == lastGood.nimi) {
                     return;
@@ -62,22 +57,26 @@
             })
 			
 			$("#lainaa").on('click', function () {                
-                    url = "{{ baseurl }}/api/laina/lainaa/"+encodeURIComponent("{{ jaska }}");
-					$.post(url, { kokoelma : "{{ collection|raw }}", lainaaja: $("#tunniste").val(), pantti: $("#pantti").val() }, function (data) {
+                    url = "{{ baseurl }}/lainat";
+					$.post(url, { kokoelma : "{{ collection|raw }}", lainaaja: $("#tunniste").val(), pantti: $("#pantti").val(), numero : $("#jnumero").val(), peli : "{{ tunniste }}"}, function (data) {
 						if(data.tulos=="OK")
 							$("#tulosh").html("{{ LainausOnnistui }}");
 						else
 							$("#tulosh").html("{{ LainausFeilasi }}");
+						lainaustila=true;
 						$("#tulos").modal('show');
 					}).fail(function () {
 						$("#tulosh").html("{{ LainausFeilasi }}");
+						lainaustila=false;
 						$("#tulos").modal('show');
 					});            
 					
             })
 			
 			$("#paluu").on('click', function() {
-				window.location="{{ baseurl }}/collection_main.php?collection={{ tunniste }}";
+				if(lainaustila)
+					window.location="{{ baseurl }}/collectiongames?collection={{ kokoelmaid }}";
+				$("#tulos").modal("hide");
 			});
         })
         
@@ -106,20 +105,8 @@
         function hae(mika, arvo) {
 			$("#chatbox").removeClass("hidden");
 			$("#chatbox").html("{{ Haetaan }}");
-            var url = "{{ baseurl }}/api/kayttaja/lainauscheck/";
-            var k=mika;
-            switch (mika) {
-                case "lainaaja":
-                case "tunniste":
-                    url+=mika;
-                    k=mika;
-                    break;
-                case "jasennumero":
-                    url+="slsjasennumero";
-                    k="jnumero";
-                    break;
-            }
-            $.get(url, { term : arvo }, function ( data ) {
+            var url = "{{ baseurl }}/lainat";
+            $.get(url, { term : arvo, mika : mika, mode : "lainauscheck" }, function ( data ) {
 				if (typeof data.tulos !== 'undefined') {
                     $("#chatbox").removeClass("alert-info");
 					$("#chatbox").addClass("alert-warning");
@@ -136,6 +123,8 @@
 					$("#lainaaja").val(data[0].nimi+" / "+data[0].tunniste);
 					$("#jnumero").val(data[0].slsjasennumero);
 					$("#tunniste").val(data[0].tunniste);
+					if(typeof data[0].pantti !== 'undefined')
+						$("#pantti").val(data[0].pantti);
 					lastGood.jrnro=data[0].slsjasennumero;
 					lastGood.ktunnus=data[0].tunniste;
 					lastGood.nimi=data[0].nimi+" / "+data[0].tunniste;
@@ -157,8 +146,8 @@
 {% block content %}
     <div class="row">
         <h2 id="otsikko">{{ Lainaus }}</h2>
-		<div class="alert alert-info hidden" role="alert" id="chatbox"></div>
-        <form name="lainaus" id="lainaus" method="post" class="form form-horizontal" action="{{ baseurl }}/lainaa.php">
+		<div class="alert alert-info hidden sslfixed" role="alert" id="chatbox"></div>
+        <form name="lainaus" id="lainaus" method="post" class="form form-horizontal" action="#" method="POST">
             <div class="form-group">
                 <div class="col-sm-1"><label class="control-label">{{ Kokoelma }}</label></div>                
                 <div class="col-sm-3"><p class="form-control-static" id="kokoelma">{{ collection }}</p></div>
@@ -170,6 +159,14 @@
     
             <div class="form-group">
                 <div class="col-sm-1">
+                    <label class="control-label">{{ lainausnumero }}</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" name="jnumero" id="jnumero" class="form-control" value="{{ slsjasennumero }}"/></label>
+                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                    <p class="help-block">{{ Lainausnumeroviivakoodi }}</p>
+                </div>
+                <div class="col-sm-1">
                     <label class="control-label">{{ Lainaaja }}</label>
                 </div>
                 <div class="col-sm-3">
@@ -177,27 +174,20 @@
                     <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                     <p class="help-block">{{ LainaajanNimi }}</p>
                 </div>
-                <div class="col-sm-1">
-                    <label class="control-label">{{ jasennumero }}</label>
-                </div>
-                <div class="col-sm-3">
-                    <input type="number" name="jnumero" id="jnumero" class="form-control" value="{{ slsjasennumero }}"/></label>
-                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                    <p class="help-block">{{ Jasennumeroviivakoodi }}</p>
+				<div class="col-sm-2">
+                    <label for="tunniste" class="control-label">{{ LainaajaTunniste }}</label>
                 </div>
                 <div class="col-sm-2">
-                    <label for="tunniste" class="control-label">{{ Tunniste }}</label>
-                </div>
-                <div class="col-sm-2">
-                    <input type="text" id="tunniste" class="form-control" name="tunniste" equired="true" size="20" maxlength="255" value="{{ ktunnus }}"/>
+                    <input type="text" id="tunniste" class="form-control" name="tunniste" required="False" size="20" maxlength="255" value="{{ ktunnus }}"/>
                     <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                     <p class="help-block">{{ KayttajaTunniste }}</p>
                 </div>
+				
             </div>
             <div class="form-group">
                 <div class="col-sm-1"><label for="pantti" class="control-label">{{ Pantti }}</label></div>
                 <div class="col-sm-3">
-                    <input type="text" class="form-control" id="pantti" name="pantti" value="" required="true"
+                    <input type="text" class="form-control" id="pantti" name="pantti" value="" required="false"
                        placeholder="{{ Ajokortti }}"/>
                     <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                     <p class="help-block">{{ LainanPantti }}</p>
@@ -205,7 +195,7 @@
                 </div>
                 <button type="button" class="btn btn-lg btn-default" id="lainaa" disabled="true">{{ Lainaa }}</button>
             </div>
-            <label class="control-label">{{ Lisaa }} <button type="button" class="btn btn-default" id="uusi">{{ uusi }}</button> {{ lainaaja }}</label>
+<!--            <label class="control-label">{{ Lisaa }} <button type="button" class="btn btn-default" id="uusi">{{ uusi }}</button> {{ lainaaja }}</label> -->
         
         </form>
     </div>
@@ -220,8 +210,7 @@
 					<p>{{ peli }} : {{ collection|raw }} : {{ tunniste }}</p>
 				</div>
 				 <div class="modal-footer">
-					<button type="button" class="btn btn-lg btn-default" data-dismiss="modal">{{ tSulje }}</button>
-					<button type="button" class="btn btn-lg btn-default" id="paluu">{{ Palaa }}</button>             
+					<button type="button" class="btn btn-lg btn-default" id="paluu">{{ OK }}</button>             
 				</div>
 			</div>
 		</div>
