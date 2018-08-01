@@ -96,7 +96,7 @@
 				paivitajulkaisijat();
 			})
 			
-			$("#ptallenna").on("submit", function() {
+			$("#ptallenna").on("click", function() {
 				pelisubmit();
 				return false;
 			});
@@ -181,8 +181,15 @@
 							break;
                     }
 				});
+				$("#chatbox").html("{{ Talletan }}");
+				$("#chatbox").show();
 			    $.post("{{baseurl}}/games", data, function(data) {
-					console.log(data);
+					if(data=="OK") {
+						$("#chatbox").html("{{TalletusOnnistui}}");
+					} else {
+						$("#chatbox").html("{{TalletusFeilasi}}");
+					}
+					$("#chatbox").hide(5000);
 			   });
             }
 			return false;
@@ -456,6 +463,10 @@
     </script>
 {% endblock %}
 {% block content %}
+	<div class="row">
+		<div class="alert alert-info sslfixed" id="chatbox" hidden="true"></div>
+		<br/>
+	</div>
     <div class="row">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="active" role="presentation">

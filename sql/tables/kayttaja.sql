@@ -1,4 +1,3 @@
-drop table if exists laina;
 drop table if exists kokoelmapeli;
 drop table if exists kokoelma;
 drop table if exists varasto;

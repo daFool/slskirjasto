@@ -4,7 +4,8 @@ select k.id as kid, k.nimi as knimi, k.omistaja as komistaja, k.julkisuus as kju
         case 
                 when kp.nimiid is null then p.nimi 
                 else p.nimet[nimiid] end as nimi,
-        nimet from 
+        nimet
+from 
         (select nimi, omistaja, julkisuus, id from kokoelma) as k
 join
         (select kokoelma, peli, omistaja, hylly, paikka, tila, nimiid, tunniste from kokoelmapeli) as kp

@@ -221,6 +221,7 @@ $t = array(
     "Tagit"=>_("Tagit"),
     "taikaviitta"=>_("Superuser"),
     "Talleta" => _("Talleta"),
+    "Talletan" => _("Hetki, talletan..."),
     "TalletusFeilasi" => _("Talletus epäonnistui"),
     "TalletusOnnistui" => _("Talletettu"),
     "tarrat" => _("Tarrat"),

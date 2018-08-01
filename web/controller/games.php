@@ -26,9 +26,9 @@ class games extends controller {
                     $nimet = $rivi["nimet"];
                     $julkaisijat = $rivi["julkaisijat"];
                     if($nimet!==null && preg_match("/^{(.*)}$/", $nimet, $m)) {
-                        $nimet = explode(",",$m[1]);
+                        $nimet = explode(',"',$m[1]);
                         foreach($nimet as $i=>$nimi) {
-                            if(preg_match('/^"+(.*)"+$/', $nimi, $m)) {
+                            if(preg_match('/^"?(.*)"+$/', $nimi, $m)) {
                                 $nimet[$i]=$m[1];
                             }                            
                         }
@@ -36,15 +36,20 @@ class games extends controller {
                         
                     }
                     if($julkaisijat!==null && preg_match("/^{(.*)}$/", $julkaisijat, $m)) {
-                        $julkaisijat = explode(",",$m[1]);
+                        var_dump($m[1]);
+                        die;
+                    
+                        $julkaisijat = explode(',"',$m[1]);
                          foreach($julkaisijat as $i=>$julkaisija) {
-                            if(preg_match('/^"+(.*)"+$/', $julkaisija, $m)) {
+                            if(preg_match('/^"?(.*)"+$/', $julkaisija, $m)) {
                                 $julkaisijat[$i]=$m[1];
                             }                            
                         }
                         $rivit["data"]["nimet"]=$nimet;
                         $rivit["data"]["julkaisijat"]=$julkaisijat;
                     }
+                    var_dump($julkaisijat);
+                    die;
                 }
                 break;
             case "geek":
@@ -101,16 +106,15 @@ class games extends controller {
                     break;
             }
         }
+        $d["muokkaaja"]=$this->getUserid();
+        $d["luoja"]=$d["muokkaaja"];
         $res = $c->upsert($d);
-        var_dump($d);
+    
         if($res) {
-            $d  = $c->give();
-            var_dump($d);
-            die;
+           $tulos = "OK";
         }
-        var_dump($d);
-        echo "Failed\n";
-        die;
+        header("Content-type: application/json");
+        echo json_encode($tulos);
     }
 }
 ?>

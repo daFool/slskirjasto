@@ -35,7 +35,50 @@ class controller {
     /*
      * @var array $a Table-fetchiä varten esitettävän rivin sarakenimet alla olevan mallin taulussa
      * */
+    protected $a;
     
+    /*
+     * @var string $username Käyttäjän nimi
+     * @var string $userid Käyttäjän käyttäjätunnus
+     * @var string $taso Käyttäjän yleinen käyttöoikeustaso
+     * */
+    private $username;
+    private $userid;
+    private $taso;
+    
+    /**
+     * Istunnon käyttäjätietojen purku. Käytännössä user sisältää kayttaja-taulun koko rivin, joka on saatu käyttäjätunnuksella hakemalla.
+     * */
+    private function sessionUser() : void {
+         if(isset($_SESSION['user'])) {
+            $u = $_SESSION["user"];
+            $this->username=$u["nimi"];
+            $this->userid=$u["tunniste"];
+            $this->taso=$u["tila"];
+         }
+         else {
+            $this->username=False;
+            $this->userid=False;
+            $this->taso=False;
+         }       
+    }
+    /**
+     * Istunnon omistaja
+     * */
+    protected function getUsername() : string {
+        $this->sessionUser();
+        return $this->username;
+    }
+    
+    protected function getUserid() : string {
+        $this->sessionUser();
+        return $this->userid;
+    }
+    
+    protected function getLevel() : string {
+        $this->sessionUser();
+        return $this->taso;
+    }
     /**
      * Konstruktori
      * @param mosBase\conf $conf Käytettävä konfiguraatio

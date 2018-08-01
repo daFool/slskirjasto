@@ -222,7 +222,7 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
                 on (kp.peli=p.tunniste)
                 left outer join
                         lahjoittaja as l
-                on (kp.lahjoittaja=l.nimi);";
+                on (kp.lahjoittaja=l.id);";
          $st = $this->pdoPrepare($s, $this->db);
          $this->pdoExecute($st, array("tunniste"=>$tunniste));
          return $st->fetch(\PDO::FETCH_ASSOC);
