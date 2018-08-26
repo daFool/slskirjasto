@@ -1,27 +1,43 @@
 <?php
 /**
- * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
- * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
- * @copyright Copyright Mauri Sahlberg 2017, Helsinki
+ * Kokoelmien perusluokka
+ *
+ * PHP Version 7.1
+ * 
+ * @category  Controller
+ * @package   SLS
+ * @author    Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+ * @copyright 2018 Mauri Sahlberg Helsinki
+ * @license   Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+ * @link      www.iki.fi/mos
  * */
 
+ namespace SLS;
+ 
  /**
   * Pelikokoelmat
-  * */
-class collections extends controller {
-    
+  *
+  * @category  Controller
+  * @package   SLS
+  * @author    Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+  * @copyright 2018 Mauri Sahlberg, Helsinki
+  * @license   Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+  * @link      www.iki.fi/mos
+  **/
+class Collections extends Controller
+{   
     /**
      * Konstruktori
      *
      * @param Base $f3 Fat Free Core Base
      * */
-    public function __construct(Base $f3) {
+    public function __construct(\Base $f3)
+    {
         $pdo = $f3->get("db");
         $conf = $f3->get("conf");
         $log = $f3->get("log");
         parent::__construct($conf, $pdo, $log);
-        $this->a = array("id", "nimi", "omistaja", "tapahtuma", "lisatty");
-        
+        $this->a = array("id", "nimi", "omistaja", "tapahtuma", "luotu");        
     }
 
     /**
@@ -45,4 +61,3 @@ class collections extends controller {
         echo json_encode($rivit);
     }
 }
-?>

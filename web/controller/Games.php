@@ -1,7 +1,38 @@
 <?php
-class games extends controller {
-    
-    public function __construct($f3) {
+/**
+ * Pelit
+ *
+ * PHP Version 7.1
+ * 
+ * @category  Controller
+ * @package   SLS
+ * @author    Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+ * @copyright 2018 Mauri Sahlberg Helsinki
+ * @license   Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+ * @link      www.iki.fi/mos
+ * */
+
+namespace SLS;
+
+/**
+ * Pelit
+ * 
+ * @category  Controller
+ * @package   SLS
+ * @author    Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+ * @copyright 2018 Mauri Sahlberg, Helsinki
+ * @license   Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+ * @link      www.iki.fi/mos
+ *
+ * Kaikille controllereille yhteiset toiminnot.
+ * - Istuntojen hallinta,
+ * - Käyttöliittymässä käytetyn Datatables-javascript-toteutuksen
+ * vaatiman tietorakenteen populointi.
+ **/
+class Games extends Controller
+{   
+    public function __construct($f3)
+    {
         $pdo = $f3->get("db");
         $conf = $f3->get("conf");
         $log = $f3->get("log");
@@ -10,20 +41,24 @@ class games extends controller {
      
     }
     
-      public function get($f3) {
+      public function get($f3)
+      {
         $c = new SLSGAMES($this->db, $this->log);
         $mode = $_REQUEST["mode"]??"all";
-        switch($mode) {
+        switch ($mode) {
             case "tablefetch":
                 $rivit = $this->tableFetch($c);
                 break;
             case "game":
                 $rivit = array("tulos"=>"VIRHE");                
-                if($c->exists(array("tunniste"=>$_REQUEST["id"]??False))) {
+                if ($c->exists(array("tunniste"=>$_REQUEST["id"]??False))) {
                     $rivi = $c->give();
                     $rivit["data"]=$rivi;
                     $rivit["tulos"]="OK";
-                    $nimet = $rivi["nimet"];
+                    /* $nimet = $rivi["nimet"];
+                    print_r($rivi);
+                    print_r($nimet);
+                    die;
                     $julkaisijat = $rivi["julkaisijat"];
                     if($nimet!==null && preg_match("/^{(.*)}$/", $nimet, $m)) {
                         $nimet = explode(',"',$m[1]);
@@ -49,7 +84,7 @@ class games extends controller {
                         $rivit["data"]["julkaisijat"]=$julkaisijat;
                     }
                     var_dump($julkaisijat);
-                    die;
+                    die; */
                 }
                 break;
             case "geek":
@@ -67,7 +102,8 @@ class games extends controller {
         echo json_encode($rivit);
     }
     
-    function post($f3) {
+    function post($f3)
+    {
         $c = new SLSGAMES($this->db, $this->log);
         $data = array();
         foreach($_REQUEST as $i=>$v){
@@ -117,4 +153,3 @@ class games extends controller {
         echo json_encode($tulos);
     }
 }
-?>

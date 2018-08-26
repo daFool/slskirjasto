@@ -53,12 +53,15 @@
  *
  * */
 
+namespace SLS;
+ 
 /**
  * Käyttäjät
  *
  * Käyttäjien lisäys, poisto, muutos jne...
  * */
-class SLSUSERS extends mosBase\malli {
+class SLSUSERS extends \mosBase\Malli
+{
     /**
      * Constructor
      * @param object $db Database-handle
@@ -77,7 +80,7 @@ class SLSUSERS extends mosBase\malli {
         on (k.Tunniste = kt.Kayttaja and kt.tyyppi='Google' and Salaisuusavain=:id)";
         $st = $this->pdoPrepare($s, $this->db);
         $this->pdoExecute($st, array("id"=>$id));
-        if($st->rowCount()==0)
+        if ($st->rowCount()==0)
             return false;
         $r = $st->fetch(PDO::FETCH_BOTH);
         return $r;                
@@ -91,7 +94,7 @@ class SLSUSERS extends mosBase\malli {
         $s = "select Tunniste from Kayttaja where Tunniste=:userid;";
         $st = $this->pdoPrepare($s, $this->db);
         $this->pdoExecute($st, array("userid"=>$userid));
-        if($st->rowCount()==0) {
+        if ($st->rowCount()==0) {
             $res = false;
         } else {
             $res = true;
@@ -109,11 +112,11 @@ class SLSUSERS extends mosBase\malli {
         $s = "select Tunniste from Kayttaja where SLSjasenNumero=:jasennumero;";
         $st = $this->pdoPrepare($s, $this->db);
         $this->pdoExecute($st, array("jasennumero"=>$jasennumero));
-        if($$st->rowCount()==0) {
+        if ($$st->rowCount()==0) {
             $res = false;
-        }
-        else
+        } else {
             $res = true;
+        }
         return $res;
     }
     
@@ -123,7 +126,7 @@ class SLSUSERS extends mosBase\malli {
      * @return boolean
      * */
     public function insertTunniste($ident, $kuka=False) {
-        if($kuka==False) {
+        if ($kuka==False) {
             $ident["luoja"]="system";
         } else {
             $ident["luoja"]=$kuka;
@@ -132,7 +135,7 @@ class SLSUSERS extends mosBase\malli {
         values (:Kayttaja, :Tyyppi, :Salaisuusavain, :Salaisuus, :luoja);";
         $st = $this->pdoPrepare($s, $this->db);
         $res = $this->pdoExecute($st, $ident);
-        $this->log($ident["luoja"],"Added ident {$ident["tunniste"]}/{$ident["tyyppi"]}",__FILE__,
+        $this->log>l($ident["luoja"],"Added ident {$ident["tunniste"]}/{$ident["tyyppi"]}",__FILE__,
                     __CLASS__, __LINE__, "AUDIT");
             
         return $res;
@@ -167,7 +170,7 @@ class SLSUSERS extends mosBase\malli {
             $user["luoja"]=$kuka;
             $ident["luoja"]=$kuka;
         }
-        if($ident['method']=="local") {
+        if ($ident['method']=="local") {
             $d = $this->salakala($ident["salasana"]);
             $d["Kayttaja"]=$user['ktunnus'];
             $d["Tyyppi"]='local';                                                     
@@ -179,7 +182,7 @@ class SLSUSERS extends mosBase\malli {
         }
         $this->upsert($user);
                 
-        if(!$this->insertTunniste($d)) {
+        if (!$this->insertTunniste($d)) {
             $s = "delete from Kayttaja where Tunniste=:tunniste;";
             $st = $this->pdoPrepare($s, $this->db);
             $this->pdoExecute($st, array("tunniste"=>$user['ktunnus']));
@@ -200,7 +203,7 @@ class SLSUSERS extends mosBase\malli {
      * @param string $salasana, Salasana, johon vaihdetaan
      * */
     public function vaihdaSalasana($kayttajatunnus, $salasana, $kuka=False) {
-        if($kuka===False) {
+        if ($kuka===False) {
             $kuka="system";
         }
         $s = "select count(*) as lkm from kayttajatunnistus where kayttaja=:kayttajatunnus and tyyppi='local';";
@@ -209,7 +212,7 @@ class SLSUSERS extends mosBase\malli {
         $d["kayttajatunnus"]=$kayttajatunnus;
         $this->pdoExecute($st, $d);
         $rivi = $st->fetch(\PDO::FETCH_ASSOC);
-        if($rivi["lkm"]==0) {
+        if ($rivi["lkm"]==0) {
             $s = "insert into kayttajatunnistus (salaisuusavain, salaisuus, luotu, luoja, tyyppi, kayttaja)
                     values (:Salaisuusavain, :Salaisuus, now(), :kuka, 'local', :kayttajatunnus);";
         } else {
@@ -236,7 +239,7 @@ class SLSUSERS extends mosBase\malli {
         $this->log("system", "Confirmed {$vahviste}",__FILE__,
                     __CLASS__, __LINE__, "AUDIT");
                 
-        if($st->rowCount()==1)
+        if ($st->rowCount()==1)
             return true;
         return false;
         
@@ -255,8 +258,9 @@ class SLSUSERS extends mosBase\malli {
         $row = $st->fetch();
         $suola = base64_decode($row["salaisuusavain"]);
         $salasana = openssl_digest($suola.$salasana, "sha256");
-        if($row["salaisuus"]!=$salasana)
+        if ($row["salaisuus"]!=$salasana) {
             return false;
+        }
         return true;        
     }
     
@@ -292,28 +296,31 @@ class SLSUSERS extends mosBase\malli {
     public function findWithRex($Rex, $Field) {
         $fields = array("Nimi", "SLSjasenNumero", "Puhelin", "Sahkoposti","Tunniste", "luotu", "muokattu");
         $match=false;
-        foreach($fields as $f) {
-            if($f==$Field)
+        foreach ($fields as $f) {
+            if ($f==$Field) {
                 $match=true;
+            }
         }
         if($match===false) {
             return false;
         }
-        if($Field=="SLSJasenNumero" || $Field=="luotu" || $Field=="muokattu")
+        if($Field=="SLSJasenNumero" || $Field=="luotu" || $Field=="muokattu") {
             $op = "=";
-        else
+        } else {
             $op = "~*";
+        }
         $s = "select * from kayttaja where $Field $op :rex;";
         $st = $this->pdoPrepare($s, $this->db);
         $d = array("rex"=>$Rex);
         $this->pdoExecute($st, $d);
-        if($st->rowCount()==0) {
+        if ($st->rowCount()==0) {
             return false;
         }
            
         $rows = $st->fetchAll();
-        if(!is_array($rows))
+        if (!is_array($rows)) {
             $rows = array("0"=>$rows);
+        }
         return $rows;
     }
     
@@ -327,11 +334,13 @@ class SLSUSERS extends mosBase\malli {
         $s = "select nimi, tunniste from kayttaja where nimi ilike :part limit 5;";
         $st = $this->pdoPrepare($s, $this->db);
         $this->pdoExecute($st, array("part"=>$part));
-        if($res===false)
+        if ($res===false) {
             return false;
+        }
         $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-        if(!is_array($rows))
+        if(!is_array($rows)) {
             $rows = array($row);
+        }
         return $rows;
     }
     
@@ -346,8 +355,9 @@ class SLSUSERS extends mosBase\malli {
         $st = $this->pdoPrepare($s, $this->db);
         $this->pdoExecute($st, array("part"=>$part));
         $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-        if(!is_array($rows))
+        if(!is_array($rows)) {
             $rows = array($row);
+        }
         return $rows;
     }
     
@@ -360,7 +370,7 @@ class SLSUSERS extends mosBase\malli {
     public function lainausCheck($kentta, $arvo) {
         $s = "select nimi, tunniste, slsjasennumero from kayttaja where ";
         $d=array();
-        switch($kentta) {
+        switch ($kentta) {
             case "nimi":
                 list($arvo, $arvo2)=explode(" /", $arvo);
                 $arvo2=trim($arvo2);
@@ -383,16 +393,18 @@ class SLSUSERS extends mosBase\malli {
         $st = $this->pdoPrepare($s, $this->db);
         $this->pdoExecute($st, $d);
         $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-        if(!is_array($rows))
+        if(!is_array($rows)) {
             $rows = array($row);
+        }
         if(empty($rows) && $kentta=="slsjasennumero") {
             $s = "select lainaaja as nimi, numero as slsjasennumero, 'undefined' as tunniste, pantti from kortti where palautettu is null and annettu is not null and numero=:value;";
             $d = array("value"=>$arvo);
             $st = $this->pdoPrepare($s, $this->db);
             $this->pdoExecute($st, $d);
             $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-            if(!is_array($rows))
+            if(!is_array($rows)) {
                 $rows=array($row);
+            }
         }
         return $rows;
     }
@@ -433,10 +445,12 @@ class SLSUSERS extends mosBase\malli {
         $rivi= $st->fetch();
         $lkm = $rivi["lkm"];
         $sivuja = round($lkm / 25,0);
-        if($sivu > $sivuja)
+        if($sivu > $sivuja) {
             $sivu = $sivuja;
-        if($sivu < 0)
+        }
+        if($sivu < 0) {
             $sivu = 0;
+        }
         $sivu = $sivu*25;
         $s = "select tunniste, nimi, slsjasennumero, puhelin, sahkoposti, syntymavuosi, tila from kayttaja $w order by nimi asc limit 25 offset :sivu;";
         $st = $this->pdoPrepare($s, $this->db);
@@ -447,4 +461,3 @@ class SLSUSERS extends mosBase\malli {
         return $tulos;
     }
 }
-?>

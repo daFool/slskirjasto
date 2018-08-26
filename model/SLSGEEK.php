@@ -1,4 +1,6 @@
 <?php
+namespace SLS;
+
 class SLSGEEK {
     // http://www.boardgamegeek.com/xmlapi/boardgame/172933
     private $d; /** @var array $d data from geek as an array **/
@@ -80,7 +82,7 @@ class SLSGEEK {
                 $this->d["virhe"]=_("Ei onnistunut, joko timeout tai ei vain ole. {$url}");
                 return;
             }
-            $dom = new DOMDocument();
+            $dom = new \DOMDocument();
             $res = $dom->loadXML($file);
             $year = $this->persilja($dom, "yearpublished");
             $min = $this->persilja($dom, "minplayers");

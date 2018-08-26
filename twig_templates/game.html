@@ -2,6 +2,33 @@
 {% block head %}
     {{ parent() }}
     <title>{{ Pelintiedot }}</title>
+{% endblock %}
+{% block content %}
+	<div class="row">
+		<div class="alert alert-info sslfixed" id="chatbox" hidden="true"></div>
+		<br/>
+	</div>
+    <div class="row">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="active" role="presentation">
+                <a class="active" role="tab" id="kokoelma-tab" data-toggle="tab" href="#kokoelma" role="tab" aria-controls="kokoelma">{{ Kokoelma }}</a>
+            </li>
+            <li role="presentation">
+                <a role="tab" id="peli-tab" data-toggle="tab" href="#peli" aria-controls="peli">{{ tPeli }}</a>
+            </li>
+  
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade in active" id="kokoelma" role="tabpanel" aria-labelledby="kokoelma">
+				{{ include ("pelinkokoelmatiedot.html") }}
+            </div>
+            <div class="tab-pane fade" id="peli" role="tabpanel" aria-labelledby="peli">
+				{{ include ("pelitiedot.html") }}
+			</div>  
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
 	<script type="text/javascript" src="{{ baseurl }}/js/kontrolli.js"></script>
     <script type="text/javascript">
 		var peli=-1;
@@ -461,29 +488,4 @@
 			});
 		}
     </script>
-{% endblock %}
-{% block content %}
-	<div class="row">
-		<div class="alert alert-info sslfixed" id="chatbox" hidden="true"></div>
-		<br/>
-	</div>
-    <div class="row">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="active" role="presentation">
-                <a class="active" role="tab" id="kokoelma-tab" data-toggle="tab" href="#kokoelma" role="tab" aria-controls="kokoelma">{{ Kokoelma }}</a>
-            </li>
-            <li role="presentation">
-                <a role="tab" id="peli-tab" data-toggle="tab" href="#peli" aria-controls="peli">{{ tPeli }}</a>
-            </li>
-  
-        </ul>
-        <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade in active" id="kokoelma" role="tabpanel" aria-labelledby="kokoelma">
-				{{ include ("pelinkokoelmatiedot.html") }}
-            </div>
-            <div class="tab-pane fade" id="peli" role="tabpanel" aria-labelledby="peli">
-				{{ include ("pelitiedot.html") }}
-			</div>  
-        </div>
-    </div>
-{% endblock %}
+{%endblock%}

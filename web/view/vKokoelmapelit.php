@@ -1,4 +1,7 @@
 <?php
+
+namespace SLS;
+
 class vKokoelmapelit extends vPage {
     protected $myvars;
     

@@ -95,6 +95,7 @@ $t = array(
     "Lahjoittaja" => _("Lahjoittaja"),
     "LahjoittajanUrlHelp" => _("Lahjoittajan kotisivun web-osoite"),
     "LahjoittajanUrl" => _("Lahjoittajan kotisivu"),
+    "LahjoittajaUusi" => _("Lisää lahjoittaja"),
     "Lainaa"=> _("Lainaa"),
     "lainaaja"=>_("Lainaaja"),
     "Lainaaja"=> _("Lainaaja"),

@@ -1,0 +1,62 @@
+<script>
+    function lataaPelinTila(id) {
+		var lainassa=false;
+		
+		url = "{{ pelintiedot|raw }}";
+		
+		$.get(url, {id : id }, function(data) {
+			if (data["Virhe"]=="OK") {
+				$.each(data.data, function(indeksi, arvo) {
+					switch (indeksi) {
+                        case "pt_lainattu":						
+						case "pt_lainaaja":
+						case "pt_koti":
+						case "pt_nimi":
+						case "pt_julkaisija":
+						case "pt_vuosi":
+						case "pt_kesto":
+						case "pt_pelaajia":
+						case "pt_bggrank":
+						case "pt_score":
+						case "pt_age":
+						case "pt_suunnittelija":
+							$("#"+indeksi).html(arvo);
+							break;
+						case "pt_id":
+							lainaid=arvo;
+							break;
+						case "pt_bgg":
+							$("#"+indeksi).attr("href", arvo);
+							break;
+						case "pt_tila":
+							if (arvo=="OK") {
+								$("#pt_lainattu").html("");
+							} else if (arvo=="MISS") {
+								$("#pt_lainattu").html("{{ kateissa }}");
+								$("#Lainaa").attr("disabled", "true");
+								$("#Poista").attr("disabled", "true");
+							} else {
+								lainassa=true;
+								$("#Poista").attr("disabled", "true");
+							}
+							break;
+                    }
+				});
+				if (lainassa==true) {
+					l = data.data["pt_lainattu"];
+					// l = l.substr(0, l.lastIndexOf("."));
+                    lainattu = new Date(l);
+					palautuu = new Date(lainattu.getTime() + 60 * data.data["pt_kesto"]*1000);
+					$("#pt_palautuu").html(palautuu.toLocaleString());//code
+                    if (lainassa) {
+                        $("#Lainaa").html("{{ tPalauta }}");
+                    } else {
+                        $("#Lainaa").html("{{ tLainaa }}");
+                    }
+                    
+                }
+            }
+		});
+        //code
+    }
+</script>

@@ -2,6 +2,48 @@
 {% block head %}
     {{ parent() }}
     <title>{{ KokoelmanPelit }}</title>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <h2>{{ kokoelmanpelit }}</h2>
+			<div class="alert alert-info sslfixed" id="chatbox"></div>
+            <br/>
+            <table id="kokoelmapelit" class="display" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>{{ pelitunniste }}</th>
+                        <th>{{ pelinimi }}</th>
+                        <th>{{ hylly }}</th>
+                        <th>{{ paikka }}</th>
+                        <th>{{ omistaja }}</th>
+                        <th>{{ pelintila }}</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>{{ pelitunniste }}</th>
+                        <th>{{ nimi }}</th>
+                        <th>{{ hylly }}</th>
+						<th>{{ paikka }}</th>
+                        <th>{{ omistaja }}</th>
+                        <th>{{ pelintila }}</th>
+                    </tr>					  
+                </tfoot>
+            </table>
+			
+            <button type="button" class="btn btn-lg btn-default" id="Lisää">{{ lisaa }}</button>
+            <button type="button" class="btn btn-lg btn-default" id="Tarrat">{{ tarrat }}</button>
+        </div>
+		<div class="alert alert-warning collapse" role="alert" id="varoitus">
+			<button type="button" class="close" id="vbutton" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <span id="warning"></span>
+        </div>
+    </div>
+    {{ include ("pelinTila.html") }}
+	{{ include ("palautus.html") }}
+{% endblock %}
+{% block javascript %}
     <script type="text/javascript">
 		var kokoelmaTunniste="";
 		var peli="";
@@ -144,13 +186,13 @@
                 }
                 switch(tila) {
 					case "OK":
-                    case "Vapaa":
-                    case "Poistettu":
+                    case "MISS":
+                    case "DEL":
                         kohde="{{ muokkaapeli|raw }}";
                         kohde+=encodeURIComponent(kokoelmaTunniste);
                         window.location=kohde;
                         break;
-                    case "Lainassa":
+                    case "LOAN":
                         $("#warning").html("{{ lainattuaeivoimuokata }}");
                         $("#varoitus").show();
                         break;
@@ -171,45 +213,5 @@
             $('div.dataTables_filter input').focus();
         });
 	</script>
-{% endblock %}
-{% block content %}
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <h2>{{ kokoelmanpelit }}</h2>
-			<div class="alert alert-info sslfixed" id="chatbox"></div>
-            <br/>
-            <table id="kokoelmapelit" class="display" cellspacing="0" width="100%">
-                <thead>
-                    <tr>
-                        <th>{{ pelitunniste }}</th>
-                        <th>{{ pelinimi }}</th>
-                        <th>{{ hylly }}</th>
-                        <th>{{ paikka }}</th>
-                        <th>{{ omistaja }}</th>
-                        <th>{{ pelintila }}</th>
-                    </tr>
-                </thead>
-                <tfoot>
-                    <tr>
-                        <th>{{ pelitunniste }}</th>
-                        <th>{{ nimi }}</th>
-                        <th>{{ hylly }}</th>
-						<th>{{ paikka }}</th>
-                        <th>{{ omistaja }}</th>
-                        <th>{{ pelintila }}</th>
-                    </tr>					  
-                </tfoot>
-            </table>
-			
-            <button type="button" class="btn btn-lg btn-default" id="Lisää">{{ lisaa }}</button>
-            <button type="button" class="btn btn-lg btn-default" id="Tarrat">{{ tarrat }}</button>
-        </div>
-		<div class="alert alert-warning collapse" role="alert" id="varoitus">
-			<button type="button" class="close" id="vbutton" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <span id="warning"></span>
-        </div>
-    </div>
-    {{ include ("pelinTila.html") }}
-	{{ include ("palautus.html") }}
-{% endblock %}
-        
+	{% include ("lataaPelinTila.html") %}
+{%endblock javascript %}

@@ -2,45 +2,6 @@
 {% block head %}
     {{ parent() }}
     <title>{{ T["Lautapelikirjasto"] }}</title>
-    <script type="text/javascript">
-         $(document).ready(function() {
-        
-            // Pelit-taulu
-            $('#games').dataTable( {
-              "processing": true,
-              "serverSide": true,
-              "responsive": true,
-              "orderMulti": true,
-              "search": {
-                "regex": true,
-                "caseInsensitive": true,
-                "smart" : true},
-              "ajax": "{{ gamesJSON }}",
-              {{ include('datatables_language.js') }}
-            } );
-        
-            // Kokoelmat-taulu
-            var kokoelmat=$('#kokoelmat').dataTable( {
-              "processing": true,
-              "serverSide": true,
-              "responsive": true,
-              "orderMulti": true,
-              "search": {
-              "regex": true,
-              "caseInsensitive": true,
-              "smart" : true},
-              "ajax": "{{ kokoelmatJSON }}",
-            {{ include('datatables_language.js') }}
-        } );
-        
-        // Kokoelmat taulun bodyn click-handleri
-        $('#kokoelmat tbody').on( 'click', 'tr', function () {
-          var kokoelma=$(this).children("td:first").html();
-          var target="{{ collectionGamesMain }}";
-            window.location=target+"?collection="+encodeURIComponent(kokoelma);
-        } );
-      } );
-    </script>
 {% endblock %}
 {% block content %}
      <div class="row">
@@ -82,6 +43,7 @@
                              <th>{{ tVuosi }}</th>
                          </tr>
                      </thead>
+                    <tbody></tbody>
                      <tfoot>
                          <tr>
                              <th>{{ tPELI }}</th>
@@ -94,5 +56,56 @@
                      </tfoot>
                  </table>
           </div>
-     </div>
+     </div>     
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript">
+         $(document).ready(function() {
+        
+
+            // Kokoelmat-taulu
+            var kokoelmat=$('#kokoelmat').dataTable( {
+              "processing": true,
+              "serverSide": true,
+              "responsive": true,
+              "orderMulti": true,
+              "order" : [[4, "desc" ]],
+              "columnDefs": [
+                    {
+                        "targets": [ 2 ],
+                        "visible": false,
+                        "searchable": false
+                    },
+               ],
+              "search": {
+              "regex": true,
+              "caseInsensitive": true,
+              "smart" : true},
+              "ajax": "{{ kokoelmatJSON }}",
+            {{ include('datatables_language.js') }}
+        } );
+            // Pelit-taulu
+            $('#games').dataTable( {
+              "processing": true,
+              "serverSide": true,
+              "responsive": true,
+              "orderMulti": true,
+              "order" : [[5, "desc"]],
+              "search": {
+                "regex": true,
+                "caseInsensitive": true,
+                "smart" : true
+               },
+              "ajax": "{{ gamesJSON }}",
+              {{ include('datatables_language.js') }}
+            } );
+        
+        // Kokoelmat taulun bodyn click-handleri
+        $('#kokoelmat tbody').on( 'click', 'tr', function () {
+          var kokoelma=$(this).children("td:first").html();
+          var target="{{ collectionGamesMain }}";
+            window.location=target+"?collection="+encodeURIComponent(kokoelma);
+        } );
+      } );
+    </script>
 {% endblock %}

@@ -1,5 +1,5 @@
-drop view if exists vPelintila;
-create view vPelintila as
+drop materialized view if exists vPelintila;
+create materialized view vPelintila as
 select  coalesce(l.lainattu, '1970-01-01 01:02:03') as pt_lainattu,
         coalesce(l.lainaaja, to_char(l.kortti,'9999999')) as pt_lainaaja,
         coalesce(kp.hylly,'')||' / '||coalesce(kp.laatikko,'') as pt_koti,
@@ -15,4 +15,6 @@ join
 on (kp.peli = p.tunniste)
 left outer join 
         laina as l
-on (kp.tunniste = l.kokoelmapeli and l.palautettu is null)
+on (kp.tunniste = l.kokoelmapeli and l.palautettu is null);
+
+create index pt_idindex on vPelintila(pt_id);

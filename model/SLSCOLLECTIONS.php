@@ -2,12 +2,18 @@
 /**
  * Pelikokoelma
  *
- * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
- * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
- * @copyright Copyright Mauri Sahlberg 2017, Helsinki
- *
+ * PHP Version 7.1
  * 
+ * @category  Controller
+ * @package   SLS
+ * @author    Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
+ * @copyright 2018 Mauri Sahlberg Helsinki
+ * @license   Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
+ * @link      www.iki.fi/mos
  * */
+
+ namespace SLS;
+ 
 /**
  * Pelikokoelma
  *
@@ -42,43 +48,52 @@
  *   - Admin, saa muokata kokoelmaa ja antaa pelejä lainaan
  *   - User, saa katsella kokoelman pelejä ja tietoja
  *
- *   @uses mosBase\malli
+ *   @uses mosBase\Malli
  *
  *  
  **/
-class SLSCOLLECTIONS extends mosBase\malli {
+class SLSCOLLECTIONS extends \mosBase\Malli {
 
     /**
      * Konstruktori
-     * @param mosBase\database $db Tietokantaolio
-     * @param \mosBase\log $log Logi
+     * 
+     * @param mosBase\Database  $db Tietokantaolio
+     * @param \mosBase\Log      $log Logi
      **/
-    public function __construct(\mosBase\database $db, \mosBase\log $log) {
+    public function __construct(\mosBase\Database $db, \mosBase\Log $log) {
         $hakukentat=array();
-        $hakukentat[0]["nimi"]="nimi";
-        $hakukentat[0]["tyyppi"]="string";
-        $hakukentat[1]["nimi"]="omistaja";
-        $hakukentat[1]["tyyppi"]="string";
-        $hakukentat[2]["nimi"]="tapahtuma";
-        $hakukentat[2]["tyyppi"]="string";
+        $hakukentat[]=array(\mosBase\Malli::NIMI=>"nimi", \mosBase\Malli::TYYPPI=>\mosBase\Malli::STRINGI);
+        $hakukentat[]=array(\mosBase\Malli::NIMI=>"omistaja", \mosBase\Malli::TYYPPI=>\mosBase\Malli::STRINGI);
+        $hakukentat[]=array(\mosBase\Malli::NIMI=>"tapahtuma", \mosBase\Malli::TYYPPI=>\mosBase\Malli::STRINGI);
+        $hakukentat[]=array(\mosBase\Malli::NIMI=>"luotu", \mosBase\Malli::TYYPPI=>\mosBase\Malli::DATETIME);
         
         parent::__construct($db, $log, "kokoelma", array("primary"=>array("nimi"), "id"=>array("id")), "kokoelma", $hakukentat);
     }
+    
     /**
      * Kokoelmatunnisteen kelvollisuuden tarkistus
+     *
      * @param string $id Kokoelman viivakooditunniste
+     * 
      * @return boolean False jos tunniste on huono tai olemassa
+     * 
      * @uses Model::exists() Model::exists() Onko tunniste käytössä.
-     * */
-    public function checkId($id) {
-        if(!preg_match(BARCODE, $id))
+     * **/
+    public function checkId(string $id) : bool
+    {
+        if (!preg_match(BARCODE, $id)) {
                 return false;
+        }
         return !parent::exists(array("id"=>$id));
     }
+    
     /**
-     * Add collection with/without event
+     * Add collection 
+     * 
      * @param mixed $collection Array of collection / event data
-     * @return boolean True if addition was successfull or false if it failed
+     * 
+     * @return bool true if addition was successfull or false if it failed
+     * 
      * @uses Tapahtuma::upsert() Tapahtuma::upsert() Tapahtuman lisääminen kantaan
      * @uses SLSDATABASE::log() SLSDATABASE::log() Logaus
      * @uses Model::upsert() Model::upsert() Rivin lisääminen
@@ -86,7 +101,8 @@ class SLSCOLLECTIONS extends mosBase\malli {
      * @todo Hajoitettava tapahtuman ja kokoelman luominen erikseen!
      * @todo WARNING! Todennäköisimmin ei toimi mihinkään suuntaan!
      * */
-    public function addCOllection(array $collection) {
+    public function addCOllection(array $collection) : bool
+    {
         try {
             $tapahtuma=false;
             $c = array("nimi"=>$collection['nimi'], "laji"=>$collection['laji'],
@@ -94,7 +110,7 @@ class SLSCOLLECTIONS extends mosBase\malli {
                        "julkisuus"=>$collection['julkisuus']);
             
             /* Tapahtuma-kokoelma? */
-            if($collection["laji"]==0) {
+            if ($collection["laji"]==0) {
                 /* Kyllä, käsitellään tapahtuman tiedot. */
                 
                 $t = array("nimi"=>$collection['tapahtuma']['nimi'],

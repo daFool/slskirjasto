@@ -1,136 +1,67 @@
 <?php
 /**
- * Pelikokoelma
+ * Kokoelmien pelit
  *
- * Lainaus, lisäys, poisto jnpsp
+ * @category   Model
+ * @package    SLSKirjasto
+ * @author     Mauri 'daFool' Sahlberg <mauri.sahlberg@gmail.com>
+ * @copyright  2018 Helsinki
+ * @license    MIT https://opensource.org/licenses/MIT
+ * @link       www.iki.fi/mos
  *
- * @author Mauri "mos" Sahlberg <mauri.sahlberg@gmail.com>
- * @license Apache License, Version 2.0 https://opensource.org/licenses/Apache-2.0
- * @copyright Copyright Mauri Sahlberg 2017, Helsinki
  * */
+
+ namespace SLS;
+ 
 /**
  * Pelikokoelman pelit
  *
  * Kokoelmapelien käsittely
  * */
-class SLSCOLLECTIONGAMES extends mosBase\malli {
-   /** @var array Kokoelman pelit **/
-   private $games;
-    
-   /**
-   * @var string $kokoelma Oletuskokoelma
-   * */
+class SLSCOLLECTIONGAMES extends \mosBase\Malli
+{
+   
    private $kokoelma;
-    
+   
    /**
    * Constructor
    * @param mosBase\database $db Database-handle
    * @param mosBase\log $log Login-handle
    * */
-   public function __construct(mosBase\database $db, mosBase\log $log) {
+   public function __construct(\mosBase\Database $db, \mosBase\Log $log) {
       $hakukentat=array();
-      $hakukentat[0]["nimi"]="nimi";
-      $hakukentat[0]["tyyppi"]="string";
-      $hakukentat[1]["nimi"]="omistaja";
-      $hakukentat[1]["tyyppi"]="string";
-      $hakukentat[2]["nimi"]="tunniste";
-      $hakukentat[2]["tyyppi"]="string";
-      $hakukentat[3]["nimi"]="nimet";
-      $hakukentat[3]["tyyppi"]="stringA";
+      $hakukentat[0]=array("nimi"=>"nimi", "tyyppi"=>"string");
+      $hakukentat[1]=array("nimi"=>"omistaja", "tyyppi"=>"string");
+      $hakukentat[2]=array("nimi"=>"kokoelmapeli", "tyyppi"=>"string");
+      $hakukentat[3]=array("nimi"=>"nimet", "tyyppi"=>"stringA");
+      $hakukentat[4]=array("nimie"=>"kid", "tyyppi"=>"string");      
         
       parent::__construct($db, $log, "kokoelmapeli", array("primary"=>array("tunniste")), "vKokoelma", $hakukentat);
-      $this->kokoelma=False;
    }
     
    /**
-    * Asettaa käytettävän kokoelman
-    * @param string $kokoelma Käytettävä kokoelma
-    * */
-   public function setKokoelma(string $kokoelma) {
-      $this->kokoelma=$kokoelma;
-   }
-  
-   public function pelinTila(string $tunniste) {
-      $s = "select * from vPelinTila where pt_tunniste=:tunniste;";
-      $st = $this->pdoPrepare($s, $this->db);
-      $this->pdoExecute($st, array("tunniste"=>$tunniste));
-      $rivi = $st->fetch(PDO::FETCH_ASSOC);
-      return $rivi;
-   }
-    /**
-     * Lahjoittajatiedot
-     * @param string $lahjoittaja Lahjoittajan nimike
-     * @param string $lahjoittajanurl Lahjoittan www-osoite
-     * */
-    private function lahjoittaja($lahjoittaja, $lahjoittajanurl) {
-            $l = new SLSLahjoittajat($this->dbc);
-            return $l->lisaaLahjoittaja($lahjoittaja, $lahjoittajanurl);
-    }
-    
-    /**
-     * Add collection game
-     * @param array $cg Collection game data
-     * @return boolean False if failed
-     * */
-    public function add($cg) {
-        try {
-            $s = "insert into kokoelmapeli (kokoelma, peli, omistaja, lisaaja, tunniste";
-            $sv = "values(:kokoelma, :peli, :omistaja, :lisaaja, :tunniste";
-            $d = array("kokoelma"=>$cg["Kokoelma"], "peli"=>$cg["Peli"], "omistaja"=>$cg["Omistaja"], "lisaaja"=>$cg["Lisaaja"], "tunniste"=>$cg["Tunniste"]);
-            $optionals = array("Lahjoittaja", "Hylly", "Paikka", "Varasto", "Laatikko", "Kunto", "Huomautus", "tuotukokoelmasta", "alkuperainentunniste");
-            
-            if(isset($cg["lahjoittaja"])) {
-                $t = $this->lahjoittaja($cg["Lahjoittaja"], isset($cg["LahjoittajanUrl"]) ? $cg["LahjoittajanUrl"] : "");
-                if($t===false)
-                  return;
-            }
-            if(isset($cg["tuotukokoelmasta"]) && $cg["tuotukokoelmasta"]!="") {
-                $s.=",tuotu";
-                $sv.=",now()";
-            }
-            foreach($optionals as $i) {
-                if(isset($cg[$i]) && $cg[$i]!="") {
-                    $s.=",$i";
-                    $sv.=",:$i";
-                    $d[$i]=$cg[$i];
-                }                
-            }
-            $s.=") $sv);";
-            $st = $this->db->prepare($s);
-            $res = $st->execute($d);
-            if(!$res || $st->rowCount()!=1)
-                return false;
-            return true;
-        }
-        catch(PDOException $e) {
-            die("Programming error {$e->getMessage()}");
-        }
-    }
-    
-    
-    /**
-     * Find game with regex
-     * @param string/regex $Rex regexp jolla haetaan
-     * @param string $field sarake josta haetaan
-     * @param string $Kokoelma kokoelma, josta haetaan
-     * 
-     * @return mixed|boolean False if not found and an array containing game data
-     * */
-    public function findWithRex($Rex, $Field, $Kokoelma) {
+  * Find game with regex
+   * @param string/regex $Rex regexp jolla haetaan
+   * @param string $field sarake josta haetaan
+   * @param string $Kokoelma kokoelma, josta haetaan
+   * 
+   * @return mixed|boolean False if not found and an array containing game data
+   * */
+    public function findWithRex($Rex, $Field, $Kokoelma) {        
         try {
             $fields = array("Nimi", "Suunnittelija", "Julkaisija", "Tunniste", "GTIN", "Lisatty", "Kesto", "Pelaajia", "omistaja","lisaaja",
                        "Lahjoittaja");
             $match=false;
-            foreach($fields as $f) {
-                if($f==$Field) {
+            foreach ($fields as $f) {
+                if ($f==$Field) {
                     $match=true;
                 }
             }
-            if($match===false) {
+            if ($match===false) {
                 $this->dbc->log("Huono hakukenttä $Rex, $Field, $Kokoelma.", __FILE__,__CLASS__,__LINE__,"DEBUG");
                 return false;
             }
-            switch($Field) {
+            switch ($Field) {
                 case "Kesto":
                 case "Pelaajia":
                 case "Tunniste":
@@ -300,7 +231,7 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
     
     public function tableFetch(int $start, int $length, string $order, array $search, $where=False) {
       if($this->kokoelma!="") {
-         $w = "kid=".$this->db->quote($this->kokoelma, PDO::PARAM_STR);
+         $w = "kid=".$this->db->quote($this->kokoelma, \PDO::PARAM_STR);
          $where = $where===False ? $w : $where.=" and ".$w;
       }
       return parent::tableFetch($start, $length, $order, $search, $where);
@@ -334,5 +265,9 @@ class SLSCOLLECTIONGAMES extends mosBase\malli {
       $rivi = $st->fetch(\PDO::FETCH_ASSOC);
       return $rivi;
    }
+   
+   public function setKokoelma(string $kokoelmaid) {
+      $this->kokoelma = $kokoelmaid;
+   }
 }
-?>
+

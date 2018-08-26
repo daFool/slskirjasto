@@ -5,6 +5,8 @@
  * @copyright Copyright Mauri Sahlberg 2018, Helsinki
  * */
 
+namespace SLS;
+
 /**
  * Sivun esittäminen
  *
@@ -38,11 +40,11 @@ class vPage {
     /**
      * Sivupohja
      *
-     * @param Twig_Environment $twig Twig-objekti
-     * @param &array $t Tekstit
-     * @param \mosBase\config $conf Konfiguraatio
+     * @param Twig_Environment  $twig Twig-objekti
+     * @param &array            $t Tekstit
+     * @param \mosBase\Config   $conf Konfiguraatio
      * */
-    public function __construct(Twig_Environment $twig, array &$t, \mosBase\Config $conf) {       
+    public function __construct(\Twig_Environment $twig, array &$t, \mosBase\Config $conf) {       
         $this->twig = $twig;
         $v = array();
         $this->baseurl = $conf->get("General")["baseurl"];
@@ -90,8 +92,8 @@ class vPage {
         $ladattu="";
         if($kirjautunut) {
             $nimi = $_SESSION['user']['nimi'];
-            $nyt = new DateTime();
-            $kuolee = new DateTime();
+            $nyt = new \DateTime();
+            $kuolee = new \DateTime();
             $kuolee->setTimestamp($this->conf->get("Session")["SESSION_TIMEOUT"]+time());
             $ladattu = sprintf($t["istuntotila"], $nyt->format('Y-m-d H:i:s'), $kuolee->format('Y-m-d H:i:s'));
             $kirjatumistiedot = sprintf($t["kirjautumistiedot"], $nimi, _($rooli));            

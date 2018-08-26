@@ -8,12 +8,14 @@
  * 
  * */
 
+ namespace SLS;
+ 
  /**
   * Pelien rajapinta
   *
   * Pelien tallettaminen, etsiminen, muuttaminen ja poistaminen.
   * */
-class SLSGAMES extends mosBase\malli {
+class SLSGAMES extends \mosBase\Malli {
     /**
      * @var array $games Hakutulos
      * */
@@ -26,7 +28,7 @@ class SLSGAMES extends mosBase\malli {
      * @param mosBase\database $db Database-handle
      * @param mosBase\log $log
      * */
-    public function __construct(\mosBase\database $db, \mosBase\log $log) {
+    public function __construct(\mosBase\Database $db, \mosBase\Log $log) {
         $hakukentat=array();
         
         $hakukentat[0]["tyyppi"]="string";
