@@ -46,8 +46,10 @@ class Login extends controller
             die;
         }
         $_SESSION["loggedin"]=true;
-        $_SESSION["user"]=$users->fetchWithTunnus($ktunnus);
-        if ($_SESSION['user']===false) {
+        if ($users->exists($ktunnus)) {
+            $_SESSION['user']=$users->give();
+        } else {
+            $_SESSION['user']=false;
             $m = sprintf($t["kayttajatiedotpuuttuvat"], $ktunnus);
             $this->log->l($ktunnus, $m, __FILE__, __FUNCTION__, __LINE__, "ERROR");
             die($m);

@@ -2,14 +2,13 @@
 /**
  * Kokoelmien pelit
  *
- * @category   Model
- * @package    SLSKirjasto
- * @author     Mauri 'daFool' Sahlberg <mauri.sahlberg@gmail.com>
- * @copyright  2018 Helsinki
- * @license    MIT https://opensource.org/licenses/MIT
- * @link       www.iki.fi/mos
- *
- * */
+ * @category  Model
+ * @package   SLS-Kirjasto
+ * @author    Mauri "daFool" Sahlberg <mauri.sahlberg@lautapeliseura.fi>
+ * @copyright 2018 Mauri Sahlberg, Helsinki
+ * @license   GPL-2.0 http://opensource.org/licenses/GPL-2.0
+ * @link      http://www.github.com/daFool/slskirjasto
+ **/
 
  namespace SLS;
  
@@ -17,10 +16,37 @@
  * Pelikokoelman pelit
  *
  * Kokoelmapelien käsittely
- * */
+ *
+ ** <pre>
+ * +--------------------+-------------+----------------------------------+
+ * | Sarake             | Tyyppi      | Selitys                          |
+ * +--------------------+-------------+----------------------------------+
+ * | kokoelma           | varchar     | Viiteavain kokoealmtauluun       |
+ * | peli               | int         | Viiteavain pelitauluun           |
+ * | omistaja           | varchar     | Pelin omistaja                   |
+ * | lahjoittaja        | int         | Viiteavain lahjoittajatauluun    |
+ * | hylly              | varchar     | Missä hyllussä peli on           |
+ * | paikka             | varchar     | Millä paikkalla peli hyllyssä on |
+ * | varasto            | int         | Viiteavain varastotauluun        |
+ * | 
+ * | muokattu           | timestamp tz| Rivin muokkaushetki              |
+ * | muokkaaja          | varchar     | Riviä muokannut tunnus           |
+ * | luotu              | timestamp tz| Rivin luontihetki                |
+ * | luoja              | varchar     | Rivin luonut tunnus              |
+ * </pre>
+ * 
+ * @category  Model
+ * @package   SLS-Kirjasto
+ * @author    Mauri "daFool" Sahlberg <mauri.sahlberg@lautapeliseura.fi>
+ * @copyright 2018 Mauri Sahlberg, Helsinki
+ * @license   GPL-2.0 http://opensource.org/licenses/GPL-2.0
+ * @link      http://www.github.com/daFool/slskirjasto
+ **/
 class SLSCOLLECTIONGAMES extends \mosBase\Malli
 {
-   
+   /**    
+    * @var string $kokoelma Käsittelyssä olevan kokoelman tunniste
+    **/
    private $kokoelma;
    
    /**
@@ -28,7 +54,8 @@ class SLSCOLLECTIONGAMES extends \mosBase\Malli
    * @param mosBase\database $db Database-handle
    * @param mosBase\log $log Login-handle
    * */
-   public function __construct(\mosBase\Database $db, \mosBase\Log $log) {
+   public function __construct(\mosBase\Database $db, \mosBase\Log $log)
+   {
       $hakukentat=array();
       $hakukentat[0]=array("nimi"=>"nimi", "tyyppi"=>"string");
       $hakukentat[1]=array("nimi"=>"omistaja", "tyyppi"=>"string");
@@ -40,7 +67,7 @@ class SLSCOLLECTIONGAMES extends \mosBase\Malli
    }
     
    /**
-  * Find game with regex
+   * Find game with regex
    * @param string/regex $Rex regexp jolla haetaan
    * @param string $field sarake josta haetaan
    * @param string $Kokoelma kokoelma, josta haetaan
