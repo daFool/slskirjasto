@@ -3,3 +3,8 @@ slskirjasto.ini
 google.json
 docs/*
 build/*
+.scannerwork/*
+phpdocs/*
+sql/tables/20170921000002.slskirjasto.dmp
+web/SLS/*
+web/info.php
