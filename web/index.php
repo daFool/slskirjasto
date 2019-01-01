@@ -80,7 +80,7 @@ $f3->map("/games", '\SLS\Games');
 $f3->map("/login", '\SLS\Login');
 //$f3->map("/collection", '\SLS\Collection');
 $f3->map("/collectiongames", '\SLS\Collectiongames');
-$f3->map("/kayttajat", kayttajat);
+$f3->map("/kayttajat", '\SLS\Kayttajat');
 $f3->map("/kortit", kortit);
 $f3->map("/lainat", lainat);
 $f3->run();

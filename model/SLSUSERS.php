@@ -79,7 +79,8 @@ class SLSUSERS extends \mosBase\Malli
     public const PROSPEKTI="prospekti";
     public const MUGLE="käyttäjä";
     public const YLLÄPITÄJÄ="ylläpitäjä";
-    public const TAIKAVIITTA="taikaviitta";
+    public const TAIKAVIITTA="superadmin";
+    public const VOLDEMORT="kirjautumaton";
     public const NIMI="nimi";
     public const JÄSENNUMERO="slsjasennumero";
     public const PUHELIN="puhelin";
@@ -96,8 +97,8 @@ class SLSUSERS extends \mosBase\Malli
     private const SALAISUUS="salaisuus";
     private const KÄYTTÄJÄ="kayttaja";
     
-    public static $kayttajaTilat=[LAINAAJA, PROSPEKTI,
-                                  MUGLE, YLLÄPITÄJÄ, TAIKAVIITTA];
+    public static $kayttajaTilat= array(SLSUSERS::VOLDEMORT, SLSUSERS::LAINAAJA, SLSUSERS::PROSPEKTI,
+                                  SLSUSERS::MUGLE, SLSUSERS::YLLÄPITÄJÄ, SLSUSERS::TAIKAVIITTA);
     public static $kayttajaSarakkeet=[NIMI, JÄSENNUMERO, PUHELIN,
                                       SÄHKÖPOSTI, SYNTYMÄVUOSI, SUKUPUOLI,
                                       KÄYTTÄJÄTUNNUS, VAHVISTE,

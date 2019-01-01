@@ -72,6 +72,14 @@ class Controller extends \mosBase\Session
     private $taso;
     
     /**
+     * @var string $haluttuTaso Käyttäjältä vaadittu käyttöoikeustaso
+     * @var int $hLevel Käyttäjältä haluttu käyttäjätaso numerona
+     * @var int $kLevel Käyttäjän käyttäjätaso numerona 
+     * */
+    protected $haluttuTaso=SLSUSERS::VOLDEMORT;
+    protected $hLevel=0;
+    protected $kLevel=0;
+    /**
      * Istunnon käyttäjätietojen purku. Käytännössä user sisältää kayttaja-taulun
      * koko rivin, joka on saatu käyttäjätunnuksella hakemalla.
      * 
@@ -84,11 +92,34 @@ class Controller extends \mosBase\Session
             $this->username=$u["nimi"];
             $this->userid=$u["tunniste"];
             $this->taso=$u["tila"];
+            $this->kLevel=$this->level($this->taso);
         } else {
             $this->username=false;
             $this->userid=false;
             $this->taso=false;
         }       
+    }
+    
+    /**
+     * Käyttöoikeusleveli
+     *
+     * Käyttöoikeustasoa vastaava konaisluku
+     *
+     * @param string $ktaso Käyttöoikeustaso
+     *
+     * @return int tasoa vastaava kokonaisluku
+     * */
+    private function level(string $ktaso) {
+        $taso = 0;
+        $found = false;
+        foreach (SLSUSERS::$kayttajaTilat as $tila) {
+            if ($tila == $ktaso) {
+                $found=true;
+                break;
+            }
+            $taso++;
+        }        
+        return $found ? $taso : 0;
     }
     /**
      * Istunnon omistajan nimi
@@ -144,6 +175,36 @@ class Controller extends \mosBase\Session
         parent::__construct($this->session, $this->conf->get("General"));
     }
     
+    /**
+     * Asettaa käyttöoikeustasovaatimuksen
+     *
+     * @param string $kayttoikeustaso Käyttäjältä vaadittu käyttöoikeustaso
+     *
+     * */
+    public function requireTaso(string $kayttooikeustaso)
+    {
+        $this->haluttuTaso=$kayttooikeustaso;
+        $this->hLevel=$this->level($kayttooikeustaso);        
+    }
+    
+    /**
+     * Onko käyttäjällä oikeus?
+     *
+     * */
+    public function saako()
+    {
+        $this->sessionUser();
+        if ($this->hLevel<=$this->kLevel) {
+            return;
+        }
+        $loader = new \Twig_Loader_Filesystem($this->conf->get("Twig")["twigTemplates"]);
+        $twig = new \Twig_Environment($loader);
+        $basepath = $this->conf->get("General")["basepath"];
+        require("$basepath/view/language.php");
+        $sivu = new vPage($twig, $t, $this->conf);
+        $sivu->nayta("accessDenied.html");
+        die;
+    }
     /**
      * Istunnon ylläpito
      *

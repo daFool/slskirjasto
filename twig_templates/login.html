@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="fi">
 	<head>
-		{{ include ("ScriptsAndStyles.html") }}
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		{{ include ("styles.html") }}
 		<title>{{ Kirjaudu }}</title>                
 	</head>
 	<body class="signin">
@@ -18,5 +21,6 @@
 				<div class="text-danger">{{ errormsg }}</div>	
 				{% endif %}
 			</div>
-	</body>
+			{{ include("scripts.html") }}
+	</body>	
 </html>

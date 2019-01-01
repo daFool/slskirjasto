@@ -20,6 +20,23 @@ class SLSGAMES extends \mosBase\Malli {
      * @var array $games Hakutulos
      * */
     private $games;
+    
+    public const NIMI="nimi";
+    public const SUUNNITTELIJA="suunnittelija";
+    public const JULKAISIJA="julkaisija";
+    public const BGGLINKKI="bgglinkki";
+    public const KESTO="kesto";
+    public const PELAAJIA="pelaajia";
+    public const VIIVAKOODI="gtin";
+    public const AVAIN="tunniste";
+    public const BGGRANK="bggrank";
+    public const BGGTUOTU="bggdate";
+    public const IKÄ="age";
+    public const ARVOSANA="score";
+    public const NIMET="nimet";
+    public const JULKAISIJAT="julkaisijat";
+    
+    public static $sarakkeet=[ NIMI, SUUNNITTELIJA, JULKAISIJA, BGGLINKKI, KESTO, PELAAJIA, VIIVAKOODI, AVAIN, BGGRANK, BGGTUOTU, IKÄ, ARVOSANA, NIMET, JULKAISIJAT ];
     /**
      * Konstruktori
      *

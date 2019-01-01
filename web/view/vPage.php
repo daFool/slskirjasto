@@ -54,10 +54,10 @@ class vPage {
          * Pelivalikko
          * @var array $p
          * */
-        $p = array("0"=>array("url"=>"$baseurl/controller/games/search", "teksti"=>$t["Pelihaku"]),
-                   "1"=>array("url"=>"$baseurl/controller/tags", "teksti"=>$t["Tagit"]),
-                   "2"=>array("url"=>"$baseurl/controller/reviews", "teksti"=>$t["Arviot"]),
-                   "3"=>array("url"=>"$baseurl/congroller/games/reports", "teksti"=>$t["Peliraportit"]));
+        $p = array("0"=>array("url"=>"{$this->baseurl}/controller/games/search", "teksti"=>$t["Pelihaku"]),
+                   "1"=>array("url"=>"{$this->baseurl}/controller/tags", "teksti"=>$t["Tagit"]),
+                   "2"=>array("url"=>"{$this->baseurl}/controller/reviews", "teksti"=>$t["Arviot"]),
+                   "3"=>array("url"=>"{$this->baseurl}/congroller/games/reports", "teksti"=>$t["Peliraportit"]));
         
         $kirjautunut = isset($_SESSION["loggedin"]) ? $_SESSION["loggedin"] : false;
         
@@ -72,26 +72,26 @@ class vPage {
          * Kokoelmavalikko
          * @var array $ko
          * */
-        $ko = array("0"=>array("url"=>"$baseurl/controller/collections/add", "teksti"=>$t["LisaaKokoelma"]),
-                    "1"=>array("url"=>"$baseurl/controller/collections", "teksti"=>$t["YllapidaKokoelmia"]),
-                    "2"=>array("url"=>"$baseurl/controller/collections/reports", "teksti"=>$t["Kokoelmaraportit"]));
+        $ko = array("0"=>array("url"=>"{$this->baseurl}/controller/collections/add", "teksti"=>$t["LisaaKokoelma"]),
+                    "1"=>array("url"=>"{$this->baseurl}/controller/collections", "teksti"=>$t["YllapidaKokoelmia"]),
+                    "2"=>array("url"=>"{$this->baseurl}/controller/collections/reports", "teksti"=>$t["Kokoelmaraportit"]));
         
         /**
          * Käyttäjien ylläpito
          * @var array $s
          * */
-        $s = array("0"=>array("url"=>"$this->baseurl/kayttajat?mode=page", "teksti"=>$t["Kayttajat"]),
-                   "1"=>array("url"=>"$this->baseurl/kayttajat?mode=import", "teksti"=>$t["SLSLainaajat"]),
-                   "2"=>array("url"=>"$this->baseurl/kortit?mode=page", "teksti"=>$t["Kortit"]));
+        $s = array("0"=>array("url"=>"{$this->baseurl}/kayttajat?mode=page", "teksti"=>$t["Kayttajat"]),
+                   "1"=>array("url"=>"{$this->baseurl}/kayttajat?mode=import", "teksti"=>$t["SLSLainaajat"]),
+                   "2"=>array("url"=>"{$this->baseurl}/kortit?mode=page", "teksti"=>$t["Kortit"]));
         
-        $y = array("0"=>array("url"=>"$this->baseurl/kayttajat?mode=password", "teksti"=>$t["VaihdaSalasana"]));
+        $y = array("0"=>array("url"=>"{$this->baseurl}/kayttajat?mode=password", "teksti"=>$t["VaihdaSalasana"]));
         
-        $rooli = $_SESSION['user']['tila']??"muggle";
+        $rooli = $_SESSION['user'][SLSUSERS::KÄYTTÄJÄTASO]??SLSUSERS::VOLDEMORT;
  
         $tiedot="";
         $ladattu="";
         if($kirjautunut) {
-            $nimi = $_SESSION['user']['nimi'];
+            $nimi = $_SESSION['user'][SLSUSERS::NIMI];
             $nyt = new \DateTime();
             $kuolee = new \DateTime();
             $kuolee->setTimestamp($this->conf->get("Session")["SESSION_TIMEOUT"]+time());

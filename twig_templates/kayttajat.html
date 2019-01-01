@@ -1,8 +1,87 @@
 {% extends "page.html" %}
 {% block head %}
     {{ parent() }}
-    <title>{{ Kayttajat }}</title>
-    <script type="text/javascript">
+    <title>{{ Kayttajat }}</title>   
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ Kayttajat }}</h2>
+            <div class="alert alert-info" id="chatbox"></div>
+            <form name="filtteri" id="filtteri" action="#" method="POST">
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <label for="laji" class="control-label">{{ KayttajaTyyppi }}</label>
+                        <select name="laji" id="laji" class="form-control"></select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="haku" class="control-label">{{ Hae }}</label>
+                        <input type="text" id="haku" name="haku" class="form-control" maxlength="255"/>                                            
+                    </div>
+                </div>
+            </form>
+        </div>        
+    </div>
+    <div class="row">
+        <table class="col-lg-12 table table-striped" id="kayttajat">
+            <thead>
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="fastBackward();" data-toggle="tooltip" title="{{ Alkuun}}"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span></button>
+                        <button type="button" class="btn btn-sm"  onclick="Back();" data-toggle="tooltip" title="{{ Taakse }}"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
+                    </td>
+                    <td colspan="6" id="topStat"></td>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="Forward();" data-toggle="tooltip" title="{{ Eteen }}"><span class="glyphicon-step-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn"  onclick="fastForward();" data-toggle="tooltip" title="{{ Loppuun }}"><span class="glyphicon-fast-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn" onclick="uusi();" data-toggle="tooltip" title="{{ UusiKayttaja }}"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span></button>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{{ kayttajatunnus }}</th>
+                    <th>{{ nimi }}</th>
+                    <th>{{ Jasennumero }}</th>
+                    <th>{{ puhelin }}</th>
+                    <th>{{ sahkoposti }}</th>
+                    <th>{{ syntymavuosi }}</th>
+                    <th>{{ tila }}</th>
+                    <th>{{ nakkulat }}</th>
+                </tr>
+            </thead>
+            <tbody>                
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>{{ kayttajatunnus }}</th>
+                    <th>{{ nimi }}</th>
+                    <th>{{ Jasennumero }}</th>
+                    <th>{{ puhelin }}</th>
+                    <th>{{ sahkoposti }}</th>
+                    <th>{{ syntymavuosi }}</th>
+                    <th>{{ tila }}</th>
+                    <th>{{ nakkulat }}</th>
+                </tr>
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="fastBackward();" data-toggle="tooltip" title="{{ Alkuun}}"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span></button>
+                        <button type="button" class="btn btn-sm"  onclick="Back();" data-toggle="tooltip" title="{{ Taakse }}"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
+                    </td>
+                    <td colspan="6" id="bottomStat"></td>
+                    <td>
+                        <button type="button" class="btn btn-sm" onclick="Forward();" data-toggle="tooltip" title="{{ Eteen }}"><span class="glyphicon-step-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn"  onclick="fastForward();" data-toggle="tooltip" title="{{ Loppuun }}"><span class="glyphicon-fast-forward glyphicon" aria-hidden="true"></span></button>
+                        <button type="button" class="btn-sm btn" onclick="uusi();" data-toggle="tooltip" title="{{ UusiKayttaja }}"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span></button>
+                    </td>
+                </tr>
+                
+            </tfoot>
+        </table>
+    </div>
+    {{ include("confirmDelete.html") }}
+    {{ include("password.html") }}
+{% endblock %}
+{% block javascript %}
+ <script type="text/javascript">
         var sivu=0;
         var sivuja=0;
         var filtteri="kaikki";
@@ -30,7 +109,7 @@
                                              '<button class="btn btn-small" onclick="save(\''+value.tunniste+'\');" data-toggle="tooltip" title="{{ SaveTool}}"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span></button>'+
                                              '<button class="btn btn-small" onclick="poista(\''+value.tunniste+'\');" data-toggle="tooltip" title="{{ DeleteTool}}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'+
                                              '<button class="btn btn-small" onclick="salasana(\''+value.tunniste+'\');" data-toggle="tooltip" title="{{ PasswordTool}}"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></button>'+
-                                             '<button class="btn btn-small" onclick="kortti(\''+value.tunniste+'\');" data-toggle="tooltip" title="{{ BookTool }}"><span class="glyphicon glyphicon-book" aria-hidden="true"></span></button></td></tr>');                                           
+                                             '</td></tr>');                                           
                     f='<select id="'+sid+'">'+$("#laji").html()+'</select>';
                     $("#"+lid).html(f);                    
                     b="#"+sid+" option[value='"+value.tila+"']";
@@ -220,81 +299,4 @@
             })
         });
     </script>
-{% endblock %}
-{% block content %}
-    <div class="row">
-        <div class="col-lg-12">
-            <h2>{{ Kayttajat }}</h2>
-            <div class="alert alert-info" id="chatbox"></div>
-            <form name="filtteri" id="filtteri" action="#" method="POST">
-                <div class="form-group">
-                    <div class="col-sm-6">
-                        <label for="laji" class="control-label">{{ KayttajaTyyppi }}</label>
-                        <select name="laji" id="laji" class="form-control"></select>
-                    </div>
-                    <div class="col-sm-6">
-                        <label for="haku" class="control-label">{{ Hae }}</label>
-                        <input type="text" id="haku" name="haku" class="form-control" maxlength="255"/>                                            
-                    </div>
-                </div>
-            </form>
-        </div>        
-    </div>
-    <div class="row">
-        <table class="col-lg-12 table table-striped" id="kayttajat">
-            <thead>
-                <tr>
-                    <td>
-                        <button type="button" class="btn btn-sm" onclick="fastBackward();" data-toggle="tooltip" title="{{ Alkuun}}"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span></button>
-                        <button type="button" class="btn btn-sm"  onclick="Back();" data-toggle="tooltip" title="{{ Taakse }}"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
-                    </td>
-                    <td colspan="6" id="topStat"></td>
-                    <td>
-                        <button type="button" class="btn btn-sm" onclick="Forward();" data-toggle="tooltip" title="{{ Eteen }}"><span class="glyphicon-step-forward glyphicon" aria-hidden="true"></span></button>
-                        <button type="button" class="btn-sm btn"  onclick="fastForward();" data-toggle="tooltip" title="{{ Loppuun }}"><span class="glyphicon-fast-forward glyphicon" aria-hidden="true"></span></button>
-                        <button type="button" class="btn-sm btn" onclick="uusi();" data-toggle="tooltip" title="{{ UusiKayttaja }}"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span></button>
-                    </td>
-                </tr>
-                <tr>
-                    <th>{{ kayttajatunnus }}</th>
-                    <th>{{ nimi }}</th>
-                    <th>{{ Jasennumero }}</th>
-                    <th>{{ puhelin }}</th>
-                    <th>{{ sahkoposti }}</th>
-                    <th>{{ syntymavuosi }}</th>
-                    <th>{{ tila }}</th>
-                    <th>{{ nakkulat }}</th>
-                </tr>
-            </thead>
-            <tbody>                
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th>{{ kayttajatunnus }}</th>
-                    <th>{{ nimi }}</th>
-                    <th>{{ Jasennumero }}</th>
-                    <th>{{ puhelin }}</th>
-                    <th>{{ sahkoposti }}</th>
-                    <th>{{ syntymavuosi }}</th>
-                    <th>{{ tila }}</th>
-                    <th>{{ nakkulat }}</th>
-                </tr>
-                <tr>
-                    <td>
-                        <button type="button" class="btn btn-sm" onclick="fastBackward();" data-toggle="tooltip" title="{{ Alkuun}}"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span></button>
-                        <button type="button" class="btn btn-sm"  onclick="Back();" data-toggle="tooltip" title="{{ Taakse }}"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span></button>
-                    </td>
-                    <td colspan="6" id="bottomStat"></td>
-                    <td>
-                        <button type="button" class="btn btn-sm" onclick="Forward();" data-toggle="tooltip" title="{{ Eteen }}"><span class="glyphicon-step-forward glyphicon" aria-hidden="true"></span></button>
-                        <button type="button" class="btn-sm btn"  onclick="fastForward();" data-toggle="tooltip" title="{{ Loppuun }}"><span class="glyphicon-fast-forward glyphicon" aria-hidden="true"></span></button>
-                        <button type="button" class="btn-sm btn" onclick="uusi();" data-toggle="tooltip" title="{{ UusiKayttaja }}"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span></button>
-                    </td>
-                </tr>
-                
-            </tfoot>
-        </table>
-    </div>
-    {{ include("confirmDelete.html") }}
-    {{ include("password.html") }}
-{% endblock %}
+ {% endblock %}

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fi">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		{{ include ("styles.html") }}
+		<title>{{ KayttoOikeudetUupuu }}</title>                
+	</head>
+	<body class="sigin">
+			<div class="container">
+				<h2>{{ KayttoOikeudetUupuu }}</h2>
+				<div class="text-danger">
+					{{ KayttoOikeudetUupuuBody }}					
+				</div>	
+				<a href="{{ baseurl }}">{{ Etusivu }}</a>
+			</div>
+			{{ include("scripts.html") }}
+	</body>	
+</html>
